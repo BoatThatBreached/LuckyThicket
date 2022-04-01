@@ -7,10 +7,5 @@ public class Tile : MonoBehaviour
 {
     public Point position;
 
-    public int occupant;
-
-    void Start()
-    {
-    }
-
+    public Tribes occupantTribe;
 }
