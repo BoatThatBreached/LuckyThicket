@@ -6,6 +6,5 @@ using UnityEngine;
 public class Tile : MonoBehaviour
 {
     public Point position;
-
     public Tribes occupantTribe;
 }
