@@ -84,11 +84,11 @@ public class GameTest
     {
         var p0 = new Point(0, 0);
         Assert.IsFalse(game3x3.HasSurrounding(p0));
+        
+        game3x3.SpawnUnit(p0, Tribes.Beaver);
+        Assert.IsFalse(game3x3.HasSurrounding(p0));
 
-        var p1 = new Point(1, 1);
+        var p1 = new Point(1, 0);
         Assert.IsTrue(game3x3.HasSurrounding(p1));
-
-        var p2 = new Point(1, 0);
-        Assert.IsFalse(game3x3.HasSurrounding(p2));
     }
 }
