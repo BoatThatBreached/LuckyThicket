@@ -58,17 +58,17 @@ public class Game : MonoBehaviour
         throw new NotImplementedException();
     }
 
-    private void AddTile(Point p)
+    public void AddTile(Point p)
     {
         throw new NotImplementedException();
     }
 
-    private void DestroyTile(Point p)
+    public void DestroyTile(Point p)
     {
         throw new NotImplementedException();
     }
 
-    private void SpawnUnit(Point p, Tribes t)
+    public void SpawnUnit(Point p, Tribes t)
     {
         throw new NotImplementedException();
     }
