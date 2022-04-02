@@ -10,12 +10,16 @@ public class GameTest
     [SetUp]
     public void SetUp()
     {
-        var gameObject = new GameObject();
+        var tilePref = Resources.Load("Prefabs/TilePref") as GameObject;
+        
+        var gameObject = new GameObject("Game");
         empty_game = gameObject.AddComponent<Game>();
-
-        var gameObject2 = new GameObject();
+        empty_game.tilePref = tilePref;
+        
+        var gameObject2 = new GameObject("Game2");
         game3x3 = gameObject2.AddComponent<Game>();
-
+        game3x3.tilePref = tilePref;
+        
         for (int i = 0; i < 3; ++i)
         {
             for (int j = 0; j < 3; ++j)
@@ -24,7 +28,6 @@ public class GameTest
             }
         }
     }
-
     [Test]
     public void SimpleAddDestroyTest()
     {
