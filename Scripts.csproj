@@ -54,10 +54,11 @@
   <ItemGroup>
      <Compile Include="Assets\Scripts\Card.cs" />
      <Compile Include="Assets\Scripts\Tribes.cs" />
-     <Compile Include="Assets\Scripts\Actions.cs" />
+     <Compile Include="Assets\Scripts\Basis.cs" />
      <Compile Include="Assets\Scripts\Tile.cs" />
      <Compile Include="Assets\Scripts\Game.cs" />
      <Compile Include="Assets\Scripts\OccupantDesigner.cs" />
+     <Compile Include="Assets\Scripts\ActionPointer.cs" />
      <None Include="Assets\Scripts\Scripts.asmdef" />
  <Reference Include="UnityEngine">
  <HintPath>C:/Program Files/Unity/Hub/Editor/2020.3.32f1/Editor/Data/Managed/UnityEngine/UnityEngine.dll</HintPath>

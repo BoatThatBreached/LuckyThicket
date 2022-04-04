@@ -2,21 +2,27 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Security.Cryptography;
 using UnityEngine;
 
 public class Game : MonoBehaviour
 {
     public GameObject tilePref;
     public GameObject occupantPref;
-    private Queue<Action> currentChain; // будем заставлять контроллер по очереди выполнять всё, что написано на карте
-    private Dictionary<Actions, Action<Point>> actions; // этой штукой переводим элементы енума в void-ы
-    private Dictionary<Point, Tile> board = new Dictionary<Point, Tile>();
+
+    private Queue<Basis> CurrentChain { get; set; } 
+    // будем заставлять контроллер по очереди выполнять всё, что написано на карте
+    private Dictionary<Basis, Action> Actions { get; set; } // этой штукой переводим элементы енума в void-ы
+    private Dictionary<Point, Tile> Board { get; set; }
+    private Point Anchor { get; set; }
+    private Tribes AnchorTribe { get; set; }
+    public Basis CurrentAction { get; private set; }
     [SerializeField] public OccupantDesigner designer;
 
     void Start()
     {
-        currentChain = new Queue<Action>();
+        CurrentChain = new Queue<Basis>();
+        Board = new Dictionary<Point, Tile>();
+        AnchorTribe = Tribes.None;
         InitActions();
 
         for (int i = -2; i < 3; i++)
@@ -30,24 +36,27 @@ public class Game : MonoBehaviour
 
     private void InitActions()
     {
-        actions = new Dictionary<Actions, Action<Point>>();
-        actions[Actions.AddTile] = AddTile;
-        actions[Actions.DestroyTile] = DestroyTile;
-        actions[Actions.SpawnBeaver] = p => SpawnUnit(p, Tribes.Beaver);
-        actions[Actions.SpawnMagpie] = p => SpawnUnit(p, Tribes.Magpie);
-        actions[Actions.DestroyBeaver] = p => DestroyUnit(p, Tribes.Beaver);
-        actions[Actions.DestroyMagpie] = p => DestroyUnit(p, Tribes.Magpie);
+        Actions = new Dictionary<Basis, Action>();
+        Actions[Basis.AddTile] = ()=>AddTile(Anchor);
+        Actions[Basis.DestroyTile] = ()=>DestroyTile(Anchor);
+        Actions[Basis.DestroyUnit] = () => DestroyUnit(Anchor, AnchorTribe);
+        Actions[Basis.SpawnUnit] = () => SpawnUnit(Anchor, AnchorTribe);
+        
+        Actions[Basis.ChooseBeaver] = () => AnchorTribe = Tribes.Beaver;
+        Actions[Basis.ChooseMagpie] = () => AnchorTribe = Tribes.Magpie;
     }
 
     private void DestroyUnit(Point p, Tribes t)
     {
-        board[p].occupantTribe = Tribes.None;
-        Destroy(board[p].transform.GetChild(0).gameObject);
+        Board[p].occupantTribe = Tribes.None;
+        Destroy(Board[p].transform.GetChild(0).gameObject);
     }
 
-    public bool Exists(Point p) => board.ContainsKey(p);
+    public bool Exists(Point p) => Board.ContainsKey(p);
 
-    public bool IsOccupied(Point p) => board[p].occupantTribe != Tribes.None;//&&Exists(p)
+    public bool IsOccupied(Point p) => Exists(p) && Board[p].occupantTribe != Tribes.None;
+    public bool IsOccupiedByAnchorTribe(Point p) => Exists(p) && Board[p].occupantTribe == AnchorTribe;
+    public bool IsFree(Point p) => Exists(p) && Board[p].occupantTribe == Tribes.None;
 
     private IEnumerable<Point> GetAdjacent(Point p)
     {
@@ -56,50 +65,70 @@ public class Game : MonoBehaviour
             .Where(tuple => tuple.x == 0 ^ tuple.y == 0)
             .Select(tuple => new Point(p.X + tuple.x, p.Y + tuple.y));
     }
+    private IEnumerable<Point> GetSurrounding(Point p)
+    {
+        return Enumerable.Range(-1, 3)
+            .SelectMany(x => Enumerable.Range(-1, 3).Select(y => (x, y)))
+            .Where(tuple => !(tuple.x == 0 && tuple.y == 0))
+            .Select(tuple => new Point(p.X + tuple.x, p.Y + tuple.y));
+    }
 
     public bool HasAdjacent(Point p) => GetAdjacent(p).Any(Exists);
 
 
-    public bool HasSurrounding(Point p) => GetAdjacent(p).Any(IsOccupied);
+    //public bool HasSurrounding(Point p) => GetAdjacent(p).Any(IsOccupied);
+    public bool HasSurrounding(Point p) => GetSurrounding(p).Any(Exists);
 
-
-    public Tribes GetOccupantTribe(Point p) => board[p].occupantTribe;
+    public Tribes GetOccupantTribe(Point p) => Board[p].occupantTribe;
 
     public void AddTile(Point p)
     {
         var tile = Instantiate(tilePref, transform);
         tile.transform.position = new Vector3(p.X, p.Y, 0);
         var t = tile.GetComponent<Tile>();
-        board[p] = t;
+        Board[p] = t;
     }
 
     public void DestroyTile(Point p)
     {
-        var tile = board[p].gameObject;
+        var tile = Board[p].gameObject;
         Destroy(tile);
-        board.Remove(p);
+        Board.Remove(p);
     }
 
     public void SpawnUnit(Point p, Tribes t)
     {
-        board[p].occupantTribe = t;
-        var occupant = Instantiate(occupantPref, board[p].transform);
+        Board[p].occupantTribe = t;
+        var occupant = Instantiate(occupantPref, Board[p].transform);
         occupant.GetComponent<SpriteRenderer>().color = designer.Colors[t];
         occupant.transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = designer.Sprites[t];
     }
 
-    public void LoadActions(Point p, Queue<Actions> chain)
+    public void LoadActions(Queue<Basis> chain)
     {
         foreach (var act in chain)
         {
-            currentChain.Enqueue(() => actions[act](p));
+            CurrentChain.Enqueue(act);
         }
+        Step();
     }
-    
-    // SpawnBeaver -> AddTile
-    // Spawn a beaver on a clickedTile, then wait for a click to choose a point to add tile.
-    // Free -> SpawnUnit(Beaver) -> Free -> SpawnUnit(Beaver) -> Occ(Magpie) -> DestroyUnit
-    // Where: Free, Occ(Tribes), Adjacent, Surrounding. 
-    
-    
+
+    public void ApplySelection(Point p)
+    {
+        Anchor = p;
+        Step();
+    }
+
+    private void Step()
+    {
+        CurrentAction = CurrentChain.Count > 0 ? CurrentChain.Dequeue() : Basis.Idle;
+        print(CurrentAction);
+        if (!Actions.ContainsKey(CurrentAction)) return;
+        Actions[CurrentAction]();
+        Step();
+    }
+
+    public bool IsAdjacentToAnchor(Point p, bool exists = false) => GetAdjacent(p).Contains(Anchor)&&Exists(p)==exists;
+    public bool IsSurroundingToAnchor(Point p,bool exists = false) => GetSurrounding(p).Contains(Anchor)&&Exists(p)==exists;
+    public bool IsEdge(Point p, bool occ = false) => GetAdjacent(p).Count(Exists) < 4 && occ?IsOccupied(p):IsFree(p);
 }
