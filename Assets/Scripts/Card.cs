@@ -2,7 +2,7 @@
 using System.Drawing;
 using UnityEngine;
 
-public class Card: MonoBehaviour
+public class Card : MonoBehaviour
 {
     public Tribes tribe;
     public Queue<Actions> chain;
@@ -18,9 +18,9 @@ public class Card: MonoBehaviour
         chain.Enqueue(Actions.SpawnBeaver);
         chain.Enqueue(Actions.AddTile);
         //end mocking
-        game = (Game)FindObjectOfType(typeof(Game));
+        game = (Game) FindObjectOfType(typeof(Game));
         ratio = Camera.main.orthographicSize / Screen.height * 2;
-        center =  new Vector3(Screen.width, Screen.height) / 2;
+        center = new Vector3(Screen.width, Screen.height) / 2;
     }
 
     public void OnMouseDown()
@@ -39,7 +39,7 @@ public class Card: MonoBehaviour
     {
         offset = new Vector3();
         var p = new Point(Mathf.RoundToInt(transform.position.x), Mathf.RoundToInt(transform.position.y));
-        if (!game.IsOccupied(p)) //если можно поставить карту на клетку, применяем способности
+        if (game.Exists(p) && !game.IsOccupied(p)) //если можно поставить карту на клетку, применяем способности
             game.LoadActions(p, chain); //заполняем очередь действий способностями, применяем их относительно точки p.
     }
 }
