@@ -13,16 +13,26 @@ public class Card : MonoBehaviour
 
     private void Start()
     {
-        //start mocking
         chain = new Queue<Basis>();
-        chain.Enqueue(Basis.SelectFree);
-        chain.Enqueue(Basis.ChooseBeaver);
-        chain.Enqueue(Basis.SpawnUnit);
-        chain.Enqueue(Basis.SelectAdjacentNE);
-        chain.Enqueue(Basis.AddTile);
-        chain.Enqueue(Basis.SelectEdgeNO);
-        chain.Enqueue(Basis.ChooseBeaver); // redundant but is here for clarity;
-        chain.Enqueue(Basis.SpawnUnit);
+        //start mocking
+        Add(Basis.Free);
+        Add(Basis.Select);
+        Add(Basis.ChooseBeaver);
+        Add(Basis.SpawnUnit);
+        
+        Add(Basis.Adjacent);
+        //Add(Basis.NotExisting);
+        Add(Basis.Free);
+        Add(Basis.Select);
+        Add(Basis.ChooseBeaver);
+        Add(Basis.SpawnUnit);
+        
+        Add(Basis.Also);
+        Add(Basis.ChooseBeaver);
+        Add(Basis.Occupied);
+        Add(Basis.Select);
+        Add(Basis.DestroyUnit);
+        //Add(Basis.AddTile);
         
         //end mocking
         game = (Game) FindObjectOfType(typeof(Game));
@@ -30,9 +40,11 @@ public class Card : MonoBehaviour
         center = new Vector3(Screen.width, Screen.height) / 2;
     }
 
+    private void Add(Basis b) => chain.Enqueue(b);
+
     public void OnMouseDown()
     {
-        game.LoadActions(chain);
+        game.TryLoadActions(chain);
         //var input = (Input.mousePosition - center) * ratio;
         //offset = transform.position - input;
     }

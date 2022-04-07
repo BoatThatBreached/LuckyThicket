@@ -3,31 +3,44 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using UnityEngine;
+using Color = UnityEngine.Color;
 
 public class Game : MonoBehaviour
 {
     public GameObject tilePref;
     public GameObject occupantPref;
 
-    private Queue<Basis> CurrentChain { get; set; } 
+    private Queue<Basis> CurrentChain { get; set; }
+
     // будем заставлять контроллер по очереди выполнять всё, что написано на карте
     private Dictionary<Basis, Action> Actions { get; set; } // этой штукой переводим элементы енума в void-ы
     private Dictionary<Point, Tile> Board { get; set; }
     private Point Anchor { get; set; }
     private Tribes AnchorTribe { get; set; }
     public Basis CurrentAction { get; private set; }
-    [SerializeField] public OccupantDesigner designer;
+
+    private List<Func<Point, bool>> Criterias { get; set; }
+    private bool NotExistingNeeded { get; set; }
+    public OccupantDesigner designer;
+    private int Size { get; set; }
+
+    public bool CanBeReplaced { get; private set; }
 
     void Start()
     {
+        Size = 3;
         CurrentChain = new Queue<Basis>();
         Board = new Dictionary<Point, Tile>();
+        Anchor = Point.Empty;
         AnchorTribe = Tribes.None;
+        CanBeReplaced = true;
+        NotExistingNeeded = false;
+        Criterias = new List<Func<Point, bool>>();
         InitActions();
 
-        for (int i = -2; i < 3; i++)
+        for (int i = -Size / 2; i < Size / 2 + 1; i++)
         {
-            for (int j = -2; j < 3; j++)
+            for (int j = -Size / 2; j < Size / 2 + 1; j++)
             {
                 AddTile(new Point(i, j));
             }
@@ -37,26 +50,48 @@ public class Game : MonoBehaviour
     private void InitActions()
     {
         Actions = new Dictionary<Basis, Action>();
-        Actions[Basis.AddTile] = ()=>AddTile(Anchor);
-        Actions[Basis.DestroyTile] = ()=>DestroyTile(Anchor);
-        Actions[Basis.DestroyUnit] = () => DestroyUnit(Anchor, AnchorTribe);
-        Actions[Basis.SpawnUnit] = () => SpawnUnit(Anchor, AnchorTribe);
-        
+        Actions[Basis.AddTile] = () => AddTile(Anchor);
+        Actions[Basis.DestroyTile] = () => DestroyTile(Anchor);
+        Actions[Basis.DestroyUnit] = () =>
+        {
+            DestroyUnit(Anchor, AnchorTribe);
+            Flush();
+        };
+        Actions[Basis.SpawnUnit] = () =>
+        {
+            SpawnUnit(Anchor, AnchorTribe);
+            Flush();
+        };
+        //Actions[Basis.PushUnit] = ()=>PushUnit(Anchor, AnchorTribe);
+        //Actions[Basis.PullUnit] = ()=>PullUnit(Anchor, AnchorTribe);
         Actions[Basis.ChooseBeaver] = () => AnchorTribe = Tribes.Beaver;
         Actions[Basis.ChooseMagpie] = () => AnchorTribe = Tribes.Magpie;
+
+        Actions[Basis.Free] = () => Criterias.Add(IsFree);
+        Actions[Basis.Adjacent] = () => Criterias.Add(IsAdjacentToAnchor);
+        Actions[Basis.Surrounding] = () => Criterias.Add(IsSurroundingToAnchor);
+        Actions[Basis.Occupied] = () => Criterias.Add(IsOccupiedByAnchorTribe);
+        Actions[Basis.Existing] = () => Criterias.Add(Exists);
+        Actions[Basis.NotExisting] = () =>
+        {
+            Criterias.Add(p => !Exists(p));
+            NotExistingNeeded = true;
+        };
+        Actions[Basis.Edge] = () => Criterias.Add(IsEdge);
+        Actions[Basis.Select] = () =>
+        {
+            if (!ShowPossibleTiles())
+                SkipToAlso();
+        };
+        Actions[Basis.Also] = () => { };
     }
 
-    private void DestroyUnit(Point p, Tribes t)
+    private void Flush()
     {
-        Board[p].occupantTribe = Tribes.None;
-        Destroy(Board[p].transform.GetChild(0).gameObject);
+        AnchorTribe = Tribes.None;
     }
 
     public bool Exists(Point p) => Board.ContainsKey(p);
-
-    public bool IsOccupied(Point p) => Exists(p) && Board[p].occupantTribe != Tribes.None;
-    public bool IsOccupiedByAnchorTribe(Point p) => Exists(p) && Board[p].occupantTribe == AnchorTribe;
-    public bool IsFree(Point p) => Exists(p) && Board[p].occupantTribe == Tribes.None;
 
     private IEnumerable<Point> GetAdjacent(Point p)
     {
@@ -65,6 +100,7 @@ public class Game : MonoBehaviour
             .Where(tuple => tuple.x == 0 ^ tuple.y == 0)
             .Select(tuple => new Point(p.X + tuple.x, p.Y + tuple.y));
     }
+
     private IEnumerable<Point> GetSurrounding(Point p)
     {
         return Enumerable.Range(-1, 3)
@@ -73,13 +109,23 @@ public class Game : MonoBehaviour
             .Select(tuple => new Point(p.X + tuple.x, p.Y + tuple.y));
     }
 
+    public Tribes GetOccupantTribe(Point p) => Board[p].occupantTribe;
+
     public bool HasAdjacent(Point p) => GetAdjacent(p).Any(Exists);
-
-
-    //public bool HasSurrounding(Point p) => GetAdjacent(p).Any(IsOccupied);
     public bool HasSurrounding(Point p) => GetSurrounding(p).Any(Exists);
 
-    public Tribes GetOccupantTribe(Point p) => Board[p].occupantTribe;
+    #region Criterias
+
+    public bool IsOccupied(Point p) => Exists(p) && Board[p].occupantTribe != Tribes.None;
+    private bool IsFree(Point p) => Exists(p) && Board[p].occupantTribe == Tribes.None;
+    public bool IsAdjacentToAnchor(Point p) => GetAdjacent(Anchor).Contains(p);
+    public bool IsSurroundingToAnchor(Point p) => GetSurrounding(Anchor).Contains(p);
+    public bool IsEdge(Point p) => GetAdjacent(p).Count(Exists) < 4;
+    public bool IsOccupiedByAnchorTribe(Point p) => GetOccupantTribe(p) == AnchorTribe;
+
+    #endregion
+
+    #region Operations
 
     public void AddTile(Point p)
     {
@@ -104,31 +150,89 @@ public class Game : MonoBehaviour
         occupant.transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = designer.Sprites[t];
     }
 
-    public void LoadActions(Queue<Basis> chain)
+    private void DestroyUnit(Point p, Tribes t)
     {
-        foreach (var act in chain)
-        {
-            CurrentChain.Enqueue(act);
-        }
-        Step();
+        Board[p].occupantTribe = Tribes.None;
+        Destroy(Board[p].transform.GetChild(0).gameObject);
     }
 
-    public void ApplySelection(Point p)
+    #endregion
+
+
+    public void TryLoadActions(Queue<Basis> chain)
     {
-        Anchor = p;
-        Step();
+        Criterias.Clear();
+        if (CanBeReplaced)
+        {
+            Flush();
+            CurrentChain.Clear();
+            foreach (var act in chain)
+                CurrentChain.Enqueue(act);
+            Step();
+        }
     }
+
+    public bool SatisfiesCriterias(Point p)
+    {
+        var pred = Criterias.All(crit => crit(p));
+        //print($"{p} {pred}");
+        return pred;
+    }
+
 
     private void Step()
     {
         CurrentAction = CurrentChain.Count > 0 ? CurrentChain.Dequeue() : Basis.Idle;
         print(CurrentAction);
-        if (!Actions.ContainsKey(CurrentAction)) return;
+        if (CurrentAction == Basis.Idle)
+        {
+            Anchor = Point.Empty;
+            AnchorTribe = Tribes.None;
+            CanBeReplaced = true;
+            return;
+        }
         Actions[CurrentAction]();
+        if(CurrentAction!=Basis.Select)
+            Step();
+    }
+
+    private void SkipToAlso()
+    {
+        //CurrentChain.Clear();
+        //Anchor = Point.Empty;
+        Criterias.Clear();
+        //Also will never start with smth relative to anchor
+        while (CurrentChain.Count > 0 && CurrentChain.Peek() != Basis.Also)
+            CurrentChain.Dequeue();
         Step();
     }
 
-    public bool IsAdjacentToAnchor(Point p, bool exists = false) => GetAdjacent(p).Contains(Anchor)&&Exists(p)==exists;
-    public bool IsSurroundingToAnchor(Point p,bool exists = false) => GetSurrounding(p).Contains(Anchor)&&Exists(p)==exists;
-    public bool IsEdge(Point p, bool occ = false) => GetAdjacent(p).Count(Exists) < 4 && occ?IsOccupied(p):IsFree(p);
+    private bool ShowPossibleTiles()
+    {
+        if (NotExistingNeeded)
+        {
+            return true;
+        }
+
+        var res = false;
+        foreach (var p in Board.Keys)
+            if (SatisfiesCriterias(p))
+            {
+                Board[p].Color = Color.yellow;
+                res = true;
+            }
+
+        return res;
+    }
+
+    public void SelectPoint(Point p)
+    {
+        CanBeReplaced = false;
+        Anchor = p;
+        foreach (var t in Board.Values)
+            t.Color = Color.white;
+        Criterias.Clear();
+        NotExistingNeeded = false;
+        Step();
+    }
 }
