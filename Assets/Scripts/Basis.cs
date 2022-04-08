@@ -1,26 +1,27 @@
 ﻿public enum Basis
 {
     #region Opeartions
-    AddTile,
-    DestroyTile,
-    SpawnUnit,
-    DestroyUnit,
-    PushUnit,
-    PullUnit,
+    Build,
+    Destroy,
+    Spawn,
+    Kill,
+    Push,
+    Pull,
     #endregion
 
     #region Tribes
-    ChooseBeaver,
-    ChooseMagpie,
+    Beaver,
+    Magpie,
     #endregion
     
     Select,
+    Random,
 
     #region Criterias
     Free,
     Adjacent,
     Existing,
-    NotExisting,
+    NExisting,
     Surrounding,
     Occupied,
     Edge,

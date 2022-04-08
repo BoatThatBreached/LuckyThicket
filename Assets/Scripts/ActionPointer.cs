@@ -10,6 +10,8 @@ public class ActionPointer : MonoBehaviour
     private Vector3 offset;
     private float ratio;
     private Vector3 center;
+    public SpriteRenderer rend;
+
     private void Start()
     {
         ratio = Camera.main.orthographicSize / Screen.height * 2;
@@ -18,16 +20,14 @@ public class ActionPointer : MonoBehaviour
 
     void Update()
     {
-        if (game.CurrentAction!=Basis.Select)
+        rend.enabled = game.CurrentAction == Basis.Select;
+        if (game.CurrentAction != Basis.Select)
             return;
-        if(Input.GetMouseButtonDown(0))
-        {
-            var input = (Input.mousePosition - center) * ratio;
-            var p = new Point(Mathf.RoundToInt(input.x), Mathf.RoundToInt(input.y));
-            if (game.SatisfiesCriterias(p))
-                game.SelectPoint(p);
-        }
-        
-        
+
+        var input = (Input.mousePosition - center) * ratio;
+        var p = new Point(Mathf.RoundToInt(input.x), Mathf.RoundToInt(input.y));
+        transform.position = new Vector3(p.X, p.Y, 0);
+        if (Input.GetMouseButtonDown(0) && game.SatisfiesCriterias(p))
+            game.SelectPoint(p);
     }
 }

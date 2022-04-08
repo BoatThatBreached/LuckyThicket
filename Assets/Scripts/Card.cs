@@ -14,25 +14,21 @@ public class Card : MonoBehaviour
     private void Start()
     {
         chain = new Queue<Basis>();
-        //start mocking
+        
+        Add(Basis.NExisting);
+        Add(Basis.Random);
+        Add(Basis.Build);
+        
         Add(Basis.Free);
         Add(Basis.Select);
-        Add(Basis.ChooseBeaver);
-        Add(Basis.SpawnUnit);
+        Add(Basis.Beaver);
+        Add(Basis.Spawn);
         
-        Add(Basis.Adjacent);
-        //Add(Basis.NotExisting);
+        Add(Basis.Surrounding);
         Add(Basis.Free);
-        Add(Basis.Select);
-        Add(Basis.ChooseBeaver);
-        Add(Basis.SpawnUnit);
-        
-        Add(Basis.Also);
-        Add(Basis.ChooseBeaver);
-        Add(Basis.Occupied);
-        Add(Basis.Select);
-        Add(Basis.DestroyUnit);
-        //Add(Basis.AddTile);
+        Add(Basis.Random);
+        Add(Basis.Magpie);
+        Add(Basis.Spawn);
         
         //end mocking
         game = (Game) FindObjectOfType(typeof(Game));

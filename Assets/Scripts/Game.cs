@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using UnityEngine;
 using Color = UnityEngine.Color;
+using Random = System.Random;
 
 public class Game : MonoBehaviour
 {
@@ -23,6 +24,7 @@ public class Game : MonoBehaviour
     private bool NotExistingNeeded { get; set; }
     public OccupantDesigner designer;
     private int Size { get; set; }
+    private Random Rand { get; set; }
 
     public bool CanBeReplaced { get; private set; }
 
@@ -37,6 +39,7 @@ public class Game : MonoBehaviour
         NotExistingNeeded = false;
         Criterias = new List<Func<Point, bool>>();
         InitActions();
+        Rand = new Random();
 
         for (int i = -Size / 2; i < Size / 2 + 1; i++)
         {
@@ -50,29 +53,29 @@ public class Game : MonoBehaviour
     private void InitActions()
     {
         Actions = new Dictionary<Basis, Action>();
-        Actions[Basis.AddTile] = () => AddTile(Anchor);
-        Actions[Basis.DestroyTile] = () => DestroyTile(Anchor);
-        Actions[Basis.DestroyUnit] = () =>
+        Actions[Basis.Build] = () => AddTile(Anchor);
+        Actions[Basis.Destroy] = () => DestroyTile(Anchor);
+        Actions[Basis.Kill] = () =>
         {
             DestroyUnit(Anchor, AnchorTribe);
             Flush();
         };
-        Actions[Basis.SpawnUnit] = () =>
+        Actions[Basis.Spawn] = () =>
         {
             SpawnUnit(Anchor, AnchorTribe);
             Flush();
         };
         //Actions[Basis.PushUnit] = ()=>PushUnit(Anchor, AnchorTribe);
         //Actions[Basis.PullUnit] = ()=>PullUnit(Anchor, AnchorTribe);
-        Actions[Basis.ChooseBeaver] = () => AnchorTribe = Tribes.Beaver;
-        Actions[Basis.ChooseMagpie] = () => AnchorTribe = Tribes.Magpie;
+        Actions[Basis.Beaver] = () => AnchorTribe = Tribes.Beaver;
+        Actions[Basis.Magpie] = () => AnchorTribe = Tribes.Magpie;
 
         Actions[Basis.Free] = () => Criterias.Add(IsFree);
         Actions[Basis.Adjacent] = () => Criterias.Add(IsAdjacentToAnchor);
         Actions[Basis.Surrounding] = () => Criterias.Add(IsSurroundingToAnchor);
         Actions[Basis.Occupied] = () => Criterias.Add(IsOccupiedByAnchorTribe);
         Actions[Basis.Existing] = () => Criterias.Add(Exists);
-        Actions[Basis.NotExisting] = () =>
+        Actions[Basis.NExisting] = () =>
         {
             Criterias.Add(p => !Exists(p));
             NotExistingNeeded = true;
@@ -84,6 +87,34 @@ public class Game : MonoBehaviour
                 SkipToAlso();
         };
         Actions[Basis.Also] = () => { };
+        Actions[Basis.Random] = TrySelectRandomPoint;
+    }
+
+    private void TrySelectRandomPoint()
+    {
+        Point[] possible;
+        if (NotExistingNeeded)
+        {
+            possible = Board
+                .Keys
+                .Where(IsEdge)
+                .SelectMany(GetAdjacent)
+                .Where(SatisfiesCriterias)
+                .ToArray();
+        }
+        else
+        {
+            possible = Board
+                .Keys
+                .Where(SatisfiesCriterias)
+                .ToArray();
+        }
+        if (!possible.Any())
+        {
+            SkipToAlso();
+            return;
+        }
+        SelectPoint(possible[Rand.Next(possible.Length)]);
     }
 
     private void Flush()
@@ -192,7 +223,7 @@ public class Game : MonoBehaviour
             return;
         }
         Actions[CurrentAction]();
-        if(CurrentAction!=Basis.Select)
+        if(CurrentAction!=Basis.Select && CurrentAction!=Basis.Idle)
             Step();
     }
 
