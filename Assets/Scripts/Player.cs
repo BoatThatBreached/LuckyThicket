@@ -9,19 +9,22 @@ public enum SchemaType
 	Small
 }
 
+//TODO: Rotate
+
 public class Template
 {
 	public Dictionary<Point, Tribes> Points { get; }
     public SchemaType Type { get; }
-	public bool IsInvert { get; }
-	public Template(Tribes [,] schema, SchemaType type, bool isInvert)
+	public bool IsRotatable { get; }
+	public Template(Tribes [,] schema, SchemaType type, bool isRotatable)
 	{
-		for (int i = 0; i < schema.Length; i++)
-			for (int j = 0; j < schema.Length; i++)
+		Points = new Dictionary<Point, Tribes>();
+		for (int i = 0; i < schema.GetLength(0); i++)
+			for (int j = 0; j < schema.GetLength(1); i++)
 				if (schema[i, j] != Tribes.None)
 					Points[new Point(i, j)] = schema[i, j];
 
-		IsInvert = isInvert;
+		IsRotatable = isRotatable;
 		Type = type;
 	}
 }
@@ -42,7 +45,8 @@ public class PositionedTemplate
 	{
 		foreach (var i in Template.Points)
 		{
-			var point = StartingPoint + ((Size)i.Key);
+			var point = new Point(StartingPoint.X + i.Key.X,
+				StartingPoint.Y + i.Key.Y);
 			if (!board.ContainsKey(point) || board[point].occupantTribe != i.Value)
 				return false;
 		}
@@ -53,7 +57,7 @@ public class PositionedTemplate
 public class Player
 {
 	public string Name { get; }
-	public List <Template> Templates { get; set; }
+	public List<Template> Templates { get; set; }
 	public List<Template> CompletedTemplates { get; }
 	public Player(string name)
 	{
@@ -65,12 +69,12 @@ public class Player
 	// важно чтобы сюда передавалась ссылка на темплэйт, находящийся в Templates - сравнение по ссылкам
 	public void CompleteTemplate(Template template)
     {
-		Templates = Templates.Where(x => x != template).ToList();
+		Templates.Remove(template);
 		CompletedTemplates.Add(template);
     }
 	public Dictionary<SchemaType, int> CompletedCount()
     {
-		var dict = new Dictionary<SchemaType, int>() { { SchemaType.Big, 0 }, { SchemaType.Small, 0} };
+		var dict = new Dictionary<SchemaType, int>() { { SchemaType.Big, 0}, { SchemaType.Small, 0} };
 		foreach (var template in CompletedTemplates)
 			dict[template.Type] += 1;
 		return dict;
@@ -86,7 +90,6 @@ public class Player
 				if (posTemp.CheckIfMatch(board))
 					result.Add(posTemp);
 			}
-
 		return result;
     }
 }
