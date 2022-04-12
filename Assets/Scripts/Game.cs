@@ -25,6 +25,7 @@ public class Game : MonoBehaviour
     public OccupantDesigner designer;
     private int Size { get; set; }
     private Random Rand { get; set; }
+    private Player[] Players { get; set; }
 
     public bool CanBeReplaced { get; private set; }
 
@@ -38,6 +39,9 @@ public class Game : MonoBehaviour
         CanBeReplaced = true;
         NotExistingNeeded = false;
         Criterias = new List<Func<Point, bool>>();
+
+        InitPlayers();
+        
         InitActions();
         Rand = new Random();
 
@@ -48,6 +52,18 @@ public class Game : MonoBehaviour
                 AddTile(new Point(i, j));
             }
         }
+    }
+
+    private void InitPlayers()
+    {
+        Players = new Player[2];
+        Players[0] = new Player("Maximus");
+        Players[1] = new Player("Michael");
+        
+        Template bebrus = new Template(new [,]{{Tribes.Beaver, Tribes.Beaver, Tribes.Beaver}}, SchemaType.Big, false);
+        Players[0].AddWinTemplate(bebrus);
+        Template magpuk = new Template(new [,]{{Tribes.Magpie}, {Tribes.Magpie}, {Tribes.Magpie}}, SchemaType.Big, false);
+        Players[1].AddWinTemplate(magpuk);
     }
 
     private void InitActions()
@@ -220,11 +236,22 @@ public class Game : MonoBehaviour
             Anchor = Point.Empty;
             AnchorTribe = Tribes.None;
             CanBeReplaced = true;
+            CheckWin();
             return;
         }
         Actions[CurrentAction]();
         if(CurrentAction!=Basis.Select && CurrentAction!=Basis.Idle)
             Step();
+    }
+
+    private void CheckWin()
+    {
+        foreach (var player in Players)
+        {
+            var list = player.GetTemplatesPlayerCanComplete(Board);
+            if (list.Count>0)
+                print($"{player.Name} can complete smth");
+        }
     }
 
     private void SkipToAlso()

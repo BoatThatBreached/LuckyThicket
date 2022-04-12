@@ -16,8 +16,9 @@ public class Template
 	public bool IsInvert { get; }
 	public Template(Tribes [,] schema, SchemaType type, bool isInvert)
 	{
-		for (int i = 0; i < schema.Length; i++)
-			for (int j = 0; j < schema.Length; i++)
+		Points = new Dictionary<Point, Tribes>();
+		for (int i = 0; i < schema.GetLength(0); i++)
+			for (int j = 0; j < schema.GetLength(1); j++)
 				if (schema[i, j] != Tribes.None)
 					Points[new Point(i, j)] = schema[i, j];
 
@@ -58,6 +59,7 @@ public class Player
 	public Player(string name)
 	{
 		Name = name;
+		Templates = new List<Template>();
 	}
 
 	public void AddWinTemplate(Template template) => Templates.Add(template);

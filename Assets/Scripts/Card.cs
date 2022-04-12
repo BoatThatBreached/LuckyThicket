@@ -10,25 +10,27 @@ public class Card : MonoBehaviour
     private float ratio;
     private Vector3 center;
     private Game game;
+    [SerializeField] public Basis[] basisChain;
 
     private void Start()
     {
         chain = new Queue<Basis>();
-        
-        Add(Basis.NExisting);
-        Add(Basis.Random);
-        Add(Basis.Build);
-        
-        Add(Basis.Free);
-        Add(Basis.Select);
-        Add(Basis.Beaver);
-        Add(Basis.Spawn);
-        
-        Add(Basis.Surrounding);
-        Add(Basis.Free);
-        Add(Basis.Random);
-        Add(Basis.Magpie);
-        Add(Basis.Spawn);
+        foreach (var b in basisChain)
+            chain.Enqueue(b);
+        // Add(Basis.NExisting);
+        // Add(Basis.Random);
+        // Add(Basis.Build);
+        //
+        // Add(Basis.Free);
+        // Add(Basis.Select);
+        // Add(Basis.Beaver);
+        // Add(Basis.Spawn);
+        //
+        // Add(Basis.Surrounding);
+        // Add(Basis.Free);
+        // Add(Basis.Random);
+        // Add(Basis.Magpie);
+        // Add(Basis.Spawn);
         
         //end mocking
         game = (Game) FindObjectOfType(typeof(Game));
