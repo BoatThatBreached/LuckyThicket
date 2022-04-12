@@ -62,7 +62,7 @@ public class Game : MonoBehaviour
         
         Template bebrus = new Template(new [,]{{Tribes.Beaver, Tribes.Beaver, Tribes.Beaver}}, SchemaType.Big, false);
         Players[0].AddWinTemplate(bebrus);
-        Template magpuk = new Template(new [,]{{Tribes.Magpie}, {Tribes.Magpie}, {Tribes.Magpie}}, SchemaType.Big, false);
+        Template magpuk = new Template(new [,]{{Tribes.Magpie}, {Tribes.None}, {Tribes.Magpie}}, SchemaType.Big, false);
         Players[1].AddWinTemplate(magpuk);
     }
 
@@ -250,7 +250,7 @@ public class Game : MonoBehaviour
         {
             var list = player.GetTemplatesPlayerCanComplete(Board);
             if (list.Count>0)
-                print($"{player.Name} can complete smth");
+                print($"{player.Name} can complete smth and count is {list.Count}");
         }
     }
 
