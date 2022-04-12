@@ -249,8 +249,17 @@ public class Game : MonoBehaviour
         foreach (var player in Players)
         {
             var list = player.GetTemplatesPlayerCanComplete(Board);
-            if (list.Count>0)
+            if (list.Count > 0)
+            {
                 print($"{player.Name} can complete smth and count is {list.Count}");
+                // delete first completed
+                var template = list[0];
+                foreach (var p in template.Template.Points.Keys)
+                {
+                    var currp = new Point(p.X + template.StartingPoint.X, p.Y + template.StartingPoint.Y);
+                    DestroyUnit(currp, template.Template.Points[p]);
+                }
+            }
         }
     }
 
