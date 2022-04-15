@@ -194,7 +194,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 6688754715924866336, guid: a56a1e84ab30fe941a639b2ed2f6f06c, type: 3}
       propertyPath: basisChain.Array.size
-      value: 7
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 6688754715924866336, guid: a56a1e84ab30fe941a639b2ed2f6f06c, type: 3}
       propertyPath: basisChain.Array.data[0]
@@ -218,15 +218,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6688754715924866336, guid: a56a1e84ab30fe941a639b2ed2f6f06c, type: 3}
       propertyPath: basisChain.Array.data[5]
-      value: 8
+      value: 11
       objectReference: {fileID: 0}
     - target: {fileID: 6688754715924866336, guid: a56a1e84ab30fe941a639b2ed2f6f06c, type: 3}
       propertyPath: basisChain.Array.data[6]
-      value: 0
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 6688754715924866336, guid: a56a1e84ab30fe941a639b2ed2f6f06c, type: 3}
       propertyPath: basisChain.Array.data[7]
-      value: 6
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6688754715924866337, guid: a56a1e84ab30fe941a639b2ed2f6f06c, type: 3}
       propertyPath: m_Color.b
@@ -517,7 +517,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 6688754715924866336, guid: a56a1e84ab30fe941a639b2ed2f6f06c, type: 3}
       propertyPath: basisChain.Array.size
-      value: 7
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 6688754715924866336, guid: a56a1e84ab30fe941a639b2ed2f6f06c, type: 3}
       propertyPath: basisChain.Array.data[0]
@@ -541,10 +541,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6688754715924866336, guid: a56a1e84ab30fe941a639b2ed2f6f06c, type: 3}
       propertyPath: basisChain.Array.data[5]
-      value: 8
+      value: 14
       objectReference: {fileID: 0}
     - target: {fileID: 6688754715924866336, guid: a56a1e84ab30fe941a639b2ed2f6f06c, type: 3}
       propertyPath: basisChain.Array.data[6]
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 6688754715924866336, guid: a56a1e84ab30fe941a639b2ed2f6f06c, type: 3}
+      propertyPath: basisChain.Array.data[7]
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6688754715924866337, guid: a56a1e84ab30fe941a639b2ed2f6f06c, type: 3}

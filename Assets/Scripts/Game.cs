@@ -239,6 +239,7 @@ public class Game : MonoBehaviour
             CheckWin();
             return;
         }
+
         Actions[CurrentAction]();
         if(CurrentAction!=Basis.Select && CurrentAction!=Basis.Idle)
             Step();
@@ -278,7 +279,15 @@ public class Game : MonoBehaviour
     {
         if (NotExistingNeeded)
         {
-            return true;
+            var pts = Board.Keys
+                .Where(IsEdge)
+                .SelectMany(GetAdjacent)
+                .Where(p => !Exists(p));
+            var neres = false;
+            foreach (var p in pts)
+                if (SatisfiesCriterias(p))
+                    neres = true;
+            return neres;
         }
 
         var res = false;
