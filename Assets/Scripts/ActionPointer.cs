@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class ActionPointer : MonoBehaviour
 {
-    public Game game;
+    public Engine engine;
     private Vector3 offset;
     private float ratio;
     private Vector3 center;
@@ -20,14 +20,14 @@ public class ActionPointer : MonoBehaviour
 
     void Update()
     {
-        rend.enabled = game.CurrentAction == Basis.Select;
-        if (game.CurrentAction != Basis.Select)
+        rend.enabled = engine.CurrentAction == Basis.Select;
+        if (engine.CurrentAction != Basis.Select)
             return;
 
         var input = (Input.mousePosition - center) * ratio;
         var p = new Point(Mathf.RoundToInt(input.x), Mathf.RoundToInt(input.y));
         transform.position = new Vector3(p.X, p.Y, 0);
-        if (Input.GetMouseButtonDown(0) && game.SatisfiesCriterias(p))
-            game.SelectPoint(p);
+        if (Input.GetMouseButtonDown(0) && engine.SatisfiesCriterias(p))
+            engine.SelectPoint(p);
     }
 }

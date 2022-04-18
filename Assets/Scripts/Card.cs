@@ -1,63 +1,39 @@
 ﻿using System.Collections.Generic;
 using System.Drawing;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
+using Color = UnityEngine.Color;
 
 public class Card : MonoBehaviour
 {
-    public Tribes tribe;
-    public Queue<Basis> chain;
-    private Vector3 offset;
-    private float ratio;
-    private Vector3 center;
-    private Game game;
-    [SerializeField] public Basis[] basisChain;
+    public Queue<Basis> Chain;
+    public Game game;
 
-    private void Start()
+    public Image backImage;
+    public Color Color
     {
-        chain = new Queue<Basis>();
-        foreach (var b in basisChain)
-            chain.Enqueue(b);
-        // Add(Basis.NExisting);
-        // Add(Basis.Random);
-        // Add(Basis.Build);
-        //
-        // Add(Basis.Free);
-        // Add(Basis.Select);
-        // Add(Basis.Beaver);
-        // Add(Basis.Spawn);
-        //
-        // Add(Basis.Surrounding);
-        // Add(Basis.Free);
-        // Add(Basis.Random);
-        // Add(Basis.Magpie);
-        // Add(Basis.Spawn);
-        
-        //end mocking
-        game = (Game) FindObjectOfType(typeof(Game));
-        ratio = Camera.main.orthographicSize / Screen.height * 2;
-        center = new Vector3(Screen.width, Screen.height) / 2;
+        set => backImage.color = value;
     }
-
-    private void Add(Basis b) => chain.Enqueue(b);
-
-    public void OnMouseDown()
+    public TMP_Text nameField;
+    public string Name
     {
-        game.TryLoadActions(chain);
-        //var input = (Input.mousePosition - center) * ratio;
-        //offset = transform.position - input;
+        get => nameField.text;
+        set => nameField.text = value;
     }
-
-    public void OnMouseDrag()
+    public TMP_Text abilityField;
+    public string AbilityMask
     {
-        //var input = (Input.mousePosition - center) * ratio;
-        //transform.position = input + offset;
-    }
+        get => abilityField.text;
+        set => abilityField.text = value;
+    } 
 
-    private void OnMouseUp()
-    {
-        //offset = new Vector3();
-        //var p = new Point(Mathf.RoundToInt(transform.position.x), Mathf.RoundToInt(transform.position.y));
-        //if (game.Exists(p) && !game.IsOccupied(p)) //если можно поставить карту на клетку, применяем способности
-        //    game.LoadActions(p, chain); //заполняем очередь действий способностями, применяем их относительно точки p.
-    }
+    public void OnMouseDown() => game.gameEngine.TryLoadActions(Chain, this);
+
+    public void ChangeSize(bool enlarging) =>
+        transform.localScale = enlarging 
+            ? new Vector3(1, 1, 1) * 1.25f 
+            : new Vector3(1, 1, 1);
+
+    public void Drag() => transform.position = Input.mousePosition;
 }

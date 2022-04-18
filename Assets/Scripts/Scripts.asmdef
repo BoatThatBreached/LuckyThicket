@@ -1,3 +1,4 @@
 {
-	"name": "Scripts"
+	"name": "Scripts",
+	"references": [ "Unity.TextMeshPro" ]
 }
