@@ -1,73 +1,59 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
+using UnityEngine;
+using TMPro;
+using Color = UnityEngine.Color;
 
-public enum SchemaType
+public class Player: MonoBehaviour
 {
-    Big,
-    Small
-}
+    public TMP_Text nameField;
 
-//TODO: Rotate
-
-public class Template
-{
-    public Dictionary<Point, Tribes> Points { get; }
-    public SchemaType Type { get; }
-    public bool IsRotatable { get; }
-
-    public Template(Tribes[,] schema, SchemaType type, bool isRotatable)
+    public string Name
     {
-        Points = new Dictionary<Point, Tribes>();
-
-        for (int i = 0; i < schema.GetLength(0); i++)
-            for (int j = 0; j < schema.GetLength(1); j++)
-                if (schema[i, j] != Tribes.None)
-                    Points[new Point(i, j)] = schema[i, j];
-
-        IsRotatable = isRotatable;
-        Type = type;
-    }
-}
-
-public class PositionedTemplate
-{
-    public Point StartingPoint { get; }
-
-    public Template Template { get; }
-
-    public PositionedTemplate(Point startingPoint, Template template)
-    {
-        StartingPoint = startingPoint;
-        Template = template;
+        get => nameField.text;
+        set => nameField.text = value;
     }
 
-    public bool CheckIfMatch(Dictionary<Point, Tile> board)
+    public Game game;
+    public Stack<CardCharacter> Deck { get; set; }
+    public List<Card> Discard { get; set; }
+    public List<Card> Hand { get; set; }
+    public Transform handPanel;
+    private List<Template> Templates { get; set; }
+    private List<Template> CompletedTemplates { get; set; }
+
+    public void DrawCard()
     {
-        foreach (var i in Template.Points)
+        var cardCharacter = Deck.Pop();
+        var card = Instantiate(game.cardPref, handPanel).GetComponent<Card>();
+        card.Chain = cardCharacter.Ability;
+        card.game = game;
+        card.Name = cardCharacter.Name;
+        card.AbilityMask = cardCharacter.AbilityMask;
+        switch (cardCharacter.Rarity)
         {
-            var point = new Point(StartingPoint.X + i.Key.X,
-                StartingPoint.Y + i.Key.Y);
-            if (!board.ContainsKey(point) || board[point].occupantTribe != i.Value)
-                return false;
+            case Rarity.Common:
+                card.Color = Color.gray;
+                break;
+            case Rarity.Rare:
+                card.Color = Color.blue;
+                break;
+            case Rarity.Epic:
+                card.Color = Color.magenta;
+                break;
+            case Rarity.Legendary:
+                card.Color = (Color.red + Color.yellow) / 2;
+                break;
         }
-
-        return true;
     }
-}
 
-public class Player
-{
-    public string Name { get; }
-    public List<Template> Templates { get; set; }
-    public List<Template> CompletedTemplates { get; }
-
-    public Player(string name)
+    public void Init()
     {
-        Name = name;
         Templates = new List<Template>();
         CompletedTemplates = new List<Template>();
+        Deck = new Stack<CardCharacter>();
+        Discard = new List<Card>();
+        Hand = new List<Card>();
     }
 
     public void AddWinTemplate(Template template) => Templates.Add(template);
@@ -99,5 +85,5 @@ public class Player
             }
 
         return result;
-    }
+    }  
 }

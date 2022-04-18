@@ -7,6 +7,7 @@
     Kill,
     Push,
     Pull,
+    Convert,
     #endregion
 
     #region Tribes
@@ -27,6 +28,18 @@
     Edge,
     #endregion
 
+    #region CardsOperations
+    Draw,
+    Discard,
+    Steal,
+    #endregion
+
+    #region CardsCriterias
+    Graveyard,
+    Deck,
+    Hand,
+    Opponent,
+    #endregion
     Idle,
     
     Also

@@ -5,9 +5,10 @@ public class OccupantDesigner: MonoBehaviour
 {
     public Dictionary<Tribes, Sprite> Sprites;
     public Dictionary<Tribes, Color> Colors;
-
+    
     public Sprite[] spriteArray;
-
+    public GameObject occupantPref;
+    
     void Start()
     {
         Sprites = new Dictionary<Tribes, Sprite>();

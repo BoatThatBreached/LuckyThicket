@@ -24,7 +24,7 @@ public class GameTest
         {
             for (int j = 0; j < 3; ++j)
             {
-                game3x3.AddTile(new Point(i, j));
+                game3x3.gameEngine.AddTile(new Point(i, j));
             }
         }
     }
@@ -35,23 +35,23 @@ public class GameTest
         var p2 = new Point(2, 2);
         var p3 = new Point(3, 2);
 
-        empty_game.AddTile(p1);
-        empty_game.AddTile(p2);
-        empty_game.AddTile(p3);
-        empty_game.DestroyTile(p2);
+        empty_game.gameEngine.AddTile(p1);
+        empty_game.gameEngine.AddTile(p2);
+        empty_game.gameEngine.AddTile(p3);
+        empty_game.gameEngine.DestroyTile(p2);
 
-        Assert.IsTrue(empty_game.Exists(p1));
-        Assert.IsTrue(empty_game.Exists(p3));
-        Assert.IsFalse(empty_game.Exists(p2));
+        Assert.IsTrue(empty_game.gameEngine.Exists(p1));
+        Assert.IsTrue(empty_game.gameEngine.Exists(p3));
+        Assert.IsFalse(empty_game.gameEngine.Exists(p2));
     }
 
     [Test]
     public void SimpleSpawnTest()
     {
         var p0 = new Point(0, 0);
-        game3x3.SpawnUnit(p0, Tribes.Beaver);
-        Assert.IsTrue(game3x3.IsOccupied(p0));
-        var actual = game3x3.GetOccupantTribe(p0);
+        game3x3.gameEngine.SpawnUnit(p0, Tribes.Beaver);
+        Assert.IsTrue(game3x3.gameEngine.IsOccupied(p0));
+        var actual = game3x3.gameEngine.GetOccupantTribe(p0);
         Assert.AreEqual(Tribes.Beaver, actual);
     }
 
@@ -60,9 +60,9 @@ public class GameTest
     {
         // Если спавним Tribes.None, то клетка очищается
         var p0 = new Point(0, 0);
-        game3x3.SpawnUnit(p0, Tribes.None);
-        Assert.IsFalse(game3x3.IsOccupied(p0));
-        var actual = game3x3.GetOccupantTribe(p0);
+        game3x3.gameEngine.SpawnUnit(p0, Tribes.None);
+        Assert.IsFalse(game3x3.gameEngine.IsOccupied(p0));
+        var actual = game3x3.gameEngine.GetOccupantTribe(p0);
         Assert.AreEqual(Tribes.None, actual);
     }
 
@@ -70,25 +70,25 @@ public class GameTest
     public void HasAdjacentTest()
     {
         var p0 = new Point(0, 0);
-        Assert.IsTrue(game3x3.HasAdjacent(p0));
+        Assert.IsTrue(game3x3.gameEngine.HasAdjacent(p0));
 
         var p1 = new Point(0, -1);
-        Assert.IsTrue(game3x3.HasAdjacent(p1));
+        Assert.IsTrue(game3x3.gameEngine.HasAdjacent(p1));
 
         var p2 = new Point(-1, -1);
-        Assert.IsFalse(game3x3.HasAdjacent(p2));
+        Assert.IsFalse(game3x3.gameEngine.HasAdjacent(p2));
     }
 
     [Test]
     public void HasSurroundingTest()
     {
         var p0 = new Point(0, 0);
-        Assert.IsFalse(game3x3.HasSurrounding(p0));
+        Assert.IsFalse(game3x3.gameEngine.HasSurrounding(p0));
         
-        game3x3.SpawnUnit(p0, Tribes.Beaver);
-        Assert.IsFalse(game3x3.HasSurrounding(p0));
+        game3x3.gameEngine.SpawnUnit(p0, Tribes.Beaver);
+        Assert.IsFalse(game3x3.gameEngine.HasSurrounding(p0));
 
         var p1 = new Point(1, 0);
-        Assert.IsTrue(game3x3.HasSurrounding(p1));
+        Assert.IsTrue(game3x3.gameEngine.HasSurrounding(p1));
     }
 }
