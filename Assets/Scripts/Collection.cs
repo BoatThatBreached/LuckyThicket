@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Collection : MonoBehaviour
 {
@@ -100,5 +101,10 @@ public class Collection : MonoBehaviour
         var chars = new[] {char0, char1, char2, char3, char4};
         for (var i = 0; i < 20; i++)
             CardCharacters.Add(chars.GetRandom());
+    }
+    
+    public void BackToMenu()
+    {
+        SceneManager.LoadScene("MenuScene");
     }
 }
