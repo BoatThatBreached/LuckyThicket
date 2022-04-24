@@ -1,98 +1,60 @@
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using UnityEngine;
 
 public class Game : MonoBehaviour
 {
     public GameObject tilePref;
 
-    public Dictionary<Point, Tile> Board { get; set; }
+    public Dictionary<Point, Tile> Board { get; private set; }
     public OccupantDesigner designer;
     private int Size { get; set; }
     public Engine gameEngine;
-    private Queue<Player> turnsQueue;
+    private Queue<Player> _turnsQueue;
     public Player currentPlayer;
     public Card currentCard;
     public GameObject cardPref;
 
-    public Player[] Players { get; set; }
+    public Player[] Players { get; private set; }
 
     void Start()
     {
         InitPlayers();
         InitBoard();
         InitDecks();
-        turnsQueue = new Queue<Player>(Players);
+        _turnsQueue = new Queue<Player>(Players);
         StartTurn();
     }
 
     private void InitDecks()
     {
-        var char0 = new CardCharacter(
-            "Бобрёнок",
-            "",
-            new Queue<Basis>(new[] {Basis.Free, Basis.Select, Basis.Beaver, Basis.Spawn}),
-            Rarity.Common);
-        var char1 = new CardCharacter(
-            "Бобёр-учёный",
-            "Создайте бобра на соседней клетке.",
-            new Queue<Basis>(new[]
-            {
-                Basis.Free, Basis.Select, Basis.Beaver, Basis.Spawn, Basis.Adjacent, Basis.Free, Basis.Select,
-                Basis.Beaver, Basis.Spawn
-            }),
-            Rarity.Rare
-        );
-        var char2 = new CardCharacter(
-            "Сорока-ниндзя",
-            "Уничтожьте бобра на соседней клетке.",
-            new Queue<Basis>(new[]
-            {
-                Basis.Free, Basis.Select, Basis.Magpie, Basis.Spawn,
-                Basis.Adjacent, Basis.Beaver, Basis.Occupied, Basis.Select, Basis.Kill
-            }),
-            Rarity.Epic);
-
-        var char3 = new CardCharacter(
-            "Сорока-гопница",
-            "Создайте сороку на соседней клетке и уничтожьте бобра.",
-            new Queue<Basis>(new[]
-            {
-                Basis.Free, Basis.Select, Basis.Magpie, Basis.Spawn,
-                Basis.Adjacent, Basis.Free, Basis.Select, Basis.Magpie, Basis.Spawn,
-                Basis.Beaver, Basis.Occupied, Basis.Select, Basis.Kill
-            }),
-            Rarity.Legendary);
-        var char4 = new CardCharacter(
-            "Бобёр-гений",
-            "Возьмите карту.",
-            new Queue<Basis>(new[]
-            {
-                Basis.Free, Basis.Select, Basis.Beaver, Basis.Spawn,
-                Basis.Draw
-            }),
-            Rarity.Rare
-        );
-        var chars = new[] {char0, char1, char2, char3, char4};
+        
+        var cardsCount = Parser.GetCardsCount();
+        print(cardsCount);
+        var cards_ = Parser.GetCardsFromFile_(Enumerable.Range(0, cardsCount).Select(f=>f.ToString()));
+        //var cardsTask = Parser.GetCardsFromFile(Enumerable.Range(0, cardsCount).Select(f=>f.ToString()));
         foreach (var p in Players)
         {
             for (var i = 0; i < 20; i++)
-                p.Deck.Push(chars.GetRandom());
+                p.Deck.Push(cards_.GetRandom());
             for (var i = 0; i < 5; i++)
                 p.DrawCard();
         }
     }
 
+    
+
     private void StartTurn()
     {
-        currentPlayer = turnsQueue.Dequeue();
+        currentPlayer = _turnsQueue.Dequeue();
         currentPlayer.gameObject.SetActive(true);
     }
 
     public void EndTurn()
     {
         currentPlayer.gameObject.SetActive(false);
-        turnsQueue.Enqueue(currentPlayer);
+        _turnsQueue.Enqueue(currentPlayer);
         currentPlayer.Hand.Remove(currentCard);
         currentPlayer.Discard.Add(currentCard);
         Destroy(currentCard.gameObject);

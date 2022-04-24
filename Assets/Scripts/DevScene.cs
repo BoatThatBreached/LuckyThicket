@@ -1,8 +1,7 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
@@ -15,7 +14,12 @@ public class DevScene : MonoBehaviour
     public TMP_InputField cardName;
     public TMP_InputField cardMask;
     public AbRarContainer abRar;
-    
+
+    public void Start()
+    {
+        CardCharacter.SetCount(Parser.GetCardsCount());
+    }
+
     public void Exit()
     {
         SceneManager.LoadScene("MenuScene");

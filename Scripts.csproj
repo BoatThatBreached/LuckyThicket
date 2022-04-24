@@ -52,15 +52,15 @@
     <ImplicitlyExpandDesignTimeFacades>false</ImplicitlyExpandDesignTimeFacades>
   </PropertyGroup>
   <ItemGroup>
-     <Compile Include="Assets\Scripts\AbRarContainer.cs" />
-     <Compile Include="Assets\Scripts\DevScene.cs" />
      <Compile Include="Assets\Scripts\Template.cs" />
      <Compile Include="Assets\Scripts\Player.cs" />
      <Compile Include="Assets\Scripts\Card.cs" />
      <Compile Include="Assets\Scripts\Engine.cs" />
      <Compile Include="Assets\Scripts\Parser.cs" />
      <Compile Include="Assets\Scripts\CardInCollection.cs" />
+     <Compile Include="Assets\Scripts\AbRarContainer.cs" />
      <Compile Include="Assets\Scripts\Collection.cs" />
+     <Compile Include="Assets\Scripts\DevScene.cs" />
      <Compile Include="Assets\Scripts\Tribes.cs" />
      <Compile Include="Assets\Scripts\Menu.cs" />
      <Compile Include="Assets\Scripts\Basis.cs" />

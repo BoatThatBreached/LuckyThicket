@@ -10,7 +10,7 @@ public class CardCharacter
 {
     private static int _count;
 
-    public static void Flush() => _count = 0;
+    public static void SetCount(int n) => _count = n;
     
     public CardCharacter(string name, string abilityMask, Queue<Basis> ability, Rarity rarity)
     {
