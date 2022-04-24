@@ -1,16 +1,31 @@
-﻿
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+using System;
+using Random = UnityEngine.Random;
+
+[Serializable]
 public class CardCharacter
 {
-    public int Id { get; set; }
-    public string Name { get; set; }
-    public Rarity Rarity { get; set; }
-    public string AbilityMask { get; set; }
-    public Queue<Basis> Ability { get; set; }
-    public string AbilityString { get; set; }
+    private static int _count;
+
+    public static void Flush() => _count = 0;
+    
+    public CardCharacter(string name, string abilityMask, Queue<Basis> ability, Rarity rarity)
+    {
+        Id = _count++;
+        Name = name;
+        Rarity = rarity;
+        AbilityMask = abilityMask;
+        Ability = ability;
+    }
+    [SerializeField]public int Id; 
+    [SerializeField]public string Name;
+    [SerializeField]public Rarity Rarity;
+    [SerializeField]public string AbilityMask; 
+    [SerializeField]public Queue<Basis> Ability;
+    [SerializeField]public string AbilityString;
 }
 
 public enum Rarity
