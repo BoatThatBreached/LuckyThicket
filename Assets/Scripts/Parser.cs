@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 public class Parser
 {
     private Encoding _encode = Encoding.UTF8;
-    public static readonly string Path = "Assets\\Resources\\Prefabs\\Cards\\";
+    private const string Path = "Assets\\Resources\\Prefabs\\Cards\\";
 
     public void ResetEncode(Encoding wSet)
     {
@@ -56,14 +56,14 @@ public class Parser
         return ans;
     }
     
-    private List<CardCharacter> ConvertFromFile_(List<String> filename)
+    private List<CardCharacter> ConvertFromFile_(List<string> filename)
     {
         var ans = new List<CardCharacter>();
         foreach (var fl in filename)
         {
             var fStream = new FileStream(Path +  fl + ".json", FileMode.Open);
             var buffer = new byte[fStream.Length];
-            fStream.ReadAsync(buffer, 0, buffer.Length);
+            fStream.Read(buffer, 0, buffer.Length);
             var jsonString = _encode.GetString(buffer);
             var cardCharacter = JsonUtility.FromJson<CardCharacter>(jsonString);
             var abilityString = cardCharacter.AbilityString;

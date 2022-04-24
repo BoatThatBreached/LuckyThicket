@@ -18,7 +18,7 @@ public class Game : MonoBehaviour
 
     public Player[] Players { get; private set; }
 
-    void Start()
+    private void Start()
     {
         InitPlayers();
         InitBoard();
@@ -31,13 +31,12 @@ public class Game : MonoBehaviour
     {
         
         var cardsCount = Parser.GetCardsCount();
-        print(cardsCount);
-        var cards_ = Parser.GetCardsFromFile_(Enumerable.Range(0, cardsCount).Select(f=>f.ToString()));
-        //var cardsTask = Parser.GetCardsFromFile(Enumerable.Range(0, cardsCount).Select(f=>f.ToString()));
+        var cards = Parser.GetCardsFromFile_(Enumerable.Range(0, cardsCount).Select(f=>f.ToString()));
+        //TODO: ASYNC var cardsTask = Parser.GetCardsFromFile(Enumerable.Range(0, cardsCount).Select(f=>f.ToString()));
         foreach (var p in Players)
         {
             for (var i = 0; i < 20; i++)
-                p.Deck.Push(cards_.GetRandom());
+                p.Deck.Push(cards.GetRandom());
             for (var i = 0; i < 5; i++)
                 p.DrawCard();
         }
@@ -84,9 +83,9 @@ public class Game : MonoBehaviour
         }
 
 
-        Template bebrus = new Template(new[,] {{Tribes.Beaver, Tribes.Beaver, Tribes.Beaver}}, SchemaType.Big, false);
-        Players[0].AddWinTemplate(bebrus);
-        Template magpuk = new Template(new[,] {{Tribes.Magpie}, {Tribes.None}, {Tribes.Magpie}}, SchemaType.Big, false);
-        Players[1].AddWinTemplate(magpuk);
+        var beaver = new Template(new[,] {{Tribes.Beaver, Tribes.Beaver, Tribes.Beaver}}, SchemaType.Big, false);
+        Players[0].AddWinTemplate(beaver);
+        var magpie = new Template(new[,] {{Tribes.Magpie}, {Tribes.None}, {Tribes.Magpie}}, SchemaType.Big, false);
+        Players[1].AddWinTemplate(magpie);
     }
 }
