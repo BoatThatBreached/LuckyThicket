@@ -12,8 +12,6 @@ public class Connector: MonoBehaviour
     {
         var data = "{\"query\":\"queryCard\", \"Id\":" + id + "}";
         print(Post(CardsURL, data));
-        //var pr = PostRequest(CardsURL, data);
-        //StartCoroutine(pr);
     }
 
     public static bool TryLogin(string login, string password)
@@ -22,11 +20,10 @@ public class Connector: MonoBehaviour
         const string ex1 = "\", \"password\":\"";
         const string ex2 = "\"}";
         var data = ex0 + login + ex1 + password + ex2;
-        print(data);
         var ans = Post(AuthURL, data);
         if (ans.Contains("errors"))
         {
-            print(ans.Split('\"')[2]);
+            print(ans.Split('\"')[3]);
             return false;
         }
         return true;
@@ -45,7 +42,8 @@ public class Connector: MonoBehaviour
         sendStream.Close();
         var res = req.GetResponse();
         var receiveStream = res.GetResponseStream();
-        if (receiveStream == null) return string.Empty;
+        if (receiveStream == null) 
+            return string.Empty;
         var sr = new System.IO.StreamReader(receiveStream, Encoding.UTF8);
         var read = new char[256];
         var count = sr.Read(read, 0, 256);
@@ -56,29 +54,23 @@ public class Connector: MonoBehaviour
             result += str;
             count = sr.Read(read, 0, 256);
         }
+        sr.Close();
         receiveStream.Close();
         return result;
     }
 
-    static IEnumerator PostRequest(string url, string json)
+    public static bool TryRegister(string login, string password)
     {
-        var uwr = new UnityWebRequest(url, "POST");
-        uwr.timeout = 1000000;
-        var jsonToSend = new UTF8Encoding().GetBytes(json);
-        uwr.uploadHandler = new UploadHandlerRaw(jsonToSend);
-        uwr.downloadHandler = new DownloadHandlerBuffer();
-        uwr.SetRequestHeader("Content-Type", "application/json");
-
-        //Send the request then wait here until it returns
-        yield return uwr.SendWebRequest();
-
-        if (uwr.isNetworkError)
+        const string ex0 = "{\"query\":\"register\", \"login\":\"";
+        const string ex1 = "\", \"password\":\"";
+        const string ex2 = "\"}";
+        var data = ex0 + login + ex1 + password + ex2;
+        var ans = Post(AuthURL, data);
+        if (ans.Contains("errors"))
         {
-            Debug.Log("Error While Sending: " + uwr.error);
+            print(ans.Split('\"')[3]);
+            return false;
         }
-        else
-        {
-            Debug.Log("Received: " + uwr.downloadHandler.text);
-        }
+        return true;
     }
 }
