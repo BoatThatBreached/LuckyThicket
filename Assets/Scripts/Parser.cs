@@ -31,7 +31,7 @@ public class Parser
         }
     }
 
-    private async Task<List<CardCharacter>> ConvertFromFile(List<String> filename)
+    public async Task<List<CardCharacter>> ConvertFromFile(List<String> filename)
     {
         var ans = new List<CardCharacter>();
         foreach (var fl in filename)
@@ -56,7 +56,7 @@ public class Parser
         return ans;
     }
     
-    private List<CardCharacter> ConvertFromFile_(List<string> filename)
+    public  List<CardCharacter> ConvertFromFile_(List<string> filename)
     {
         var ans = new List<CardCharacter>();
         foreach (var fl in filename)
@@ -80,20 +80,7 @@ public class Parser
         }
         return ans;
     }
-    
-    public static async Task<List<CardCharacter>> GetCardsFromFile(IEnumerable<string> filenames)
-    {
-        var parser = new Parser();
-        var cards = await parser.ConvertFromFile(filenames.ToList());
-        return cards;
-    }
-    public static List<CardCharacter> GetCardsFromFile_(IEnumerable<string> filenames)
-    {
-        var parser = new Parser();
-        var cards = parser.ConvertFromFile_(filenames.ToList());
-        return cards;
-    }
-    
+
     public static int GetCardsCount()
     {
         var info = new DirectoryInfo(Parser.Path);

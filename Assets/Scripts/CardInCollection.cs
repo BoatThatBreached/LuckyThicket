@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,6 +8,7 @@ using Color = UnityEngine.Color;
 
 public class CardInCollection : MonoBehaviour
 {
+    public CardCharacter CardCharacter { get; set; }
     public Queue<Basis> Chain;
 
     public Image backImage;
@@ -29,6 +31,8 @@ public class CardInCollection : MonoBehaviour
 
     public void OnMouseDown()
     {
+        var deck = Deck.ListDecks().First();
+        Deck.PlaceCardInDeck(CardCharacter, deck);
     }
 
     public void ChangeSize(bool enlarging) =>

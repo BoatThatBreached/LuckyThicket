@@ -17,7 +17,6 @@ public class DevScene : MonoBehaviour
 
     public void Start()
     {
-        CardCharacter.SetCount(Parser.GetCardsCount());
     }
 
     public void Exit()
@@ -36,14 +35,14 @@ public class DevScene : MonoBehaviour
 
     public void TrySave()
     {
-        if (Hash128.Compute(_input).ToString() != "d0ccaca4712828d93a7cd3368f72308c")
-            return;
+        // if (Hash128.Compute(_input).ToString() != "d0ccaca4712828d93a7cd3368f72308c")
+        //     return;
         var q = new Queue<Basis>(abRar.ability);
-        var card = new CardCharacter(cardName.text, cardMask.text, q, abRar.rarity);
+        CardCharacter.AddNewCard(cardName.text, cardMask.text, q, abRar.rarity);
         cardName.text = string.Empty;
         cardMask.text = string.Empty;
         abRar.ability = Array.Empty<Basis>();
-        ConvertCardToFile(card);
+        //ConvertCardToFile(card);
         print("Saved successfully!");
     }
 

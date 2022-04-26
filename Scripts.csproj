@@ -53,22 +53,25 @@
   </PropertyGroup>
   <ItemGroup>
      <Compile Include="Assets\Scripts\Template.cs" />
+     <Compile Include="Assets\Scripts\DevScene.cs" />
      <Compile Include="Assets\Scripts\Player.cs" />
      <Compile Include="Assets\Scripts\Card.cs" />
      <Compile Include="Assets\Scripts\Engine.cs" />
+     <Compile Include="Assets\Scripts\AbRarContainer.cs" />
      <Compile Include="Assets\Scripts\Parser.cs" />
      <Compile Include="Assets\Scripts\CardInCollection.cs" />
      <Compile Include="Assets\Scripts\Collection.cs" />
      <Compile Include="Assets\Scripts\Tribes.cs" />
+     <Compile Include="Assets\Scripts\Model.cs" />
      <Compile Include="Assets\Scripts\Menu.cs" />
      <Compile Include="Assets\Scripts\Basis.cs" />
+     <Compile Include="Assets\Scripts\Deck.cs" />
      <Compile Include="Assets\Scripts\Tile.cs" />
      <Compile Include="Assets\Scripts\Game.cs" />
      <Compile Include="Assets\Scripts\OccupantDesigner.cs" />
      <Compile Include="Assets\Scripts\ActionPointer.cs" />
      <Compile Include="Assets\Scripts\CardCharacter.cs" />
-     <Compile Include="Assets\Scripts\DevScene.cs" />
-     <Compile Include="Assets\Scripts\AbRarContainer.cs" />
+     <Compile Include="Assets\Scripts\Serializer.cs" />
      <None Include="Assets\Scripts\Scripts.asmdef" />
  <Reference Include="UnityEngine">
  <HintPath>C:/Program Files/Unity/Hub/Editor/2020.3.32f1/Editor/Data/Managed/UnityEngine/UnityEngine.dll</HintPath>
@@ -312,6 +315,9 @@
  </Reference>
  <Reference Include="log4netPlastic">
  <HintPath>C:/Users/НикифоровКонстантинЛ/Documents/LuckyThicket/Library/PackageCache/com.unity.collab-proxy@1.15.13/Lib/Editor/PlasticSCM/log4netPlastic.dll</HintPath>
+ </Reference>
+ <Reference Include="Mono.Data.Sqlite">
+ <HintPath>C:/Users/НикифоровКонстантинЛ/Documents/LuckyThicket/Assets/Plugins/Mono.Data.Sqlite.dll</HintPath>
  </Reference>
  <Reference Include="netstandard">
  <HintPath>C:/Program Files/Unity/Hub/Editor/2020.3.32f1/Editor/Data/NetStandard/ref/2.0.0/netstandard.dll</HintPath>

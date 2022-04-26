@@ -15,6 +15,7 @@ public class Game : MonoBehaviour
     public Player currentPlayer;
     public Card currentCard;
     public GameObject cardPref;
+    private Model Model { get; set; }
 
     public Player[] Players { get; private set; }
 
@@ -24,14 +25,13 @@ public class Game : MonoBehaviour
         InitBoard();
         InitDecks();
         _turnsQueue = new Queue<Player>(Players);
+        Model = new Model();
         StartTurn();
     }
 
     private void InitDecks()
     {
-        
-        var cardsCount = Parser.GetCardsCount();
-        var cards = Parser.GetCardsFromFile_(Enumerable.Range(0, cardsCount).Select(f=>f.ToString()));
+        var cards = CardCharacter.ListCards();
         //TODO: ASYNC var cardsTask = Parser.GetCardsFromFile(Enumerable.Range(0, cardsCount).Select(f=>f.ToString()));
         foreach (var p in Players)
         {

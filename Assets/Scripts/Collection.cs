@@ -8,10 +8,12 @@ public class Collection : MonoBehaviour
     public GameObject cardInCollectionPref;
     private List<CardCharacter> CardCharacters { get; set; }
     public Transform collectionPanel;
+    private Model Model { get; set; }
 
     private void Init()
     {
         CardCharacters = new List<CardCharacter>() { };
+        Model = new Model();
         FillCollection();
     }
 
@@ -26,6 +28,7 @@ public class Collection : MonoBehaviour
         foreach (var cardCharacter in CardCharacters)
         {
             var card = Instantiate(cardInCollectionPref, collectionPanel).GetComponent<CardInCollection>();
+            card.CardCharacter = cardCharacter;
             card.Chain = cardCharacter.Ability;
             card.Name = cardCharacter.Name;
             card.AbilityMask = cardCharacter.AbilityMask;
@@ -42,12 +45,11 @@ public class Collection : MonoBehaviour
 
     private void FillCollection()
     {
-        
-        var cardsCount = Parser.GetCardsCount();
-        var cards = Parser.GetCardsFromFile_(Enumerable.Range(0, cardsCount).Select(f=>f.ToString()));
+        CardCharacter.FillTestData();
+        var cards = CardCharacter.ListCards();
         CardCharacters.AddRange(cards);
     }
-    
+
     public void BackToMenu()
     {
         SceneManager.LoadScene("MenuScene");
