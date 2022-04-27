@@ -15,14 +15,11 @@ public class Login : MonoBehaviour
     private string _savedMessage;
     public void LogIn(TMP_InputField login)
     {
-        if (IsInputCorrect(login.text) && TryConnect(login.text))
-        {
-            ShowSuccess("Logged in successfully.\nRedirecting");
-            _savedMessage = output.text;
-            var cor = KekTimer(5, ShowDots, () => SceneManager.LoadScene("MenuScene"));
-            
-            StartCoroutine(cor);
-        }
+        if (!IsInputCorrect(login.text) || !TryConnect(login.text)) return;
+        ShowSuccess("Logged in successfully.\nRedirecting");
+        _savedMessage = output.text;
+        var cor = KekTimer(5, ShowDots, () => SceneManager.LoadScene("MenuScene"));
+        StartCoroutine(cor);
     }
 
     private bool TryConnect(string login)

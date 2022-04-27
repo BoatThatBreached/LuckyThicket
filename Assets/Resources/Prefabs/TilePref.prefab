@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3387429067905190853}
   - component: {fileID: 7508691031636709259}
   - component: {fileID: 363608322045161645}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: TilePref
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -96,3 +96,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   occupantTribe: 0
+  occupant: {fileID: 0}
