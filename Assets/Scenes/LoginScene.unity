@@ -1266,7 +1266,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1741267953}
-        m_TargetAssemblyTypeName: Login, Assembly-CSharp
+        m_TargetAssemblyTypeName: Login, Scripts
         m_MethodName: LogIn
         m_Mode: 2
         m_Arguments:
@@ -1551,7 +1551,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1741267953}
-        m_TargetAssemblyTypeName: Login, Assembly-CSharp
+        m_TargetAssemblyTypeName: Login, Scripts
         m_MethodName: HideText
         m_Mode: 2
         m_Arguments:
@@ -1572,7 +1572,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1741267953}
-        m_TargetAssemblyTypeName: Login, Assembly-CSharp
+        m_TargetAssemblyTypeName: Login, Scripts
         m_MethodName: HideText
         m_Mode: 2
         m_Arguments:
@@ -2031,7 +2031,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1741267953}
-        m_TargetAssemblyTypeName: Login, Assembly-CSharp
+        m_TargetAssemblyTypeName: Login, Scripts
         m_MethodName: Register
         m_Mode: 2
         m_Arguments:
@@ -2349,7 +2349,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1741267953}
-        m_TargetAssemblyTypeName: Login, Assembly-CSharp
+        m_TargetAssemblyTypeName: Login, Scripts
         m_MethodName: Exit
         m_Mode: 1
         m_Arguments:
@@ -2409,8 +2409,8 @@ GameObject:
   - component: {fileID: 1741267952}
   - component: {fileID: 1741267951}
   - component: {fileID: 1741267950}
-  - component: {fileID: 1741267953}
   - component: {fileID: 1741267954}
+  - component: {fileID: 1741267953}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -2492,7 +2492,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1741267949}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e2791ec5d8f53424a8c997258cea104f, type: 3}
+  m_Script: {fileID: 11500000, guid: 8e87e69d526c4bac91a948be23ece7af, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   output: {fileID: 936127900}
