@@ -13,7 +13,7 @@ public class DeckPref : MonoBehaviour
         get => nameField.text;
         set => nameField.text = value;
     }
-    
+
     public void OnMouseDown()
     {
         var collection = FindObjectOfType<Collection>();
