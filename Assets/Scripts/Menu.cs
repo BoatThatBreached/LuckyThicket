@@ -20,9 +20,4 @@ public class Menu : MonoBehaviour
     {
         SceneManager.LoadScene("CollectionScene");
     }
-
-    public void EnterDevMode()
-    {
-        SceneManager.LoadScene("DeveloperScene");
-    }
 }

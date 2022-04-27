@@ -61,8 +61,10 @@
      <Compile Include="Assets\Scripts\AbRarContainer.cs" />
      <Compile Include="Assets\Scripts\Collection.cs" />
      <Compile Include="Assets\Scripts\DevScene.cs" />
+     <Compile Include="Assets\Scripts\Connector.cs" />
      <Compile Include="Assets\Scripts\Tribes.cs" />
      <Compile Include="Assets\Scripts\Menu.cs" />
+     <Compile Include="Assets\Scripts\Login.cs" />
      <Compile Include="Assets\Scripts\Basis.cs" />
      <Compile Include="Assets\Scripts\Tile.cs" />
      <Compile Include="Assets\Scripts\Game.cs" />
