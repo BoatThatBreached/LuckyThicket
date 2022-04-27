@@ -36,7 +36,7 @@ public class Parser
         var ans = new List<CardCharacter>();
         foreach (var fl in filename)
         {
-            var fStream = new FileStream(Path +  fl + ".json", FileMode.Open);
+            var fStream = new FileStream(Path + fl + ".json", FileMode.Open);
             var buffer = new byte[fStream.Length];
             await fStream.ReadAsync(buffer, 0, buffer.Length);
             var jsonString = _encode.GetString(buffer);
@@ -47,21 +47,23 @@ public class Parser
             {
                 if (it == "")
                     continue;
-                q.Enqueue((Basis)Enum.Parse(typeof(Basis), it));
+                q.Enqueue((Basis) Enum.Parse(typeof(Basis), it));
             }
+
             cardCharacter.Ability = q;
             ans.Add(cardCharacter);
             fStream.Close();
         }
+
         return ans;
     }
-    
+
     private List<CardCharacter> ConvertFromFile_(List<string> filename)
     {
         var ans = new List<CardCharacter>();
         foreach (var fl in filename)
         {
-            var fStream = new FileStream(Path +  fl + ".json", FileMode.Open);
+            var fStream = new FileStream(Path + fl + ".json", FileMode.Open);
             var buffer = new byte[fStream.Length];
             fStream.Read(buffer, 0, buffer.Length);
             var jsonString = _encode.GetString(buffer);
@@ -72,28 +74,31 @@ public class Parser
             {
                 if (it == "")
                     continue;
-                q.Enqueue((Basis)Enum.Parse(typeof(Basis), it));
+                q.Enqueue((Basis) Enum.Parse(typeof(Basis), it));
             }
+
             cardCharacter.Ability = q;
             ans.Add(cardCharacter);
             fStream.Close();
         }
+
         return ans;
     }
-    
+
     public static async Task<List<CardCharacter>> GetCardsFromFile(IEnumerable<string> filenames)
     {
         var parser = new Parser();
         var cards = await parser.ConvertFromFile(filenames.ToList());
         return cards;
     }
+
     public static List<CardCharacter> GetCardsFromFile_(IEnumerable<string> filenames)
     {
         var parser = new Parser();
         var cards = parser.ConvertFromFile_(filenames.ToList());
         return cards;
     }
-    
+
     public static int GetCardsCount()
     {
         var info = new DirectoryInfo(Parser.Path);
@@ -102,6 +107,22 @@ public class Parser
             .Where(f => f.Name.EndsWith(".json"));
         return jsons.Count();
     }
+
+    public static CardCharacter GetCardFromJson(string json)
+    {
+        var cardCharacter = JsonUtility.FromJson<CardCharacter>(json);
+        var abilityString = cardCharacter.AbilityString;
+        var q = new Queue<Basis>();
+        foreach (var it in abilityString.Split(' ').ToArray())
+        {
+            if (it == "")
+                continue;
+            q.Enqueue((Basis) Enum.Parse(typeof(Basis), it));
+        }
+        cardCharacter.Ability = q;
+        return cardCharacter;
+    }
+
 }
 
 public static class StringExtensions

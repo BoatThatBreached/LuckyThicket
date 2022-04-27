@@ -1,5 +1,9 @@
-﻿using System.Net;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
 using System.Text;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public class Connector: MonoBehaviour
@@ -78,5 +82,33 @@ public class Connector: MonoBehaviour
 
         errors = "";
         return true;
+    }
+
+    public static IEnumerable<CardCharacter> GetCollection(IEnumerable<int> ids) 
+        => ids.Select(id => Parser.GetCardFromJson(GetCardByID(id)));
+    
+    public static IEnumerable<int> GetCollectionIDs(string login)
+    {
+        const string ex0 = "{\"query\":\"getIdCardCollection\", \"login\":\"";
+        const string ex1 = "\", \"password\":\"";
+        const string ex2 = "\"}";
+        var data = ex0 + login  + ex2;
+        var result = Post(CardsURL, data);
+        if(result.Contains("errors"))
+            yield break;
+        var left = result.IndexOf("[", StringComparison.Ordinal);
+        var right = result.IndexOf("]", StringComparison.Ordinal);
+        var sub = result
+            .Substring(left + 1, right - left - 1)
+            .Split(',')
+            .Select(int.Parse);
+        foreach (var id in sub)
+            yield return id;
+    }
+    public static int GetMaxID()
+    {
+        var data = "{\"query\":\"maxId\"}";
+        var result = Post(CardsURL, data);
+        return int.Parse(result.Split('\"')[3]);
     }
 }
