@@ -31,8 +31,9 @@ public class CardInCollection : MonoBehaviour
 
     public void OnMouseDown()
     {
-        var deck = Deck.ListDecks().First();
-        Deck.PlaceCardInDeck(CardCharacter, deck);
+        var collection = FindObjectOfType<Collection>();
+        Deck.DeleteFromOrAddInActiveDeck(CardCharacter);
+        collection.Flush();
     }
 
     public void ChangeSize(bool enlarging) =>

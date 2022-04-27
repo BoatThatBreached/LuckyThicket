@@ -31,7 +31,7 @@ public class Game : MonoBehaviour
 
     private void InitDecks()
     {
-        var cards = CardCharacter.ListCards();
+        var cards = Deck.ListCardsInDeck(Deck.GetActiveDeck());
         //TODO: ASYNC var cardsTask = Parser.GetCardsFromFile(Enumerable.Range(0, cardsCount).Select(f=>f.ToString()));
         foreach (var p in Players)
         {

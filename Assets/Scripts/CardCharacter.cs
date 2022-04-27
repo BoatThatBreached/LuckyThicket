@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-
 using System;
 using Mono.Data.Sqlite;
 using Random = UnityEngine.Random;
@@ -17,12 +16,13 @@ public class CardCharacter : Model
         AbilityMask = abilityMask;
         Ability = ability;
     }
-    [SerializeField]public int Id; 
-    [SerializeField]public string Name;
-    [SerializeField]public Rarity Rarity;
-    [SerializeField]public string AbilityMask; 
-    [SerializeField]public Queue<Basis> Ability;
-    [SerializeField]public string AbilityString;
+
+    [SerializeField] public readonly int Id;
+    [SerializeField] public string Name;
+    [SerializeField] public Rarity Rarity;
+    [SerializeField] public string AbilityMask;
+    [SerializeField] public Queue<Basis> Ability;
+    [SerializeField] public string AbilityString;
 
     public static void AddNewCard(string name, string abilityMask, Queue<Basis> ability, Rarity rarity)
     {
@@ -37,7 +37,7 @@ RETURNING *
         };
         _database.WithOpenClose(query);
     }
-    
+
     public static List<CardCharacter> ListCards()
     {
         Func<SqliteCommand, List<CardCharacter>> query = (command) =>
@@ -62,7 +62,7 @@ RETURNING *
         };
         return _database.WithOpenClose(query);
     }
-    
+
     public static void FillTestData()
     {
         if (ListCards().Count != 0)
@@ -99,11 +99,22 @@ VALUES
         _database.WithOpenClose(query);
     }
 
+    public override bool Equals(object obj)
+    {
+        if (!(obj is CardCharacter)) return false;
+        var card = obj as CardCharacter;
+        return Id == card.Id;
+    }
+
+    public override int GetHashCode()
+    {
+        return Id;
+    }
 }
 
 public enum Rarity
 {
-    Common, 
+    Common,
     Rare,
     Epic,
     Legendary
@@ -114,6 +125,6 @@ public static class CardExtensions
     public static CardCharacter GetRandom(this IEnumerable<CardCharacter> source)
     {
         var arr = source.ToArray();
-        return arr[Random.Range(0,arr.Length)];
+        return arr[Random.Range(0, arr.Length)];
     }
 }

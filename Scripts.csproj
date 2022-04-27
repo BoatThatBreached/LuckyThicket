@@ -72,6 +72,7 @@
      <Compile Include="Assets\Scripts\ActionPointer.cs" />
      <Compile Include="Assets\Scripts\CardCharacter.cs" />
      <Compile Include="Assets\Scripts\Serializer.cs" />
+     <Compile Include="Assets\Scripts\DeckPref.cs" />
      <None Include="Assets\Scripts\Scripts.asmdef" />
  <Reference Include="UnityEngine">
  <HintPath>C:/Program Files/Unity/Hub/Editor/2020.3.32f1/Editor/Data/Managed/UnityEngine/UnityEngine.dll</HintPath>
