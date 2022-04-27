@@ -25,4 +25,9 @@ public class Menu : MonoBehaviour
     {
         SceneManager.LoadScene("DeveloperScene");
     }
+
+    public void EnterSettings()
+    {
+        SceneManager.LoadScene("SettingsScene");
+    }
 }
