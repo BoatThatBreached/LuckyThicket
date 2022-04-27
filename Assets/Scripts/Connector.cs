@@ -14,7 +14,7 @@ public class Connector: MonoBehaviour
         print(Post(CardsURL, data));
     }
 
-    public static bool TryLogin(string login, string password)
+    public static bool TryLogin(string login, string password, out string errors)
     {
         const string ex0 = "{\"query\":\"auth\", \"login\":\"";
         const string ex1 = "\", \"password\":\"";
@@ -23,9 +23,11 @@ public class Connector: MonoBehaviour
         var ans = Post(AuthURL, data);
         if (ans.Contains("errors"))
         {
-            print(ans.Split('\"')[3]);
+            errors = ans.Split('\"')[3];
             return false;
         }
+
+        errors = "";
         return true;
     }
 
