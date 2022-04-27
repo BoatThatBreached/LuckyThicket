@@ -20,6 +20,7 @@ public class Connector: MonoBehaviour
         const string ex2 = "\"}";
         var data = ex0 + login + ex1 + password + ex2;
         var ans = Post(AuthURL, data);
+        //print(ans);
         if (ans.Contains("errors"))
         {
             errors = ans.Split('\"')[3];
@@ -68,6 +69,7 @@ public class Connector: MonoBehaviour
         const string ex2 = "\"}";
         var data = ex0 + login + ex1 + password + ex2;
         var ans = Post(AuthURL, data);
+        //print(ans);
         if (ans.Contains("errors"))
         {
             errors = ans.Split('\"')[3];

@@ -15,15 +15,14 @@ public class Login : MonoBehaviour
     private string _savedMessage;
     public void LogIn(TMP_InputField login)
     {
-        if (!IsInputCorrect(login.text)
-            || !TryConnect(login.text)
-            ) 
-            return;
-        ShowSuccess("Logged in successfully.\nRedirecting");
-        _savedMessage = output.text;
-        var cor = KekTimer(5, ShowDots, () => SceneManager.LoadScene("MenuScene"));
+        if (IsInputCorrect(login.text) && TryConnect(login.text))
+        {
+            ShowSuccess("Logged in successfully.\nRedirecting");
+            _savedMessage = output.text;
+            var cor = KekTimer(5, ShowDots, () => SceneManager.LoadScene("MenuScene"));
             
-        StartCoroutine(cor);
+            StartCoroutine(cor);
+        }
     }
 
     private bool TryConnect(string login)
@@ -52,6 +51,12 @@ public class Login : MonoBehaviour
     {
         var result = true;
         var sb = new StringBuilder();
+        const string cyrillic = "ёйцукенгшщзхъфывапролджэячсмитьбю";
+        if (login.Any(s => cyrillic.Contains(char.ToLower(s))))
+        {
+            sb.Append("Wrong login: no cyrillic allowed.\n");
+            result = false;
+        }
         if (login.Contains(" "))
         {
             sb.Append("Wrong login: no spaces allowed.\n");
@@ -72,6 +77,11 @@ public class Login : MonoBehaviour
         if (_password == string.Empty)
         {
             sb.Append("Wrong password: empty.");
+            result = false;
+        }
+        if (_password.Any(s => cyrillic.Contains(char.ToLower(s))))
+        {
+            sb.Append("Wrong password: no cyrillic allowed.\n");
             result = false;
         }
         if(!result)
