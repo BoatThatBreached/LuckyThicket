@@ -16,7 +16,7 @@ public class Login : MonoBehaviour
     public void LogIn(TMP_InputField login)
     {
         if (!IsInputCorrect(login.text)
-        // || !TryConnect(login.text)
+            || !TryConnect(login.text)
             ) 
             return;
         ShowSuccess("Logged in successfully.\nRedirecting");
@@ -97,7 +97,19 @@ public class Login : MonoBehaviour
 
     public void Register(TMP_InputField login)
     {
-        
+        if (!IsInputCorrect(login.text)
+            || !TryRegister(login.text)
+        ) 
+            return;
+        ShowSuccess("Registered successfully.");
+    }
+
+    private bool TryRegister(string login)
+    {
+        var result = Connector.TryRegister(login, _password, out var errors);
+        if(!result)
+            ShowError(errors);
+        return result;
     }
 
     public void HideText(TMP_InputField pass)

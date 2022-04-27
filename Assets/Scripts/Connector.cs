@@ -1,17 +1,16 @@
-﻿using System.Collections;
+﻿using System.Net;
 using System.Text;
 using UnityEngine;
-using UnityEngine.Networking;
 
 public class Connector: MonoBehaviour
 {
     private const string CardsURL = "http://a0664388.xsph.ru/test.php";
     private const string AuthURL = "http://a0664388.xsph.ru/auth.php";
 
-    public void GetCardByID(int id)
+    public static string GetCardByID(int id)
     {
         var data = "{\"query\":\"queryCard\", \"Id\":" + id + "}";
-        print(Post(CardsURL, data));
+        return Post(CardsURL, data);
     }
 
     public static bool TryLogin(string login, string password, out string errors)
@@ -33,7 +32,8 @@ public class Connector: MonoBehaviour
 
     private static string Post(string url, string data)
     {
-        var req = System.Net.WebRequest.Create(url);
+        var req = (HttpWebRequest)WebRequest.Create(url);
+        req.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:99.0) Gecko/20100101 Firefox/99.0";
         req.Method = "POST";
         req.Timeout = 1000000;
         req.ContentType = "application/x-www-form-urlencoded";
@@ -61,7 +61,7 @@ public class Connector: MonoBehaviour
         return result;
     }
 
-    public static bool TryRegister(string login, string password)
+    public static bool TryRegister(string login, string password, out string errors)
     {
         const string ex0 = "{\"query\":\"register\", \"login\":\"";
         const string ex1 = "\", \"password\":\"";
@@ -70,9 +70,11 @@ public class Connector: MonoBehaviour
         var ans = Post(AuthURL, data);
         if (ans.Contains("errors"))
         {
-            print(ans.Split('\"')[3]);
+            errors = ans.Split('\"')[3];
             return false;
         }
+
+        errors = "";
         return true;
     }
 }
