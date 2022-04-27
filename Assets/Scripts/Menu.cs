@@ -20,4 +20,9 @@ public class Menu : MonoBehaviour
     {
         SceneManager.LoadScene("CollectionScene");
     }
+
+    public void EnterSettings()
+    {
+        SceneManager.LoadScene("SettingsScene");
+    }
 }
