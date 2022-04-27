@@ -1,103 +1,59 @@
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using UnityEngine;
 
 public class Game : MonoBehaviour
 {
     public GameObject tilePref;
-    
-    public Dictionary<Point, Tile> Board { get; set; }
+
+    public Dictionary<Point, Tile> Board { get; private set; }
     public OccupantDesigner designer;
     private int Size { get; set; }
     public Engine gameEngine;
-    private Queue<Player> turnsQueue;
+    private Queue<Player> _turnsQueue;
     public Player currentPlayer;
     public Card currentCard;
     public GameObject cardPref;
 
-    public Player[] Players { get; set; }
+    public Player[] Players { get; private set; }
 
-    void Start()
+    private void Start()
     {
         InitPlayers();
         InitBoard();
         InitDecks();
-        turnsQueue = new Queue<Player>(Players);
+        _turnsQueue = new Queue<Player>(Players);
         StartTurn();
     }
 
     private void InitDecks()
     {
-        var char0 = new CardCharacter()
-        {
-            Id = 0,
-            Ability = new Queue<Basis>(new[]{Basis.Free, Basis.Select, Basis.Beaver, Basis.Spawn}),
-            AbilityMask = "",
-            AbilityString = "",
-            Name = "Бобрёнок",
-            Rarity = Rarity.Common
-        };
-        var char1 = new CardCharacter()
-        {
-            Id = 1,
-            Ability = new Queue<Basis>(new[]{Basis.Free, Basis.Select, Basis.Beaver, Basis.Spawn,Basis.Adjacent, Basis.Free, Basis.Select, Basis.Beaver, Basis.Spawn}),
-            AbilityMask = "Создайте бобра на соседней клетке.",
-            AbilityString = "",
-            Name = "Бобёр-учёный",
-            Rarity = Rarity.Rare
-        };
-        var char2 = new CardCharacter()
-        {
-            Id = 2,
-            Ability = new Queue<Basis>(new[]{Basis.Free, Basis.Select, Basis.Magpie, Basis.Spawn,
-                Basis.Adjacent, Basis.Beaver, Basis.Occupied, Basis.Select, Basis.Kill}),
-            AbilityMask = "Уничтожьте бобра на соседней клетке.",
-            AbilityString = "",
-            Name = "Сорока-ниндзя",
-            Rarity = Rarity.Epic
-        };
-        var char3 = new CardCharacter()
-        {
-            Id = 3,
-            Ability = new Queue<Basis>(new[]{Basis.Free, Basis.Select, Basis.Magpie, Basis.Spawn,
-                Basis.Adjacent, Basis.Free, Basis.Select, Basis.Magpie, Basis.Spawn, 
-                Basis.Beaver, Basis.Occupied, Basis.Select, Basis.Kill}),
-            AbilityMask = "Создайте сороку на соседней клетке и уничтожьте бобра.",
-            AbilityString = "",
-            Name = "Сорока-гопница",
-            Rarity = Rarity.Legendary
-        };
-        var char4 = new CardCharacter()
-        {
-            Id = 4,
-            Ability = new Queue<Basis>(new[]{Basis.Free, Basis.Select, Basis.Beaver, Basis.Spawn,
-                Basis.Draw}),
-            AbilityMask = "Возьмите карту.",
-            AbilityString = "",
-            Name = "Бобёр-гений",
-            Rarity = Rarity.Rare
-        };
-        var chars = new[] {char0, char1, char2, char3, char4};
+        
+        var cardsCount = Parser.GetCardsCount();
+        var cards = Parser.GetCardsFromFile_(Enumerable.Range(0, cardsCount).Select(f=>f.ToString()));
+        //TODO: ASYNC var cardsTask = Parser.GetCardsFromFile(Enumerable.Range(0, cardsCount).Select(f=>f.ToString()));
         foreach (var p in Players)
         {
             for (var i = 0; i < 20; i++)
-                p.Deck.Push(chars.GetRandom());
+                p.Deck.Push(cards.GetRandom());
             for (var i = 0; i < 5; i++)
                 p.DrawCard();
         }
-        
     }
+
+    
 
     private void StartTurn()
     {
-        currentPlayer = turnsQueue.Dequeue();
+        currentPlayer = _turnsQueue.Dequeue();
         currentPlayer.gameObject.SetActive(true);
     }
 
     public void EndTurn()
     {
         currentPlayer.gameObject.SetActive(false);
-        turnsQueue.Enqueue(currentPlayer);
+        _turnsQueue.Enqueue(currentPlayer);
         currentPlayer.Hand.Remove(currentCard);
         currentPlayer.Discard.Add(currentCard);
         Destroy(currentCard.gameObject);
@@ -109,8 +65,8 @@ public class Game : MonoBehaviour
         Size = 3;
         Board = new Dictionary<Point, Tile>();
         for (int i = -Size / 2; i < Size / 2 + 1; i++)
-            for (int j = -Size / 2; j < Size / 2 + 1; j++)
-                gameEngine.AddTile(new Point(i, j));
+        for (int j = -Size / 2; j < Size / 2 + 1; j++)
+            gameEngine.AddTile(new Point(i, j));
     }
 
     private void InitPlayers()
@@ -125,13 +81,11 @@ public class Game : MonoBehaviour
             p.gameObject.SetActive(false);
             p.game = this;
         }
-        
 
-        Template bebrus = new Template(new[,] {{Tribes.Beaver, Tribes.Beaver, Tribes.Beaver}}, SchemaType.Big, false);
-        Players[0].AddWinTemplate(bebrus);
-        Template magpuk = new Template(new[,] {{Tribes.Magpie}, {Tribes.None}, {Tribes.Magpie}}, SchemaType.Big, false);
-        Players[1].AddWinTemplate(magpuk);
-        
-        
+
+        var beaver = new Template(new[,] {{Tribes.Beaver, Tribes.Beaver, Tribes.Beaver}}, SchemaType.Big, false);
+        Players[0].AddWinTemplate(beaver);
+        var magpie = new Template(new[,] {{Tribes.Magpie}, {Tribes.None}, {Tribes.Magpie}}, SchemaType.Big, false);
+        Players[1].AddWinTemplate(magpie);
     }
 }
