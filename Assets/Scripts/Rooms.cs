@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class Rooms : MonoBehaviour
@@ -10,7 +11,8 @@ public class Rooms : MonoBehaviour
     public GameObject roomPref;
     public Transform roomPanel;
     public TMP_InputField roomName;
-    private List<Room> rooms;
+    private List<Room> _rooms;
+    
     private void Start()
     {
         Fetch();
@@ -27,8 +29,8 @@ public class Rooms : MonoBehaviour
     {
         foreach (Transform child in roomPanel)
             Destroy(child.gameObject);
-        rooms = Connector.GetRoomsList();
-        foreach (var room in rooms)
+        _rooms = Connector.GetRoomsList();
+        foreach (var room in _rooms)
         {
             var button = Instantiate(roomPref, roomPanel);
             button.transform.GetChild(0).GetComponent<TMP_Text>().text = room.Name;
@@ -43,20 +45,22 @@ public class Rooms : MonoBehaviour
             if (room.IsValid(Account.Nickname))
             {
                 print($"BEBROCHKA IN ROOM {room.Name}");
-                //Play();
+                Play();
             }
         }
     }
 
+    public void Exit() => SceneManager.LoadScene("MenuScene");
+    
     private void Play()
     {
-        print("BEBROCHKA!!!!!");
+        SceneManager.LoadScene("GameScene");
     }
 
     //BEBRA
     public void CreateRoom()
     {
-        if(rooms.Count(r => r.IsHere(Account.Nickname))<3)
+        if(_rooms.Count(r => r.IsHere(Account.Nickname))<3)
             Connector.CreateRoom(Account.Token, roomName.text);
         RefreshRooms();
     }
