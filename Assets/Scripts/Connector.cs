@@ -11,8 +11,9 @@ public class Connector: MonoBehaviour
     private const string CardsURL = "http://a0664388.xsph.ru/test.php";
     private const string AuthURL = "http://a0664388.xsph.ru/auth.php";
     private const string DataURL = "http://a0664388.xsph.ru/infoExtend.php";
+    private const string GameURL = "http://a0664388.xsph.ru/gameLogic.php";
 
-    public static string GetCardByID(int id)
+    private static string GetCardByID(int id)
     {
         var data = "{\"query\":\"queryCard\", \"Id\":" + id + "}";
         return Post(CardsURL, data);
@@ -25,14 +26,14 @@ public class Connector: MonoBehaviour
         const string ex2 = "\"}";
         var data = ex0 + login + ex1 + password + ex2;
         var ans = Post(AuthURL, data);
-        //print(ans);
+        print(ans);
         if (ans.Contains("errors"))
         {
             errors = ans.Split('\"')[3];
             return false;
         }
 
-        errors = "";
+        errors = ans;
         return true;
     }
 
@@ -161,5 +162,23 @@ public class Connector: MonoBehaviour
         var res= Post(DataURL, data).Split('\"')[3];
         print(res);
         return res;
+    }
+
+    public static string GetRoomsList()
+    {
+        var data = "{\"query\":\"getListRooms\"}";
+        var res = Post(GameURL, data);
+        print(res);
+        return res;
+    }
+
+    public static void CreateRoom(string token, string name)
+    {
+        const string ex0 = "{\"query\":\"createRoom\", \"token\":\"";
+        const string ex1 = "\", \"name\":\"";
+        const string ex3 = "\"}";
+        var data = ex0 + token + ex1 + name  + ex3;
+        var res= Post(DataURL, data).Split('\"')[3];
+        print(res);
     }
 }

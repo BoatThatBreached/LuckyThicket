@@ -4,7 +4,7 @@ using System.Linq;
 
 public static class Account
 {
-    public  static string Nickname;
+    public static string Nickname;
     public static float SoundsVolume;
     public static float MusicVolume;
     public static Scenes CurrentScene;
@@ -12,6 +12,7 @@ public static class Account
     public static List<CardCharacter> Unowned = new List<CardCharacter>();
     public static List<List<int>> Decks = new List<List<int>>();
     public static int Balance;
+    public static string Token;
 
     public static void Reset()
     {
@@ -22,12 +23,13 @@ public static class Account
         Collection = new List<CardCharacter>();
         Unowned = new List<CardCharacter>();
         Decks = new List<List<int>>();
+        Token = string.Empty;
     }
 
-    public static void Load(string login)
+    public static void Load(string login, string token)
     {
         Nickname = login;
-        
+        Token = token;
         var maxID = Connector.GetMaxID();
         var owned = Connector.GetCollectionIDs(login);
         var ownedCards = Connector.GetCollection(owned);
