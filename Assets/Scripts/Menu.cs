@@ -10,7 +10,7 @@ public class Menu : MonoBehaviour
 
     public void Start() => label.text = $"Вы вошли под ником {Account.Nickname}";
     
-    public void Play() => SceneManager.LoadScene("GameScene");
+    public void Play() => SceneManager.LoadScene("RoomScene");//SceneManager.LoadScene("GameScene");
 
     public void Exit()
     {

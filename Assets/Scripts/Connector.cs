@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -164,12 +165,28 @@ public class Connector: MonoBehaviour
         return res;
     }
 
-    public static string GetRoomsList()
+    public static List<Room> GetRoomsList()
     {
         var data = "{\"query\":\"getListRooms\"}";
         var res = Post(GameURL, data);
-        print(res);
-        return res;
+        
+        //{"pizdec123":{"name":"pizdec123","1":"ff","2":""},"bebra":{"name":"bebra","1":"bebrinsk","2":""},"neBebra":{"name":"neBebra","1":"bebrinsk","2":""}}
+        res = res.Remove(0,1);
+        res = res.Remove(res.Length - 1);
+        var ms = Regex.Matches(res, "{(.*?)}");
+        var rooms = new List<Room>();
+        foreach (var m in ms)
+        {
+            var sp = m.ToString().Split('\"');
+            var roomName = sp[3];
+            var firstPlayer = sp[7];
+            var secondPlayer = sp[11];
+            var room = new Room(roomName, firstPlayer, secondPlayer);
+            rooms.Add(room);
+        }
+        //print(res);
+        
+        return rooms;
     }
 
     public static void CreateRoom(string token, string name)
@@ -178,7 +195,17 @@ public class Connector: MonoBehaviour
         const string ex1 = "\", \"name\":\"";
         const string ex3 = "\"}";
         var data = ex0 + token + ex1 + name  + ex3;
-        var res= Post(DataURL, data).Split('\"')[3];
+        var res = Post(GameURL, data);
         print(res);
+    }
+
+    public static string JoinRoom(string token, string name)
+    {
+        const string ex0 = "{\"query\":\"joinRoom\", \"token\":\"";
+        const string ex1 = "\", \"name\":\"";
+        const string ex3 = "\"}";
+        var data = ex0 + token + ex1 + name  + ex3;
+        var res = Post(GameURL, data);
+        return res;
     }
 }
