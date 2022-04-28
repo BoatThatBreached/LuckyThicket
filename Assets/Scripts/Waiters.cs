@@ -20,21 +20,29 @@ public class Waiters
         }
     }
 
-    public static IEnumerator LoopWhile(Func<bool> predicate, Action process, Action finish)
+    public static IEnumerator LoopFor(float seconds, Action finish)
     {
-        var delta = 0.5f;
-        while (true)
+        var left = seconds;
+        yield return new WaitForSeconds(seconds);
+        finish();
+    }
+
+
+public static IEnumerator LoopWhile(Func<bool> predicate, Action process, Action finish)
+{
+    var delta = 0.5f;
+    while (true)
+    {
+        if (!predicate())
         {
-            if (!predicate())
-            {
-                process();
-                yield return new WaitForSeconds(delta);
-            }
-            else
-            {
-                finish();
-                yield break;
-            }
+            process();
+            yield return new WaitForSeconds(delta);
+        }
+        else
+        {
+            finish();
+            yield break;
         }
     }
+}
 }

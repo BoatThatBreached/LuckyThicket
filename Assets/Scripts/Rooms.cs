@@ -10,20 +10,24 @@ public class Rooms : MonoBehaviour
     public GameObject roomPref;
     public Transform roomPanel;
     public TMP_InputField roomName;
-    void Start()
+    private List<Room> rooms;
+    private void Start()
     {
-        RefreshRooms();
+        Fetch();
     }
 
-    void RefreshRooms()
+    private void Fetch()
     {
-        
-        foreach(Transform child in roomPanel)
+        var cor = Waiters.LoopFor(10, Fetch);
+        RefreshRooms();
+        StartCoroutine(cor);
+    }
+
+    private void RefreshRooms()
+    {
+        foreach (Transform child in roomPanel)
             Destroy(child.gameObject);
-        var list = Connector.GetRoomsList();
-        var rooms = list
-            //.Where(room => room.FirstPlayer != Account.Nickname && room.SecondPlayer != string.Empty)
-            ;
+        rooms = Connector.GetRoomsList();
         foreach (var room in rooms)
         {
             var button = Instantiate(roomPref, roomPanel);
@@ -36,17 +40,11 @@ public class Rooms : MonoBehaviour
                 Connector.JoinRoom(Account.Token, s);
                 RefreshRooms();
             });
-        }
-
-        foreach (var room in rooms)
-        {
-            if (room.IsValid)
+            if (room.IsValid(Account.Nickname))
             {
                 print($"BEBROCHKA IN ROOM {room.Name}");
                 //Play();
-                return;
             }
-            
         }
     }
 
@@ -58,7 +56,8 @@ public class Rooms : MonoBehaviour
     //BEBRA
     public void CreateRoom()
     {
-        Connector.CreateRoom(Account.Token, roomName.text);
+        if(rooms.Count(r => r.IsHere(Account.Nickname))<3)
+            Connector.CreateRoom(Account.Token, roomName.text);
         RefreshRooms();
     }
 }
@@ -68,9 +67,14 @@ public class Room
     public string Name { get; set; }
     public string FirstPlayer { get; set; }
     public string SecondPlayer { get; set; }
-    public bool IsValid => FirstPlayer != SecondPlayer 
-                           && FirstPlayer != string.Empty 
-                           && SecondPlayer != string.Empty;
+
+    public bool IsValid(string login) =>
+        IsHere(login) &&
+        FirstPlayer != SecondPlayer
+        && FirstPlayer != string.Empty
+        && SecondPlayer != string.Empty;
+
+    public bool IsHere(string login) => FirstPlayer == login || SecondPlayer == login;
 
     public Room(string name, string f, string s)
     {
