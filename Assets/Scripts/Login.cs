@@ -1,5 +1,3 @@
-using System;
-using System.Collections;
 using System.Linq;
 using System.Text;
 using TMPro;
@@ -8,136 +6,134 @@ using UnityEngine.SceneManagement;
 
 public class Login : MonoBehaviour
 {
-    private string _password = string.Empty;
+    public TMP_Text duckPassword;
     public TMP_Text output;
+    public TMP_InputField login;
+    public TMP_InputField password;
+    public GameObject TribeChoice;
+    private bool _hidden = true;
+
+    #region Buttons
+
     public void Exit() => Application.Quit();
-    private int _dotsCount;
-    private string _savedMessage;
-    public void LogIn(TMP_InputField login)
+
+    private void Start() => Account.CurrentScene = Scenes.Login;
+
+    public void StartRegister()
     {
-        if (!IsInputCorrect(login.text) || !TryConnect(login.text)) return;
-        ShowSuccess("Logged in successfully.\nRedirecting");
-        _savedMessage = output.text;
-        var cor = KekTimer(5, ShowDots, () => SceneManager.LoadScene("MenuScene"));
-        StartCoroutine(cor);
+        if (!IsInputCorrect())
+            return;
+        TribeChoice.SetActive(true);
     }
 
-    private bool TryConnect(string login)
+    public void FinishRegister(bool isBeaver)
     {
-        var result = Connector.TryLogin(login, _password, out var errors);
-        if(!result)
+        if (!TryRegister())
+            return;
+        var tribe = isBeaver ? Tribes.Beaver : Tribes.Magpie;
+        ShowSuccess("Registered successfully.");
+        Connector.InitNewUser(login.text, tribe);
+        TribeChoice.SetActive(false);
+    }
+
+    public void LogIn()
+    {
+        if (!IsInputCorrect() || !TryConnect()) 
+            return;
+        ShowSuccess("Logged in successfully.\nRedirecting.");
+        Account.Load(login.text);
+        SceneManager.LoadScene("MenuScene");
+    }
+    
+    public void SwapPasswords()
+    {
+        _hidden = !_hidden;
+        password.textComponent.color = new Color(1, 1, 1, _hidden ? 0 : 1);
+        duckPassword.gameObject.SetActive(_hidden);
+    }
+    
+    public void EnterDevMode() => SceneManager.LoadScene("DeveloperScene");
+    
+
+    #endregion
+    
+
+    private bool TryConnect()
+    {
+        var result = Connector.TryLogin(login.text, password.text, out var errors);
+        if (!result)
             ShowError(errors);
         return result;
-    }
-
-    private void ShowDots()
-    {
-        _dotsCount++;
-        _dotsCount %= 4;
-        var msg = _savedMessage + string.Join("", Enumerable.Repeat(".", _dotsCount));
-        output.text = msg;
     }
 
     private void ShowSuccess(string message)
     {
         output.text = message;
-        output.color = (Color.green + Color.black)/2;
+        output.color = (Color.green + Color.black) / 2;
     }
 
-    private bool IsInputCorrect(string login)
+    private bool IsInputCorrect()
     {
         var result = true;
         var sb = new StringBuilder();
         const string cyrillic = "ёйцукенгшщзхъфывапролджэячсмитьбю";
-        if (login.Any(s => cyrillic.Contains(char.ToLower(s))))
+        if (login.text.Any(s => cyrillic.Contains(char.ToLower(s))))
         {
             sb.Append("Wrong login: no cyrillic allowed.\n");
             result = false;
         }
-        if (login.Contains(" "))
+
+        if (login.text.Contains(" "))
         {
             sb.Append("Wrong login: no spaces allowed.\n");
             result = false;
         }
 
-        if (login == string.Empty)
+        if (login.text == string.Empty)
         {
             sb.Append("Wrong login: empty.\n");
             result = false;
         }
-        if (_password.Contains(" "))
+
+        if (password.text.Contains(" "))
         {
             sb.Append("Wrong password: no spaces allowed.");
             result = false;
         }
 
-        if (_password == string.Empty)
+        if (password.text == string.Empty)
         {
             sb.Append("Wrong password: empty.");
             result = false;
         }
-        if (_password.Any(s => cyrillic.Contains(char.ToLower(s))))
+
+        if (password.text.Any(s => cyrillic.Contains(char.ToLower(s))))
         {
             sb.Append("Wrong password: no cyrillic allowed.\n");
             result = false;
         }
-        if(!result)
+
+        if (!result)
             ShowError(sb.ToString());
         return result;
     }
 
-    IEnumerator KekTimer(int seconds, Action process, Action finish)
-    {
-        var left = seconds;
-        while(true)
-        {
-            process();
-            yield return new WaitForSeconds(1);
-            left -= 1;
-            if (left < 0)
-            {
-                finish();
-                yield break;
-            }
-        }
-    }
 
-    public void Register(TMP_InputField login)
+    private bool TryRegister()
     {
-        if (!IsInputCorrect(login.text)
-            || !TryRegister(login.text)
-        ) 
-            return;
-        ShowSuccess("Registered successfully.");
-    }
-
-    private bool TryRegister(string login)
-    {
-        var result = Connector.TryRegister(login, _password, out var errors);
-        if(!result)
+        var result = Connector.TryRegister(login.text, password.text, out var errors);
+        if (!result)
             ShowError(errors);
         return result;
     }
 
-    public void HideText(TMP_InputField pass)
-    {
-        var duck = string.Join("", Enumerable.Range(0, pass.text.Length).Select(z => "*"));
-        if (pass.text == duck) 
-            return;
-        _password = pass.text;
-        pass.text = duck;
-    }
+    public void HideText()=> duckPassword.text = string.Join("", Enumerable.Range(0, password.text.Length).Select(z => "*"));
+
+    
 
     private void ShowError(string message)
     {
         output.text = message;
         output.color = Color.red;
-    }
-    
-    
-
-    public void EnterDevMode()
-    {
-        SceneManager.LoadScene("DeveloperScene");
     }
 }

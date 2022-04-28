@@ -11,7 +11,7 @@ public class Collection : MonoBehaviour
 
     private void Init()
     {
-        CardCharacters = new List<CardCharacter>() { };
+        CardCharacters = new List<CardCharacter> { };
         FillCollection();
     }
 
@@ -42,10 +42,7 @@ public class Collection : MonoBehaviour
 
     private void FillCollection()
     {
-        
-        var cardsCount = Parser.GetCardsCount();
-        var cards = Parser.GetCardsFromFile_(Enumerable.Range(0, cardsCount).Select(f=>f.ToString()));
-        CardCharacters.AddRange(cards);
+        CardCharacters = Account.Collection;
     }
     
     public void BackToMenu()

@@ -1,6 +1,6 @@
 ﻿public enum Basis
 {
-    #region Opeartions
+    #region Operations
     Build,
     Destroy,
     Spawn,

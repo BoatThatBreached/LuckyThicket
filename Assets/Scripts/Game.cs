@@ -29,9 +29,9 @@ public class Game : MonoBehaviour
 
     private void InitDecks()
     {
-        
-        var cardsCount = Parser.GetCardsCount();
-        var cards = Parser.GetCardsFromFile_(Enumerable.Range(0, cardsCount).Select(f=>f.ToString()));
+        var cards = Account.Collection;
+        //var cardsCount = Parser.GetCardsCount();
+        //var cards = Parser.GetCardsFromFile_(Enumerable.Range(0, cardsCount).Select(f=>f.ToString()));
         //TODO: ASYNC var cardsTask = Parser.GetCardsFromFile(Enumerable.Range(0, cardsCount).Select(f=>f.ToString()));
         foreach (var p in Players)
         {
