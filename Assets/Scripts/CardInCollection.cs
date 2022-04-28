@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using TMPro;
@@ -7,9 +8,10 @@ using Color = UnityEngine.Color;
 
 public class CardInCollection : MonoBehaviour
 {
-    public Queue<Basis> Chain;
-
     public Image backImage;
+    public Rarity Rarity;
+    public CardCharacter CardCharacter { get; set; }
+
     public Color Color
     {
         set => backImage.color = value;
@@ -25,10 +27,21 @@ public class CardInCollection : MonoBehaviour
     {
         get => abilityField.text;
         set => abilityField.text = value;
-    } 
+    }
 
-    public void OnMouseDown()
+    public void Click()
     {
+        switch (Account.CurrentScene)
+        {
+            case Scenes.Shop:
+                var shop = FindObjectOfType<Shop>();
+                shop.ShowConfirmation(CardCharacter);
+                break;
+            case Scenes.Collection:
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
     }
 
     public void ChangeSize(bool enlarging) =>

@@ -37,7 +37,7 @@ public class Engine : MonoBehaviour
         Actions[Basis.Build] = () => AddTile(Anchor);
         Actions[Basis.Destroy] = () => DestroyTile(Anchor);
         Actions[Basis.Kill] = () => DestroyUnit(Anchor, AnchorTribe);
-            
+
         Actions[Basis.Spawn] = () => SpawnUnit(Anchor, AnchorTribe);
         //Actions[Basis.PushUnit] = ()=>PushUnit(Anchor, AnchorTribe);
         //Actions[Basis.PullUnit] = ()=>PullUnit(Anchor, AnchorTribe);
@@ -63,7 +63,7 @@ public class Engine : MonoBehaviour
         Actions[Basis.Also] = () => { };
         Actions[Basis.Random] = TrySelectRandomPoint;
 
-        Actions[Basis.Draw] = ()=>game.currentPlayer.DrawCard();
+        Actions[Basis.Draw] = () => game.player.DrawCard();
     }
 
     public bool Exists(Point p) => Board.ContainsKey(p);
@@ -119,11 +119,12 @@ public class Engine : MonoBehaviour
 
     private void FlushTribe() => AnchorTribe = Tribes.None;
 
-    public void TryLoadActions(Queue<Basis> chain, Card card)
+    public void TryLoadActions(Queue<Basis> chain, CardCharacter card, GameObject go)
     {
-        if (game.currentCard != null)
+        if (game.currentCardCharacter != null)
             return;
-        game.currentCard = card;
+        game.currentCardCharacter = card;
+        game.currentCard = go;
         Criterias.Clear();
         FlushTribe();
         CurrentChain.Clear();
@@ -131,17 +132,18 @@ public class Engine : MonoBehaviour
             CurrentChain.Enqueue(act);
         Step();
     }
+
     public bool SatisfiesCriterias(Point p)
     {
         var pred = Criterias.All(crit => crit(p));
         if (NotExistingNeeded)
             pred = pred && Board.Keys
                 .Where(IsEdge)
-                .SelectMany(p=>p.GetAdjacent())
+                .SelectMany(p => p.GetAdjacent())
                 .Contains(p);
         return pred;
     }
-    
+
     private void Step()
     {
         CurrentAction = CurrentChain.Count > 0 ? CurrentChain.Dequeue() : Basis.Idle;
@@ -154,40 +156,37 @@ public class Engine : MonoBehaviour
             game.EndTurn();
             return;
         }
+
         Actions[CurrentAction]();
         if (CurrentAction != Basis.Select && CurrentAction != Basis.Idle)
             Step();
     }
-    
+
     private void CheckWin()
     {
-        foreach (var player in game.Players)
+        var player = game.player;
+        var list = player.GetTemplatesPlayerCanComplete(Board);
+        if (list.Count > 0)
         {
-            var list = player.GetTemplatesPlayerCanComplete(Board);
-            if (list.Count > 0)
+            print($"{player.Name} can complete smth and count is {list.Count}");
+            // delete first completed
+            var template = list[0];
+            foreach (var p in template.Template.Points.Keys)
             {
-                print($"{player.Name} can complete smth and count is {list.Count}");
-                // delete first completed
-                var template = list[0];
-                foreach (var p in template.Template.Points.Keys)
-                {
-                    var currp = new Point(p.X + template.StartingPoint.X, p.Y + template.StartingPoint.Y);
-                    DestroyUnit(currp, template.Template.Points[p]);
-                }
+                var currp = new Point(p.X + template.StartingPoint.X, p.Y + template.StartingPoint.Y);
+                DestroyUnit(currp, template.Template.Points[p]);
             }
         }
     }
-    
+
     private void SkipToAlso()
     {
-        
         Criterias.Clear();
-        //Also will never start with smth relative to anchor
         while (CurrentChain.Count > 0 && CurrentChain.Peek() != Basis.Also)
             CurrentChain.Dequeue();
         Step();
     }
-    
+
     public void SelectPoint(Point p)
     {
         Anchor = p;
@@ -197,14 +196,14 @@ public class Engine : MonoBehaviour
         NotExistingNeeded = false;
         Step();
     }
-    
+
     private bool ShowPossibleTiles()
     {
         if (NotExistingNeeded)
         {
             var pts = Board.Keys
                 .Where(IsEdge)
-                .SelectMany(p=>p.GetAdjacent())
+                .SelectMany(p => p.GetAdjacent())
                 .Where(p => !Exists(p));
             var neres = false;
             foreach (var p in pts)
@@ -223,7 +222,7 @@ public class Engine : MonoBehaviour
 
         return res;
     }
-    
+
     private void TrySelectRandomPoint()
     {
         Point[] possible;
@@ -232,7 +231,7 @@ public class Engine : MonoBehaviour
             possible = Board
                 .Keys
                 .Where(IsEdge)
-                .SelectMany(p=>p.GetAdjacent())
+                .SelectMany(p => p.GetAdjacent())
                 .Where(SatisfiesCriterias)
                 .ToArray();
         }

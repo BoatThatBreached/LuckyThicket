@@ -19,6 +19,7 @@ public class Collection : MonoBehaviour
     {
         Init();
         DrawCollection();
+        Account.CurrentScene = Scenes.Collection;
     }
 
     private void DrawCollection()
@@ -26,9 +27,9 @@ public class Collection : MonoBehaviour
         foreach (var cardCharacter in CardCharacters)
         {
             var card = Instantiate(cardInCollectionPref, collectionPanel).GetComponent<CardInCollection>();
-            card.Chain = cardCharacter.Ability;
             card.Name = cardCharacter.Name;
             card.AbilityMask = cardCharacter.AbilityMask;
+            card.Rarity = cardCharacter.Rarity;
             card.Color = cardCharacter.Rarity switch
             {
                 Rarity.Common => Color.gray,
@@ -37,6 +38,7 @@ public class Collection : MonoBehaviour
                 Rarity.Legendary => (Color.red + Color.yellow) / 2,
                 _ => Color.black
             };
+            card.CardCharacter = cardCharacter;
         }
     }
 
