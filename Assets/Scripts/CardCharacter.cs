@@ -29,8 +29,8 @@ public class CardCharacter : Model
         Action<SqliteCommand> query = (command) =>
         {
             command.CommandText = @$"
-INSERT INTO Cards (Id, Name, Rarity, AbilityMask, AbilityString)
-VALUES ({name}, {rarity}, {abilityMask}, {ability})
+INSERT INTO Cards (Name, Rarity, AbilityMask, AbilityString)
+VALUES ('{name}', '{Serializer.RarityToString(rarity)}', '{abilityMask}', '{Serializer.AbilityToString(ability)}')
 RETURNING *
 ";
             command.ExecuteNonQuery();
@@ -73,26 +73,26 @@ RETURNING *
             command.CommandText = @"
 INSERT INTO Cards (Id, Name, Rarity, AbilityMask, AbilityString)
 VALUES
-(0, 'Бобрёнок', '0', '', 'Free Select Beaver Spawn '),
-(10, 'Сорочонок', '0', '', 'Free Select Magpie Spawn '),
-(1, 'Бобёр-учитель', '0', 'Возьмите карту.','Free Select Beaver Spawn Draw '),
-(2, 'Бобёр-шахтёр', '0', 'Постройте клетку и поставьте на неё бобра-шахтёра.','NExisting Select Build Beaver Spawn '),
-(3, 'Бобёр-строитель', '0', 'Постройте клетку.','Free Select Beaver Spawn NExisting Select Build '),
-(4, 'Бобёр-воин', '1', 'Уничтожьте сороку на соседней клетке.','Free Select Beaver Spawn Adjacent Magpie Occupied Select Kill '),
-(5, 'Бобёр-волшебник', '1', 'Создайте бобра на случайной клетке.','Free Select Beaver Spawn Free Random Beaver Spawn '),
-(6, 'Бобёр-добряк', '1', 'Создайте бобра на соседней клетке.','Free Select Beaver Spawn Free Adjacent Select Beaver Spawn '),
-(7, 'Бобёр-камикадзе', '2', 'Уничтожьте случайного бобра и двух сорок.','Free Select Beaver Spawn Beaver Occupied Random Kill Magpie Occupied Select Kill Magpie Occupied Select Kill '),
-(8, 'Бобёр-бродяга', '2', 'Создайте бобра на краю поля и уничтожьте сороку на краю поля.','Free Select Beaver Spawn Free Edge Select Beaver Spawn Edge Magpie Occupied Select Kill '),
-(9, 'Бобёр-король', '3', 'Создайте три клетки и поставьте на них бобров.','Free Select Beaver Spawn NExisting Select Build Beaver Spawn NExisting Select Build Beaver Spawn NExisting Select Build Beaver Spawn '),
-(11, 'Сорока-диверсант', '0', 'Уничтожьте свободную клетку.','Free Select Magpie Spawn Free Select Destroy '),
-(12, 'Сорока-садовник', '0', 'Постройте две клетки.','Free Select Magpie Spawn NExisting Select Build NExisting Select Build '),
-(13, 'Сорока-художница', '0', 'Возьмите карту.','Free Select Magpie Spawn Draw '),
-(14, 'Сорока-ниндзя', '2', 'Уничтожьте двух случайных бобров','Free Select Magpie Spawn Beaver Occupied Random Kill Beaver Occupied Random Kill '),
-(15, 'Сорока-вестница', '2', 'Возьмите четыре карты.','Free Select Magpie Spawn Draw Draw Draw Draw '),
-(16, 'Сорока-иллюзионист', '1', 'Создайте сороку на случайной клетке вокруг.','Free Select Magpie Spawn Surrounding Free Random Magpie Spawn '),
-(17, 'Сорока-мастерица', '1', 'Постройте клетку в случайном месте и уничтожьте бобра по соседству.','Free Select Magpie Spawn NExisting Random Build Adjacent Beaver Occupied Select Kill '),
-(18, 'Сорока-белобока', '1', 'Возьмите карту и уничтожьте соседнюю свободную клетку.','Free Select Magpie Spawn Draw Free Adjacent Select Destroy '),
-(19, 'Сорока-мать', '3', 'Создайте трёх сорок на краю поля.','Free Select Magpie Spawn Free Edge Select Magpie Spawn Free Edge Select Magpie Spawn Free Edge Select Magpie Spawn ');
+(0, 'Бобрёнок', 'Common', '', 'Free Select Beaver Spawn '),
+(10, 'Сорочонок', 'Common', '', 'Free Select Magpie Spawn '),
+(1, 'Бобёр-учитель', 'Common', 'Возьмите карту.','Free Select Beaver Spawn Draw '),
+(2, 'Бобёр-шахтёр', 'Common', 'Постройте клетку и поставьте на неё бобра-шахтёра.','NExisting Select Build Beaver Spawn '),
+(3, 'Бобёр-строитель', 'Common', 'Постройте клетку.','Free Select Beaver Spawn NExisting Select Build '),
+(4, 'Бобёр-воин', 'Rare', 'Уничтожьте сороку на соседней клетке.','Free Select Beaver Spawn Adjacent Magpie Occupied Select Kill '),
+(5, 'Бобёр-волшебник', 'Rare', 'Создайте бобра на случайной клетке.','Free Select Beaver Spawn Free Random Beaver Spawn '),
+(6, 'Бобёр-добряк', 'Rare', 'Создайте бобра на соседней клетке.','Free Select Beaver Spawn Free Adjacent Select Beaver Spawn '),
+(7, 'Бобёр-камикадзе', 'Epic', 'Уничтожьте случайного бобра и двух сорок.','Free Select Beaver Spawn Beaver Occupied Random Kill Magpie Occupied Select Kill Magpie Occupied Select Kill '),
+(8, 'Бобёр-бродяга', 'Epic', 'Создайте бобра на краю поля и уничтожьте сороку на краю поля.','Free Select Beaver Spawn Free Edge Select Beaver Spawn Edge Magpie Occupied Select Kill '),
+(9, 'Бобёр-король', 'Legendary', 'Создайте три клетки и поставьте на них бобров.','Free Select Beaver Spawn NExisting Select Build Beaver Spawn NExisting Select Build Beaver Spawn NExisting Select Build Beaver Spawn '),
+(11, 'Сорока-диверсант', 'Common', 'Уничтожьте свободную клетку.','Free Select Magpie Spawn Free Select Destroy '),
+(12, 'Сорока-садовник', 'Common', 'Постройте две клетки.','Free Select Magpie Spawn NExisting Select Build NExisting Select Build '),
+(13, 'Сорока-художница', 'Common', 'Возьмите карту.','Free Select Magpie Spawn Draw '),
+(14, 'Сорока-ниндзя', 'Epic', 'Уничтожьте двух случайных бобров','Free Select Magpie Spawn Beaver Occupied Random Kill Beaver Occupied Random Kill '),
+(15, 'Сорока-вестница', 'Epic', 'Возьмите четыре карты.','Free Select Magpie Spawn Draw Draw Draw Draw '),
+(16, 'Сорока-иллюзионист', 'Rare', 'Создайте сороку на случайной клетке вокруг.','Free Select Magpie Spawn Surrounding Free Random Magpie Spawn '),
+(17, 'Сорока-мастерица', 'Rare', 'Постройте клетку в случайном месте и уничтожьте бобра по соседству.','Free Select Magpie Spawn NExisting Random Build Adjacent Beaver Occupied Select Kill '),
+(18, 'Сорока-белобока', 'Rare', 'Возьмите карту и уничтожьте соседнюю свободную клетку.','Free Select Magpie Spawn Draw Free Adjacent Select Destroy '),
+(19, 'Сорока-мать', 'Legendary', 'Создайте трёх сорок на краю поля.','Free Select Magpie Spawn Free Edge Select Magpie Spawn Free Edge Select Magpie Spawn Free Edge Select Magpie Spawn ');
 ";
             command.ExecuteNonQuery();
         };
