@@ -15,9 +15,9 @@ public class AudioStatic : MonoBehaviour
             button.onClick.AddListener(() => PlayAudio(Resources.Load<AudioClip>(soundPath), source));
     }
     
-    public static void PlayAudio(AudioClip clip, GameObject source)
+    private static void PlayAudio(AudioClip clip, GameObject source)
     {
-        source.GetComponent<AudioSource>().PlayOneShot(clip);
+        source.GetComponent<AudioSource>().PlayOneShot(clip, Account.SoundsVolume);
         Thread.Sleep((int)Math.Round(clip.length*1000));
     }
 }
