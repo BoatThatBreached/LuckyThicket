@@ -30,6 +30,7 @@ public class Shop : MonoBehaviour
         Account.CurrentScene = Scenes.Shop;
         SortByRarity();
         Reload();
+        AudioStatic.AddSoundsToButtons("button_sound", gameObject);
     }
 
     public void Exit() => SceneManager.LoadScene("MenuScene");

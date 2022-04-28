@@ -1,15 +1,23 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class Menu : MonoBehaviour
 {
     public TMP_Text label;
 
-    public void Start() => label.text = $"Вы вошли под ником {Account.Nickname}";
-    
+    public void Start()
+    {
+        label.text = $"Вы вошли под ником {Account.Nickname}";
+        
+        AudioStatic.AddSoundsToButtons("button_sound", gameObject);
+    }
+
     public void Play() => SceneManager.LoadScene("GameScene");
 
     public void Exit()
