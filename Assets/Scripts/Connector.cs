@@ -91,7 +91,6 @@ public class Connector: MonoBehaviour
     public static IEnumerable<int> GetCollectionIDs(string login)
     {
         const string ex0 = "{\"query\":\"getIdCardCollection\", \"login\":\"";
-        const string ex1 = "\", \"password\":\"";
         const string ex2 = "\"}";
         var data = ex0 + login  + ex2;
         var result = Post(CardsURL, data);
@@ -133,7 +132,7 @@ public class Connector: MonoBehaviour
         }
     }
 
-    private static void InitCollection(string login, IEnumerable<int> ids)
+    public static void InitCollection(string login, IEnumerable<int> ids)
     {
         const string ex0 = "{\"query\":\"overwriteIdCardCollection\", \"login\":\"";
         const string ex1 = "\", \"deq\":[";
@@ -143,13 +142,24 @@ public class Connector: MonoBehaviour
         print(res);
     }
 
-    private static void SetProperty(string key, string value, string login)
+    public static void SetProperty(string key, string value, string login)
     {
         const string ex0 = "{\"query\":\"setInfo\", \"data\":\"";
         const string ex1 = "\", \"login\":\"";
         const string ex2 = "\", \"value\":\"";
         const string ex3 = "\"}";
         var data = ex0 + key + ex1 + login + ex2 + value + ex3;
-        var res = Post(DataURL, data);
+        Post(DataURL, data);
+    }
+
+    public static string GetProperty(string key, string login)
+    {
+        const string ex0 = "{\"query\":\"getInfo\", \"data\":\"";
+        const string ex1 = "\", \"login\":\"";
+        const string ex3 = "\"}";
+        var data = ex0 + key + ex1 + login  + ex3;
+        var res= Post(DataURL, data).Split('\"')[3];
+        print(res);
+        return res;
     }
 }

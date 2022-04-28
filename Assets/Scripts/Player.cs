@@ -15,36 +15,34 @@ public class Player: MonoBehaviour
     }
 
     public Game game;
+    public GameObject cardPref;
     public Stack<CardCharacter> Deck { get; set; }
-    public List<Card> Discard { get; set; }
-    public List<Card> Hand { get; set; }
+    public List<CardCharacter> Discard { get; set; }
+    public List<CardCharacter> Hand { get; set; }
     public Transform handPanel;
     private List<Template> Templates { get; set; }
     private List<Template> CompletedTemplates { get; set; }
 
     public void DrawCard()
     {
+        if (Hand.Count >= 5)
+            return;
         var cardCharacter = Deck.Pop();
-        var card = Instantiate(game.cardPref, handPanel).GetComponent<Card>();
+        Hand.Add(cardCharacter);
+        var card = Instantiate(cardPref, handPanel).GetComponent<Card>();
         card.Chain = cardCharacter.Ability;
         card.game = game;
         card.Name = cardCharacter.Name;
         card.AbilityMask = cardCharacter.AbilityMask;
-        switch (cardCharacter.Rarity)
+        card.Color = cardCharacter.Rarity switch
         {
-            case Rarity.Common:
-                card.Color = Color.gray;
-                break;
-            case Rarity.Rare:
-                card.Color = Color.blue;
-                break;
-            case Rarity.Epic:
-                card.Color = Color.magenta;
-                break;
-            case Rarity.Legendary:
-                card.Color = (Color.red + Color.yellow) / 2;
-                break;
-        }
+            Rarity.Common => Color.gray,
+            Rarity.Rare => Color.blue,
+            Rarity.Epic => Color.magenta,
+            Rarity.Legendary => (Color.red + Color.yellow) / 2,
+            _ => Color.black
+        };
+        
     }
 
     public void Init()
@@ -52,8 +50,8 @@ public class Player: MonoBehaviour
         Templates = new List<Template>();
         CompletedTemplates = new List<Template>();
         Deck = new Stack<CardCharacter>();
-        Discard = new List<Card>();
-        Hand = new List<Card>();
+        Discard = new List<CardCharacter>();
+        Hand = new List<CardCharacter>();
     }
 
     public void AddWinTemplate(Template template) => Templates.Add(template);

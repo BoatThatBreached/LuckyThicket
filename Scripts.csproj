@@ -75,6 +75,7 @@
      <Compile Include="Assets\Scripts\Account.cs" />
      <Compile Include="Assets\Scripts\Waiters.cs" />
      <Compile Include="Assets\Scripts\Scenes.cs" />
+     <Compile Include="Assets\Scripts\Shop.cs" />
      <None Include="Assets\Scripts\Scripts.asmdef" />
  <Reference Include="UnityEngine">
  <HintPath>C:/Program Files/Unity/Hub/Editor/2020.3.32f1/Editor/Data/Managed/UnityEngine/UnityEngine.dll</HintPath>

@@ -27,4 +27,6 @@ public class Menu : MonoBehaviour
         Account.Reset();
         SceneManager.LoadScene("LoginScene");
     }
+
+    public void Shop() => SceneManager.LoadScene("ShopScene");
 }

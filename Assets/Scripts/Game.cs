@@ -11,81 +11,56 @@ public class Game : MonoBehaviour
     public OccupantDesigner designer;
     private int Size { get; set; }
     public Engine gameEngine;
-    private Queue<Player> _turnsQueue;
-    public Player currentPlayer;
-    public Card currentCard;
-    public GameObject cardPref;
 
-    public Player[] Players { get; private set; }
+    public Player player;
+
+    public CardCharacter currentCardCharacter;
+
+    public GameObject currentCard;
 
     private void Start()
     {
-        InitPlayers();
-        InitBoard();
-        InitDecks();
-        _turnsQueue = new Queue<Player>(Players);
+        InitPlayer();
+        InitBoard(new Point(0, 2));
+        InitDeck();
         StartTurn();
     }
 
-    private void InitDecks()
+    private void InitPlayer()
     {
-        var cards = Account.Collection;
-        //var cardsCount = Parser.GetCardsCount();
-        //var cards = Parser.GetCardsFromFile_(Enumerable.Range(0, cardsCount).Select(f=>f.ToString()));
-        //TODO: ASYNC var cardsTask = Parser.GetCardsFromFile(Enumerable.Range(0, cardsCount).Select(f=>f.ToString()));
-        foreach (var p in Players)
-        {
-            for (var i = 0; i < 20; i++)
-                p.Deck.Push(cards.GetRandom());
-            for (var i = 0; i < 5; i++)
-                p.DrawCard();
-        }
+        player.Init();
+        player.Name = Account.Nickname;
     }
 
-    
+    private void InitDeck()
+    {
+        var cards = Account.Collection;
+        for (var i = 0; i < 20; i++)
+            player.Deck.Push(cards.GetRandom());
+        for (var i = 0; i < 5; i++)
+            player.DrawCard();
+    }
 
     private void StartTurn()
     {
-        currentPlayer = _turnsQueue.Dequeue();
-        currentPlayer.gameObject.SetActive(true);
+        currentCardCharacter = null;
+        currentCard = null;
     }
 
     public void EndTurn()
     {
-        currentPlayer.gameObject.SetActive(false);
-        _turnsQueue.Enqueue(currentPlayer);
-        currentPlayer.Hand.Remove(currentCard);
-        currentPlayer.Discard.Add(currentCard);
-        Destroy(currentCard.gameObject);
+        player.Hand.Remove(currentCardCharacter);
+        player.Discard.Add(currentCardCharacter);
+        Destroy(currentCard);
         StartTurn();
     }
 
-    private void InitBoard()
+    private void InitBoard(Point center)
     {
         Size = 3;
         Board = new Dictionary<Point, Tile>();
-        for (int i = -Size / 2; i < Size / 2 + 1; i++)
-        for (int j = -Size / 2; j < Size / 2 + 1; j++)
-            gameEngine.AddTile(new Point(i, j));
-    }
-
-    private void InitPlayers()
-    {
-        Players = FindObjectsOfType<Player>(true);
-
-        Players[0].Name = "Maximus";
-        Players[1].Name = "Michael";
-        foreach (var p in Players)
-        {
-            p.Init();
-            p.gameObject.SetActive(false);
-            p.game = this;
-        }
-
-
-        var beaver = new Template(new[,] {{Tribes.Beaver, Tribes.Beaver, Tribes.Beaver}}, SchemaType.Big, false);
-        Players[0].AddWinTemplate(beaver);
-        var magpie = new Template(new[,] {{Tribes.Magpie}, {Tribes.None}, {Tribes.Magpie}}, SchemaType.Big, false);
-        Players[1].AddWinTemplate(magpie);
+        for (var i = -Size / 2; i < Size / 2 + 1; i++)
+        for (var j = -Size / 2; j < Size / 2 + 1; j++)
+            gameEngine.AddTile(new Point(i+center.X, j+center.Y));
     }
 }
