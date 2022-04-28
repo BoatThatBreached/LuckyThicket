@@ -10,19 +10,53 @@ public class Login : MonoBehaviour
     public TMP_Text output;
     public TMP_InputField login;
     public TMP_InputField password;
+    public GameObject TribeChoice;
     private bool _hidden = true;
+
+    #region Buttons
+
     public void Exit() => Application.Quit();
 
     private void Start() => Account.CurrentScene = Scenes.Login;
 
+    public void StartRegister()
+    {
+        if (!IsInputCorrect())
+            return;
+        TribeChoice.SetActive(true);
+    }
+
+    public void FinishRegister(bool isBeaver)
+    {
+        if (!TryRegister())
+            return;
+        var tribe = isBeaver ? Tribes.Beaver : Tribes.Magpie;
+        ShowSuccess("Registered successfully.");
+        Connector.InitNewUser(login.text, tribe);
+        TribeChoice.SetActive(false);
+    }
+
     public void LogIn()
     {
-        if (!IsInputCorrect(login.text) || !TryConnect()) 
+        if (!IsInputCorrect() || !TryConnect()) 
             return;
         ShowSuccess("Logged in successfully.\nRedirecting.");
         Account.Load(login.text);
         SceneManager.LoadScene("MenuScene");
     }
+    
+    public void SwapPasswords()
+    {
+        _hidden = !_hidden;
+        password.textComponent.color = new Color(1, 1, 1, _hidden ? 0 : 1);
+        duckPassword.gameObject.SetActive(_hidden);
+    }
+    
+    public void EnterDevMode() => SceneManager.LoadScene("DeveloperScene");
+    
+
+    #endregion
+    
 
     private bool TryConnect()
     {
@@ -38,24 +72,24 @@ public class Login : MonoBehaviour
         output.color = (Color.green + Color.black) / 2;
     }
 
-    private bool IsInputCorrect(string login)
+    private bool IsInputCorrect()
     {
         var result = true;
         var sb = new StringBuilder();
         const string cyrillic = "ёйцукенгшщзхъфывапролджэячсмитьбю";
-        if (login.Any(s => cyrillic.Contains(char.ToLower(s))))
+        if (login.text.Any(s => cyrillic.Contains(char.ToLower(s))))
         {
             sb.Append("Wrong login: no cyrillic allowed.\n");
             result = false;
         }
 
-        if (login.Contains(" "))
+        if (login.text.Contains(" "))
         {
             sb.Append("Wrong login: no spaces allowed.\n");
             result = false;
         }
 
-        if (login == string.Empty)
+        if (login.text == string.Empty)
         {
             sb.Append("Wrong login: empty.\n");
             result = false;
@@ -85,15 +119,6 @@ public class Login : MonoBehaviour
     }
 
 
-    public void Register()
-    {
-        if (!IsInputCorrect(login.text)
-            || !TryRegister()
-        )
-            return;
-        ShowSuccess("Registered successfully.");
-    }
-
     private bool TryRegister()
     {
         var result = Connector.TryRegister(login.text, password.text, out var errors);
@@ -104,20 +129,11 @@ public class Login : MonoBehaviour
 
     public void HideText()=> duckPassword.text = string.Join("", Enumerable.Range(0, password.text.Length).Select(z => "*"));
 
-    public void SwapPasswords()
-    {
-        _hidden = !_hidden;
-        password.textComponent.color = new Color(1, 1, 1, _hidden ? 0 : 1);
-        duckPassword.gameObject.SetActive(_hidden);
-    }
+    
 
     private void ShowError(string message)
     {
         output.text = message;
         output.color = Color.red;
     }
-
-
-    public void EnterDevMode() => SceneManager.LoadScene("DeveloperScene");
-    
 }

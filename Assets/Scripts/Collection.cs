@@ -42,8 +42,7 @@ public class Collection : MonoBehaviour
 
     private void FillCollection()
     {
-        //CardCharacters = Account.Collection;
-        CardCharacters = Account.Unowned;
+        CardCharacters = Account.Collection;
     }
     
     public void BackToMenu()
