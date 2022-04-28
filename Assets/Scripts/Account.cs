@@ -5,8 +5,8 @@ using System.Linq;
 public static class Account
 {
     public  static string Nickname;
-    public static float SoundsVolume;
-    public static float MusicVolume;
+    public static float SoundsVolume = 0.5F;
+    public static float MusicVolume = 0.5F;
     public static Scenes CurrentScene;
     public static List<CardCharacter> Collection = new List<CardCharacter>();
     public static List<CardCharacter> Unowned = new List<CardCharacter>();
@@ -16,8 +16,8 @@ public static class Account
     public static void Reset()
     {
         Nickname = string.Empty;
-        SoundsVolume = 0;
-        MusicVolume = 0;
+        SoundsVolume = 0.5F;
+        MusicVolume = 0.5F;
         Balance = 0;
         Collection = new List<CardCharacter>();
         Unowned = new List<CardCharacter>();
