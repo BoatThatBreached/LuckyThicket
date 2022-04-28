@@ -17,7 +17,11 @@ public class Login : MonoBehaviour
 
     public void Exit() => Application.Quit();
 
-    private void Start() => Account.CurrentScene = Scenes.Login;
+    private void Start()
+    {
+        Account.CurrentScene = Scenes.Login;
+        AudioStatic.AddSoundsToButtons("button_sound", gameObject);
+    }
 
     public void StartRegister()
     {
@@ -56,7 +60,6 @@ public class Login : MonoBehaviour
     
 
     #endregion
-    
 
     private bool TryConnect()
     {

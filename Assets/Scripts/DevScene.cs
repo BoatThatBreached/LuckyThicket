@@ -18,6 +18,7 @@ public class DevScene : MonoBehaviour
     public void Start()
     {
         CardCharacter.SetCount(Parser.GetCardsCount());
+        AudioStatic.AddSoundsToButtons("button_sound", gameObject);
     }
 
     public void Exit()
