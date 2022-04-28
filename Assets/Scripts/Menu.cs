@@ -21,8 +21,8 @@ public class Menu : MonoBehaviour
         SceneManager.LoadScene("CollectionScene");
     }
 
-    public void EnterDevMode()
+    public void EnterSettings()
     {
-        SceneManager.LoadScene("DeveloperScene");
+        SceneManager.LoadScene("SettingsScene");
     }
 }

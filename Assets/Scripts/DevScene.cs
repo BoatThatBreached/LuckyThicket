@@ -21,7 +21,7 @@ public class DevScene : MonoBehaviour
 
     public void Exit()
     {
-        SceneManager.LoadScene("MenuScene");
+        SceneManager.LoadScene("LoginScene");
     }
 
     public void HideText()
