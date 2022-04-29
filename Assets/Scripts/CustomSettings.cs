@@ -19,7 +19,7 @@ public class CustomSettings : MonoBehaviour
         SoundVolume.value = Account.SoundsVolume;
         MusicVolume.value = Account.MusicVolume;
         
-        AudioStatic.AddSoundsToButtons(AudioStatic.Button, gameObject);
+        AudioStatic.AddSoundsToButtons(AudioStatic.Click, gameObject);
     }
     
     public void ChangeSoundVolume()

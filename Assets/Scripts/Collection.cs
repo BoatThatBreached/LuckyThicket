@@ -20,7 +20,7 @@ public class Collection : MonoBehaviour
         Init();
         DrawCollection();
         Account.CurrentScene = Scenes.Collection;
-        AudioStatic.AddSoundsToButtons(AudioStatic.Button, gameObject);
+        AudioStatic.AddSoundsToButtons(AudioStatic.Click, gameObject);
     }
 
     private void DrawCollection()
