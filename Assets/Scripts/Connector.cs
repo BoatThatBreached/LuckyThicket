@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using UnityEngine;
 
-public class Connector: MonoBehaviour
+public class Connector : MonoBehaviour
 {
     private const string CardsURL = "http://a0664388.xsph.ru/test.php";
     private const string AuthURL = "http://a0664388.xsph.ru/auth.php";
@@ -40,7 +40,7 @@ public class Connector: MonoBehaviour
 
     private static string Post(string url, string data)
     {
-        var req = (HttpWebRequest)WebRequest.Create(url);
+        var req = (HttpWebRequest) WebRequest.Create(url);
         req.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:99.0) Gecko/20100101 Firefox/99.0";
         req.Method = "POST";
         req.Timeout = 1000000;
@@ -52,7 +52,7 @@ public class Connector: MonoBehaviour
         sendStream.Close();
         var res = req.GetResponse();
         var receiveStream = res.GetResponseStream();
-        if (receiveStream == null) 
+        if (receiveStream == null)
             return string.Empty;
         var sr = new System.IO.StreamReader(receiveStream, Encoding.UTF8);
         var read = new char[256];
@@ -64,6 +64,7 @@ public class Connector: MonoBehaviour
             result += str;
             count = sr.Read(read, 0, 256);
         }
+
         sr.Close();
         receiveStream.Close();
         return result;
@@ -87,16 +88,16 @@ public class Connector: MonoBehaviour
         return true;
     }
 
-    public static IEnumerable<CardCharacter> GetCollection(IEnumerable<int> ids) 
+    public static IEnumerable<CardCharacter> GetCollection(IEnumerable<int> ids)
         => ids.Select(id => Parser.GetCardFromJson(GetCardByID(id)));
-    
+
     public static IEnumerable<int> GetCollectionIDs(string login)
     {
         const string ex0 = "{\"query\":\"getIdCardCollection\", \"login\":\"";
         const string ex2 = "\"}";
-        var data = ex0 + login  + ex2;
+        var data = ex0 + login + ex2;
         var result = Post(CardsURL, data);
-        if(result.Contains("errors"))
+        if (result.Contains("errors"))
             yield break;
         var left = result.IndexOf("[", StringComparison.Ordinal);
         var right = result.IndexOf("]", StringComparison.Ordinal);
@@ -107,6 +108,7 @@ public class Connector: MonoBehaviour
         foreach (var id in sub)
             yield return id;
     }
+
     public static int GetMaxID()
     {
         var data = "{\"query\":\"maxId\"}";
@@ -118,7 +120,7 @@ public class Connector: MonoBehaviour
     {
         SetProperty("balance", "100", login);
         SetProperty("level", "1", login);
-        
+
         switch (tribe)
         {
             case Tribes.Beaver:
@@ -159,8 +161,8 @@ public class Connector: MonoBehaviour
         const string ex0 = "{\"query\":\"getInfo\", \"data\":\"";
         const string ex1 = "\", \"login\":\"";
         const string ex3 = "\"}";
-        var data = ex0 + key + ex1 + login  + ex3;
-        var res= Post(DataURL, data).Split('\"')[3];
+        var data = ex0 + key + ex1 + login + ex3;
+        var res = Post(DataURL, data).Split('\"')[3];
         //print(res);
         return res;
     }
@@ -169,9 +171,9 @@ public class Connector: MonoBehaviour
     {
         var data = "{\"query\":\"getListRooms\"}";
         var res = Post(GameURL, data);
-        
+
         //{"pizdec123":{"name":"pizdec123","1":"ff","2":""},"bebra":{"name":"bebra","1":"bebrinsk","2":""},"neBebra":{"name":"neBebra","1":"bebrinsk","2":""}}
-        res = res.Remove(0,1);
+        res = res.Remove(0, 1);
         res = res.Remove(res.Length - 1);
         var ms = Regex.Matches(res, "{(.*?)}");
         var rooms = new List<Room>();
@@ -185,7 +187,7 @@ public class Connector: MonoBehaviour
             rooms.Add(room);
         }
         //print(res);
-        
+
         return rooms;
     }
 
@@ -194,7 +196,7 @@ public class Connector: MonoBehaviour
         const string ex0 = "{\"query\":\"createRoom\", \"token\":\"";
         const string ex1 = "\", \"name\":\"";
         const string ex3 = "\"}";
-        var data = ex0 + token + ex1 + name  + ex3;
+        var data = ex0 + token + ex1 + name + ex3;
         var res = Post(GameURL, data);
         //print(res);
     }
@@ -204,7 +206,7 @@ public class Connector: MonoBehaviour
         const string ex0 = "{\"query\":\"joinRoom\", \"token\":\"";
         const string ex1 = "\", \"name\":\"";
         const string ex3 = "\"}";
-        var data = ex0 + token + ex1 + name  + ex3;
+        var data = ex0 + token + ex1 + name + ex3;
         var res = Post(GameURL, data);
         return res;
     }
@@ -220,6 +222,15 @@ public class Connector: MonoBehaviour
         return Post(GameURL, customData);
     }
 
-
-
+    public static string GetBoard(string name, string token)
+    {
+        const string ex0 = "{\"query\":\"getData\", \"name\":\"";
+        const string ex1 = "\", \"token\":\"";
+        const string ex2 = "\", \"data\":";
+        const string ex3 = "}";
+        var data = "\"\"";
+        var customData = ex0 + name + ex1 + token + ex2 + data + ex3;
+        print(customData);
+        return Post(GameURL, customData);
+    }
 }

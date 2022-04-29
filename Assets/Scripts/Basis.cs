@@ -14,6 +14,18 @@
     Beaver,
     Magpie,
     #endregion
+
+    #region MemoryTricks
+
+    RememberAnchorF,
+    RememberAnchorS,
+    RememberAnchorT,
+    
+    RememberTribeF,
+    RememberTribeS,
+    RememberTribeT,
+
+    #endregion
     
     Select,
     Random,

@@ -9,7 +9,7 @@ public class OccupantDesigner: MonoBehaviour
     public Sprite[] spriteArray;
     public GameObject occupantPref;
     
-    void Start()
+    public void Init()
     {
         Sprites = new Dictionary<Tribes, Sprite>();
         Colors = new Dictionary<Tribes, Color>();

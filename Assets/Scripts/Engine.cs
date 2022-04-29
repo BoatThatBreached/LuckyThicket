@@ -11,17 +11,27 @@ public class Engine : MonoBehaviour
     private Queue<Basis> CurrentChain { get; set; }
     private Dictionary<Basis, Action> Actions { get; set; }
     private Point Anchor { get; set; }
+    private Point AnchorF { get; set; }
+    private Point AnchorS { get; set; }
+    private Point AnchorT { get; set; }
     private Tribes AnchorTribe { get; set; }
+    private Tribes AnchorTribeF { get; set; }
+    private Tribes AnchorTribeS { get; set; }
+    private Tribes AnchorTribeT { get; set; }
     public Basis CurrentAction { get; private set; }
     private List<Func<Point, bool>> Criterias { get; set; }
     private bool NotExistingNeeded { get; set; }
     private Random Rand { get; set; }
     public Game game;
     private Dictionary<Point, Tile> Board => game.Board;
+    private Queue<Point> LoadedSelections { get; set; }
+    private Queue<Point> SelfSelections { get; set; }
 
     void Start()
     {
         CurrentChain = new Queue<Basis>();
+        LoadedSelections = new Queue<Point>();
+        SelfSelections = new Queue<Point>();
         Anchor = Point.Empty;
         AnchorTribe = Tribes.None;
         NotExistingNeeded = false;
@@ -36,7 +46,7 @@ public class Engine : MonoBehaviour
 
         Actions[Basis.Build] = () => AddTile(Anchor);
         Actions[Basis.Destroy] = () => DestroyTile(Anchor);
-        Actions[Basis.Kill] = () => DestroyUnit(Anchor, AnchorTribe);
+        Actions[Basis.Kill] = () => KillUnit(Anchor);
 
         Actions[Basis.Spawn] = () => SpawnUnit(Anchor, AnchorTribe);
         //Actions[Basis.PushUnit] = ()=>PushUnit(Anchor, AnchorTribe);
@@ -59,9 +69,19 @@ public class Engine : MonoBehaviour
         {
             if (!ShowPossibleTiles())
                 SkipToAlso();
+            if (LoadedSelections.Count > 0)
+            {
+                SelectPoint(LoadedSelections.Dequeue());
+            }
         };
         Actions[Basis.Also] = () => { };
-        Actions[Basis.Random] = TrySelectRandomPoint;
+        Actions[Basis.Random] = () =>
+        {
+            if(LoadedSelections.Count>0)
+                SelectPoint(LoadedSelections.Dequeue());
+            else
+                TrySelectRandomPoint();
+        };
 
         Actions[Basis.Draw] = () => game.player.DrawCard();
     }
@@ -108,7 +128,7 @@ public class Engine : MonoBehaviour
         FlushTribe();
     }
 
-    private void DestroyUnit(Point p, Tribes t)
+    public void KillUnit(Point p)
     {
         Board[p].occupantTribe = Tribes.None;
         Destroy(Board[p].transform.GetChild(0).gameObject);
@@ -128,8 +148,21 @@ public class Engine : MonoBehaviour
         Criterias.Clear();
         FlushTribe();
         CurrentChain.Clear();
+        LoadedSelections.Clear();
+        SelfSelections.Clear();
         foreach (var act in chain)
             CurrentChain.Enqueue(act);
+        Step();
+    }
+
+    public void LoadActionsWithSelections_Unsafe(Queue<Basis> chain, Queue<Point> selections)
+    {
+        Criterias.Clear();
+        FlushTribe();
+        CurrentChain.Clear();
+        foreach (var act in chain)
+            CurrentChain.Enqueue(act);
+        LoadedSelections = selections;
         Step();
     }
 
@@ -174,7 +207,7 @@ public class Engine : MonoBehaviour
             foreach (var p in template.Template.Points.Keys)
             {
                 var currp = new Point(p.X + template.StartingPoint.X, p.Y + template.StartingPoint.Y);
-                DestroyUnit(currp, template.Template.Points[p]);
+                KillUnit(currp);
             }
         }
     }
@@ -192,6 +225,7 @@ public class Engine : MonoBehaviour
         Anchor = p;
         foreach (var t in Board.Values)
             t.Color = Color.white;
+        SelfSelections.Enqueue(p);
         Criterias.Clear();
         NotExistingNeeded = false;
         Step();
