@@ -9,6 +9,7 @@ using Color = UnityEngine.Color;
 public class CardInCollection : MonoBehaviour
 {
     public Image backImage;
+    public Image picture;
     public Rarity Rarity;
     public CardCharacter CardCharacter { get; set; }
 

@@ -30,6 +30,15 @@ public class Player: MonoBehaviour
         var cardCharacter = Deck.Pop();
         Hand.Add(cardCharacter);
         var card = Instantiate(cardPref, handPanel).GetComponent<Card>();
+        try
+        {
+            card.picture.sprite = Resources.Load<Sprite>($"cards/{cardCharacter.Name}");
+        }
+        catch
+        {
+            print("oof");
+        }
+
         card.Chain = cardCharacter.Ability;
         card.game = game;
         card.Name = cardCharacter.Name;

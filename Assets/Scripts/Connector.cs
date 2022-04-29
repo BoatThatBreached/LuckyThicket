@@ -27,7 +27,7 @@ public class Connector: MonoBehaviour
         const string ex2 = "\"}";
         var data = ex0 + login + ex1 + password + ex2;
         var ans = Post(AuthURL, data);
-        print(ans);
+        //print(ans);
         if (ans.Contains("errors"))
         {
             errors = ans.Split('\"')[3];
@@ -141,7 +141,7 @@ public class Connector: MonoBehaviour
         const string ex2 = "]}";
         var data = ex0 + login + ex1 + string.Join(",", ids) + ex2;
         var res = Post(CardsURL, data);
-        print(res);
+        //print(res);
     }
 
     public static void SetProperty(string key, string value, string login)
@@ -161,7 +161,7 @@ public class Connector: MonoBehaviour
         const string ex3 = "\"}";
         var data = ex0 + key + ex1 + login  + ex3;
         var res= Post(DataURL, data).Split('\"')[3];
-        print(res);
+        //print(res);
         return res;
     }
 
@@ -196,7 +196,7 @@ public class Connector: MonoBehaviour
         const string ex3 = "\"}";
         var data = ex0 + token + ex1 + name  + ex3;
         var res = Post(GameURL, data);
-        print(res);
+        //print(res);
     }
 
     public static string JoinRoom(string token, string name)
@@ -208,4 +208,18 @@ public class Connector: MonoBehaviour
         var res = Post(GameURL, data);
         return res;
     }
+
+    public static string TrySendBoard(string name, string token, string data)
+    {
+        const string ex0 = "{\"query\":\"setData\", \"name\":\"";
+        const string ex1 = "\", \"token\":\"";
+        const string ex2 = "\", \"data\":";
+        const string ex3 = "}";
+        var customData = ex0 + name + ex1 + token + ex2 + data + ex3;
+        //print(customData);
+        return Post(GameURL, customData);
+    }
+
+
+
 }

@@ -45,6 +45,11 @@ public class Game : MonoBehaviour
     {
         currentCardCharacter = null;
         currentCard = null;
+        print(Connector.TrySendBoard(Account.Room.Name, Account.Token, "{}"));
+        // foreach(var p in Board.Keys)
+        //     if(Parser.ConvertJsonToBoard(Parser.ConvertBoardToJson(Board))[p]!=Board[p].occupantTribe)
+        //         print("pizdec 123");
+        //print(Parser.ConvertBoardToJson(Board));
     }
 
     public void EndTurn()
@@ -53,6 +58,7 @@ public class Game : MonoBehaviour
         player.Discard.Add(currentCardCharacter);
         Destroy(currentCard);
         StartTurn();
+        print(Connector.TrySendBoard(Account.Room.Name, Account.Token, Parser.ConvertBoardToJson(Board)));
     }
 
     private void InitBoard(Point center)

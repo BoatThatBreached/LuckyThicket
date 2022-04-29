@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using UnityEngine;
 using System.IO;
 using System.Linq;
@@ -123,6 +124,35 @@ public class Parser
         return cardCharacter;
     }
 
+    public static string ConvertBoardToJson(Dictionary<Point, Tile> board)
+    {
+        var lines = new List<string>();
+        foreach (var point in board.Keys)
+        {
+            var key = $"({point.X}_{point.Y})";
+            var val = board[point].occupantTribe.ToString();
+            var line = $"\"{key}\":\"{val}\"";
+            lines.Add(line);
+        }
+
+        return "{"+string.Join(",", lines)+"}";
+    }
+
+    public static Dictionary<Point, Tribes> ConvertJsonToBoard(string json)
+    {
+        var result = new Dictionary<Point, Tribes>();
+        var sp = json.Replace("{", "").Replace("}", "").Split(',');
+        foreach (var line in sp)
+        {
+            var unquoted = line.Replace("\"", "").Split(':');
+            var coords = unquoted[0].Replace("(", "").Replace(")", "").Split('_');
+            var p = new Point(int.Parse(coords[0]), int.Parse(coords[1]));
+            var tribe = (Tribes)Enum.Parse(typeof(Tribes), unquoted[1]);
+            result[p] = tribe;
+        }
+
+        return result;
+    }
 }
 
 public static class StringExtensions

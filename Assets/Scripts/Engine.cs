@@ -147,7 +147,7 @@ public class Engine : MonoBehaviour
     private void Step()
     {
         CurrentAction = CurrentChain.Count > 0 ? CurrentChain.Dequeue() : Basis.Idle;
-        print(CurrentAction);
+        //print(CurrentAction);
         if (CurrentAction == Basis.Idle)
         {
             Anchor = Point.Empty;

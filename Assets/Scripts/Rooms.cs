@@ -44,7 +44,8 @@ public class Rooms : MonoBehaviour
             });
             if (room.IsValid(Account.Nickname))
             {
-                print($"BEBROCHKA IN ROOM {room.Name}");
+                //print($"BEBROCHKA IN ROOM {room.Name}");
+                Account.Room = room;
                 Play();
             }
         }
@@ -54,6 +55,7 @@ public class Rooms : MonoBehaviour
     
     private void Play()
     {
+        
         SceneManager.LoadScene("GameScene");
     }
 

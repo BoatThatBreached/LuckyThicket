@@ -13,6 +13,8 @@ public static class Account
     public static List<List<int>> Decks = new List<List<int>>();
     public static int Balance;
     public static string Token;
+    //public static string RoomName;
+    public static Room Room;
 
     public static void Reset()
     {
@@ -24,6 +26,7 @@ public static class Account
         Unowned = new List<CardCharacter>();
         Decks = new List<List<int>>();
         Token = string.Empty;
+        Room = null;
     }
 
     public static void Load(string login, string token)

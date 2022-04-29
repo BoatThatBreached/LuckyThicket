@@ -11,7 +11,8 @@ public class Card : MonoBehaviour
     public Game game;
 
     public Image backImage;
-    public CardCharacter CardCharacter;
+    public Image picture;
+    public CardCharacter cardCharacter;
     public Color Color
     {
         set => backImage.color = value;
@@ -29,7 +30,7 @@ public class Card : MonoBehaviour
         set => abilityField.text = value;
     } 
 
-    public void OnMouseDown() => game.gameEngine.TryLoadActions(Chain, CardCharacter, gameObject);
+    public void OnMouseDown() => game.gameEngine.TryLoadActions(Chain, cardCharacter, gameObject);
 
     public void ChangeSize(bool enlarging) =>
         transform.localScale = enlarging 
