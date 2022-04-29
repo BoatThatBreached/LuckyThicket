@@ -5,8 +5,8 @@ using System.Linq;
 public static class Account
 {
     public  static string Nickname;
-    public static float SoundsVolume = 0.5F;
-    public static float MusicVolume = 0.5F;
+    public static float SoundsVolume = 0.25F;
+    public static float MusicVolume = 0.25F;
     public static Scenes CurrentScene;
     public static List<CardCharacter> Collection = new List<CardCharacter>();
     public static List<CardCharacter> Unowned = new List<CardCharacter>();

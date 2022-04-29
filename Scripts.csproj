@@ -52,31 +52,31 @@
     <ImplicitlyExpandDesignTimeFacades>false</ImplicitlyExpandDesignTimeFacades>
   </PropertyGroup>
   <ItemGroup>
+     <Compile Include="Assets\Scripts\Account.cs" />
      <Compile Include="Assets\Scripts\Template.cs" />
+     <Compile Include="Assets\Scripts\Scenes.cs" />
+     <Compile Include="Assets\Scripts\Waiters.cs" />
      <Compile Include="Assets\Scripts\Player.cs" />
      <Compile Include="Assets\Scripts\Card.cs" />
+     <Compile Include="Assets\Scripts\AbRarContainer.cs" />
      <Compile Include="Assets\Scripts\Engine.cs" />
      <Compile Include="Assets\Scripts\Parser.cs" />
+     <Compile Include="Assets\Scripts\CustomSettings.cs" />
      <Compile Include="Assets\Scripts\CardInCollection.cs" />
      <Compile Include="Assets\Scripts\Collection.cs" />
+     <Compile Include="Assets\Scripts\Connector.cs" />
      <Compile Include="Assets\Scripts\Tribes.cs" />
      <Compile Include="Assets\Scripts\Menu.cs" />
+     <Compile Include="Assets\Scripts\Login.cs" />
      <Compile Include="Assets\Scripts\Basis.cs" />
      <Compile Include="Assets\Scripts\Tile.cs" />
      <Compile Include="Assets\Scripts\Game.cs" />
      <Compile Include="Assets\Scripts\OccupantDesigner.cs" />
      <Compile Include="Assets\Scripts\ActionPointer.cs" />
-     <Compile Include="Assets\Scripts\CardCharacter.cs" />
-     <Compile Include="Assets\Scripts\AbRarContainer.cs" />
-     <Compile Include="Assets\Scripts\DevScene.cs" />
-     <Compile Include="Assets\Scripts\Login.cs" />
-     <Compile Include="Assets\Scripts\Connector.cs" />
-     <Compile Include="Assets\Scripts\Account.cs" />
-     <Compile Include="Assets\Scripts\Scenes.cs" />
-     <Compile Include="Assets\Scripts\Waiters.cs" />
-     <Compile Include="Assets\Scripts\CustomSettings.cs" />
      <Compile Include="Assets\Scripts\Shop.cs" />
      <Compile Include="Assets\Scripts\AudioStatic.cs" />
+     <Compile Include="Assets\Scripts\CardCharacter.cs" />
+     <Compile Include="Assets\Scripts\DevScene.cs" />
      <None Include="Assets\Scripts\Scripts.asmdef" />
  <Reference Include="UnityEngine">
  <HintPath>D:/Program Files/2020.3.32f1/Editor/Data/Managed/UnityEngine/UnityEngine.dll</HintPath>
@@ -308,9 +308,6 @@
  </Reference>
  <Reference Include="UnityEditor.WindowsStandalone.Extensions">
  <HintPath>D:/Program Files/2020.3.32f1/Editor/Data/PlaybackEngines/WindowsStandaloneSupport/UnityEditor.WindowsStandalone.Extensions.dll</HintPath>
- </Reference>
- <Reference Include="SyntaxTree.VisualStudio.Unity.Bridge">
- <HintPath>C:/Program Files (x86)/Microsoft Visual Studio Tools for Unity/16.0/Editor/SyntaxTree.VisualStudio.Unity.Bridge.dll</HintPath>
  </Reference>
  <Reference Include="Unity.Plastic.Newtonsoft.Json">
  <HintPath>C:/BBProjects/LuckyThicket/Library/PackageCache/com.unity.collab-proxy@1.15.13/Lib/Editor/PlasticSCM/Unity.Plastic.Newtonsoft.Json.dll</HintPath>

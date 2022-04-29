@@ -19,7 +19,8 @@ public class CustomSettings : MonoBehaviour
         SoundVolume.value = Account.SoundsVolume;
         MusicVolume.value = Account.MusicVolume;
         
-        AudioStatic.AddSoundsToButtons("button_sound", gameObject);
+        AudioStatic.AddMainTheme(AudioStatic.MainTheme, gameObject);
+        AudioStatic.AddSoundsToButtons(AudioStatic.Click, gameObject);
     }
     
     public void ChangeSoundVolume()
@@ -29,11 +30,14 @@ public class CustomSettings : MonoBehaviour
     
     public void ChangeMusicVolume()
     {
-        Account.MusicVolume = SoundVolume.value;
+        AudioStatic.RememberThemeState(gameObject);
+        AudioStatic.AddMainTheme(AudioStatic.MainTheme, gameObject);
+        Account.MusicVolume = MusicVolume.value;
     }
-    
+
     public void Return()
     {
+        AudioStatic.RememberThemeState(gameObject);
         SceneManager.LoadScene("MenuScene");
     }
 }
