@@ -15,6 +15,7 @@ public class Menu : MonoBehaviour
     {
         label.text = $"Вы вошли под ником {Account.Nickname}";
         
+        AudioStatic.AddMainTheme(AudioStatic.MainTheme, gameObject);
         AudioStatic.AddSoundsToButtons(AudioStatic.Click, gameObject);
     }
 
@@ -26,15 +27,28 @@ public class Menu : MonoBehaviour
         Application.Quit();
     }
 
-    public void EnterCollection() => SceneManager.LoadScene("CollectionScene");
+    public void EnterCollection()
+    {
+        AudioStatic.RememberThemeState(gameObject);
+        SceneManager.LoadScene("CollectionScene");
+    }
 
-    public void EnterSettings() => SceneManager.LoadScene("SettingsScene");
+    public void EnterSettings()
+    {
+        AudioStatic.RememberThemeState(gameObject);
+        SceneManager.LoadScene("SettingsScene");
+    }
 
     public void Logout()
     {
         Account.Reset();
+        AudioStatic.RememberThemeState(gameObject);
         SceneManager.LoadScene("LoginScene");
     }
 
-    public void Shop() => SceneManager.LoadScene("ShopScene");
+    public void Shop()
+    {
+        AudioStatic.RememberThemeState(gameObject);
+        SceneManager.LoadScene("ShopScene");
+    }
 }

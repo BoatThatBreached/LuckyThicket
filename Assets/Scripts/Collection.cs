@@ -20,6 +20,7 @@ public class Collection : MonoBehaviour
         Init();
         DrawCollection();
         Account.CurrentScene = Scenes.Collection;
+        AudioStatic.AddMainTheme(AudioStatic.MainTheme, gameObject);
         AudioStatic.AddSoundsToButtons(AudioStatic.Click, gameObject);
     }
 
@@ -50,6 +51,7 @@ public class Collection : MonoBehaviour
     
     public void BackToMenu()
     {
+        AudioStatic.RememberThemeState(gameObject);
         SceneManager.LoadScene("MenuScene");
     }
 }

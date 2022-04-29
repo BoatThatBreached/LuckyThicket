@@ -20,6 +20,7 @@ public class Login : MonoBehaviour
     private void Start()
     {
         Account.CurrentScene = Scenes.Login;
+        AudioStatic.AddMainTheme(AudioStatic.MainTheme, gameObject);
         AudioStatic.AddSoundsToButtons(AudioStatic.Click, gameObject);
     }
 
@@ -46,6 +47,7 @@ public class Login : MonoBehaviour
             return;
         ShowSuccess("Logged in successfully.\nRedirecting.");
         Account.Load(login.text);
+        AudioStatic.RememberThemeState(gameObject);
         SceneManager.LoadScene("MenuScene");
     }
     

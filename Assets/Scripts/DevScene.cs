@@ -18,11 +18,13 @@ public class DevScene : MonoBehaviour
     public void Start()
     {
         CardCharacter.SetCount(Parser.GetCardsCount());
+        AudioStatic.AddMainTheme(AudioStatic.MainTheme, gameObject);
         AudioStatic.AddSoundsToButtons(AudioStatic.Click, gameObject);
     }
 
     public void Exit()
     {
+        AudioStatic.RememberThemeState(gameObject);
         SceneManager.LoadScene("LoginScene");
     }
 
