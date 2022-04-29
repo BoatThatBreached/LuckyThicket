@@ -20,7 +20,7 @@ public class Login : MonoBehaviour
     private void Start()
     {
         Account.CurrentScene = Scenes.Login;
-        AudioStatic.AddSoundsToButtons("button_sound", gameObject);
+        AudioStatic.AddSoundsToButtons(AudioStatic.Button, gameObject);
     }
 
     public void StartRegister()

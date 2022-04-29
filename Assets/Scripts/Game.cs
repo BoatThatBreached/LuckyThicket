@@ -24,7 +24,7 @@ public class Game : MonoBehaviour
         InitBoard(new Point(0, 2));
         InitDeck();
         StartTurn();
-        AudioStatic.AddSoundsToButtons("button_sound", gameObject);
+        AudioStatic.AddSoundsToButtons(AudioStatic.Button, gameObject);
     }
 
     private void InitPlayer()

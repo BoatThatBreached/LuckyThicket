@@ -7,6 +7,7 @@ using UnityEngine.UI;
 
 public class AudioStatic : MonoBehaviour
 {
+    public static string Button = "button_sound";
     public static void AddSoundsToButtons(string soundPath, GameObject source)
     {
         var buttons = FindObjectsOfType<Button>(true);

@@ -15,7 +15,7 @@ public class Menu : MonoBehaviour
     {
         label.text = $"Вы вошли под ником {Account.Nickname}";
         
-        AudioStatic.AddSoundsToButtons("button_sound", gameObject);
+        AudioStatic.AddSoundsToButtons(AudioStatic.Button, gameObject);
     }
 
     public void Play() => SceneManager.LoadScene("GameScene");
