@@ -72,3 +72,4 @@ crashlytics-build.properties
 /[Aa]ssets/[Ss]treamingAssets/aa/*
 /[Aa]ssets/[tt]ext[Mm]esh[Pp]ro/*
 /[Aa]ssets/[tt]ext[Mm]esh [Pp]ro/*
+decks.json

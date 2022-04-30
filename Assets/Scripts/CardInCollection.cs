@@ -38,6 +38,8 @@ public class CardInCollection : MonoBehaviour
                 shop.ShowConfirmation(CardCharacter);
                 break;
             case Scenes.Collection:
+                var collection = FindObjectOfType<Collection>();
+                collection.SwapCard(this);
                 break;
             default:
                 throw new ArgumentOutOfRangeException();

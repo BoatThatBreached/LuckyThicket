@@ -5,11 +5,13 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Unity.Plastic.Newtonsoft.Json;
 
 public class Parser
 {
     private Encoding _encode = Encoding.UTF8;
     private const string Path = "Assets\\Resources\\Prefabs\\Cards\\";
+    private const string PathToDecks = "Assets\\Resources\\Prefabs\\decks.json";
 
     public void ResetEncode(Encoding wSet)
     {
@@ -57,6 +59,25 @@ public class Parser
 
         return ans;
     }
+
+    public Dictionary<string, List<int>> ListDecksFromFile_()
+    {
+        var ans = new Dictionary<string, List<int>>();
+        var fStream = new FileStream(PathToDecks, FileMode.OpenOrCreate);
+        var buffer = new byte[fStream.Length];
+        fStream.Read(buffer, 0, buffer.Length);
+        var jsonString = _encode.GetString(buffer);
+        var decks = JsonConvert.DeserializeObject<Dictionary<string, List<int>>>(jsonString);
+        fStream.Close();
+        return decks ?? new Dictionary<string, List<int>>();
+    }
+    
+    public void SaveDecksToFile_(Dictionary<string, List<int>> decks)
+    {
+        var jsonString = JsonConvert.SerializeObject(decks);
+        File.WriteAllText(PathToDecks, jsonString);
+    }
+
 
     private List<CardCharacter> ConvertFromFile_(List<string> filename)
     {
