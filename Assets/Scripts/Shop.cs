@@ -56,6 +56,14 @@ public class Shop : MonoBehaviour
         foreach (var card in offer)
         {
             var cardChar = Instantiate(cardPref, panel.transform).GetComponent<CardInCollection>();
+            try
+            {
+                cardChar.picture.sprite = Resources.Load<Sprite>($"cards/{card.Name}");
+            }
+            catch
+            {
+                print("oof");
+            }
             cardChar.AbilityMask = card.AbilityMask;
             cardChar.Name = card.Name;
             cardChar.Rarity = card.Rarity;

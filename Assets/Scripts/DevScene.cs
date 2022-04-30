@@ -47,7 +47,7 @@ public class DevScene : MonoBehaviour
         cardMask.text = string.Empty;
         abRar.ability = Array.Empty<Basis>();
         ConvertCardToFile(card);
-        print("Saved successfully!");
+        //print("Saved successfully!");
     }
 
     static void ConvertCardToFile(CardCharacter card)

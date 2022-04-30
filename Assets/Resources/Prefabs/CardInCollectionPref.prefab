@@ -120,6 +120,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   backImage: {fileID: 5175759974923224458}
+  picture: {fileID: 5526477222816043570}
   Rarity: 0
   nameField: {fileID: 8261974362502917350}
   abilityField: {fileID: 3551737527314127460}
@@ -151,7 +152,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 21300000, guid: 45991d66a8021a943a4b54b1760c8bbf, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

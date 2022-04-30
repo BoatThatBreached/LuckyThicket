@@ -11,6 +11,7 @@ public class ActionPointer : MonoBehaviour
     private float ratio;
     private Vector3 center;
     public SpriteRenderer rend;
+    public Point Position { get; set; }
 
     private void Start()
     {
@@ -26,6 +27,7 @@ public class ActionPointer : MonoBehaviour
 
         var input = (Input.mousePosition - center) * ratio;
         var p = new Point(Mathf.RoundToInt(input.x), Mathf.RoundToInt(input.y));
+        Position = p;
         transform.position = new Vector3(p.X, p.Y, 0);
         if (Input.GetMouseButtonDown(0) && engine.SatisfiesCriterias(p))
             engine.SelectPoint(p);

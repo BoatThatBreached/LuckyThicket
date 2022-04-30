@@ -17,12 +17,7 @@ public class Login : MonoBehaviour
 
     public void Exit() => Application.Quit();
 
-    private void Start()
-    {
-        Account.CurrentScene = Scenes.Login;
-        AudioStatic.AddMainTheme(AudioStatic.MainTheme, gameObject);
-        AudioStatic.AddSoundsToButtons(AudioStatic.Click, gameObject);
-    }
+    private void Start() => Account.CurrentScene = Scenes.Login;
 
     public void StartRegister()
     {
@@ -43,11 +38,10 @@ public class Login : MonoBehaviour
 
     public void LogIn()
     {
-        if (!IsInputCorrect() || !TryConnect()) 
+        if (!IsInputCorrect() || !TryConnect(out var token)) 
             return;
         ShowSuccess("Logged in successfully.\nRedirecting.");
-        Account.Load(login.text);
-        AudioStatic.RememberThemeState(gameObject);
+        Account.Load(login.text, token);
         SceneManager.LoadScene("MenuScene");
     }
     
@@ -62,12 +56,14 @@ public class Login : MonoBehaviour
     
 
     #endregion
+    
 
-    private bool TryConnect()
+    private bool TryConnect(out string token)
     {
-        var result = Connector.TryLogin(login.text, password.text, out var errors);
+        var result = Connector.TryLogin(login.text, password.text, out var message);
         if (!result)
-            ShowError(errors);
+            ShowError(message);
+        token = message;
         return result;
     }
 

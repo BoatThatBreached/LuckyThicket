@@ -4,35 +4,37 @@ using System.Linq;
 
 public static class Account
 {
-    public  static string Nickname;
-    public static float SoundsVolume = 0.25F;
-    public static float MusicVolume = 0.25F;
+    public static string Nickname;
+    public static float SoundsVolume;
+    public static float MusicVolume;
     public static Scenes CurrentScene;
     public static List<CardCharacter> Collection = new List<CardCharacter>();
     public static List<CardCharacter> Unowned = new List<CardCharacter>();
-
-    public static Dictionary<string, List<int>> Decks;
-
+    public static List<List<int>> Decks = new List<List<int>>();
     public static int Balance;
-    private static Dictionary<string, List<int>> _decks;
-    
+    public static string Token;
+    //public static string RoomName;
+    public static Room Room;
+
     public static void Reset()
     {
         Nickname = string.Empty;
-        SoundsVolume = 0.5F;
-        MusicVolume = 0.5F;
+        SoundsVolume = 0;
+        MusicVolume = 0;
         Balance = 0;
         Collection = new List<CardCharacter>();
         Unowned = new List<CardCharacter>();
-        Decks = new Dictionary<string, List<int>>();
+        Decks = new List<List<int>>();
+        Token = string.Empty;
+        Room = null;
     }
 
-    public static void Load(string login)
+    public static void Load(string login, string token)
     {
         Nickname = login;
-        
+        Token = token;
         var maxID = Connector.GetMaxID();
-        var owned = Connector.GetCollectionIDs(login).ToList();
+        var owned = Connector.GetCollectionIDs(login);
         var ownedCards = Connector.GetCollection(owned);
         
         var unowned = Enumerable.Range(0, maxID + 1).Where(id => !owned.Contains(id));
@@ -42,12 +44,9 @@ public static class Account
             Collection.Add(card);
         foreach (var card in unownedCards)
             Unowned.Add(card);
-        Decks = new Parser().ListDecksFromFile_();
-        if (Decks.Count == 0)
-        {
-            Decks["Стандартная"] = new List<int>();
-        }
+
         Balance = int.Parse(Connector.GetProperty("balance", login));
+
     }
 
     public static void BuyCard(CardCharacter currentChoice)
@@ -58,6 +57,4 @@ public static class Account
         Connector.SetProperty("balance", Balance.ToString(), Nickname);
         Connector.InitCollection(Nickname, Collection.Select(c=>c.Id));
     }
-
-    public static void SaveDecks() => new Parser().SaveDecksToFile_(Decks);
 }

@@ -3,16 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using UnityEngine;
 
-public class Connector: MonoBehaviour
+public class Connector : MonoBehaviour
 {
     private const string CardsURL = "http://a0664388.xsph.ru/test.php";
     private const string AuthURL = "http://a0664388.xsph.ru/auth.php";
     private const string DataURL = "http://a0664388.xsph.ru/infoExtend.php";
+    private const string GameURL = "http://a0664388.xsph.ru/gameLogic.php";
 
-    public static string GetCardByID(int id)
+    private static string GetCardByID(int id)
     {
         var data = "{\"query\":\"queryCard\", \"Id\":" + id + "}";
         return Post(CardsURL, data);
@@ -32,13 +34,13 @@ public class Connector: MonoBehaviour
             return false;
         }
 
-        errors = "";
+        errors = ans;
         return true;
     }
 
     private static string Post(string url, string data)
     {
-        var req = (HttpWebRequest)WebRequest.Create(url);
+        var req = (HttpWebRequest) WebRequest.Create(url);
         req.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:99.0) Gecko/20100101 Firefox/99.0";
         req.Method = "POST";
         req.Timeout = 1000000;
@@ -50,7 +52,7 @@ public class Connector: MonoBehaviour
         sendStream.Close();
         var res = req.GetResponse();
         var receiveStream = res.GetResponseStream();
-        if (receiveStream == null) 
+        if (receiveStream == null)
             return string.Empty;
         var sr = new System.IO.StreamReader(receiveStream, Encoding.UTF8);
         var read = new char[256];
@@ -62,6 +64,7 @@ public class Connector: MonoBehaviour
             result += str;
             count = sr.Read(read, 0, 256);
         }
+
         sr.Close();
         receiveStream.Close();
         return result;
@@ -85,16 +88,16 @@ public class Connector: MonoBehaviour
         return true;
     }
 
-    public static IEnumerable<CardCharacter> GetCollection(IEnumerable<int> ids) 
+    public static IEnumerable<CardCharacter> GetCollection(IEnumerable<int> ids)
         => ids.Select(id => Parser.GetCardFromJson(GetCardByID(id)));
-    
+
     public static IEnumerable<int> GetCollectionIDs(string login)
     {
         const string ex0 = "{\"query\":\"getIdCardCollection\", \"login\":\"";
         const string ex2 = "\"}";
-        var data = ex0 + login  + ex2;
+        var data = ex0 + login + ex2;
         var result = Post(CardsURL, data);
-        if(result.Contains("errors"))
+        if (result.Contains("errors"))
             yield break;
         var left = result.IndexOf("[", StringComparison.Ordinal);
         var right = result.IndexOf("]", StringComparison.Ordinal);
@@ -105,6 +108,7 @@ public class Connector: MonoBehaviour
         foreach (var id in sub)
             yield return id;
     }
+
     public static int GetMaxID()
     {
         var data = "{\"query\":\"maxId\"}";
@@ -116,7 +120,7 @@ public class Connector: MonoBehaviour
     {
         SetProperty("balance", "100", login);
         SetProperty("level", "1", login);
-        
+
         switch (tribe)
         {
             case Tribes.Beaver:
@@ -139,7 +143,7 @@ public class Connector: MonoBehaviour
         const string ex2 = "]}";
         var data = ex0 + login + ex1 + string.Join(",", ids) + ex2;
         var res = Post(CardsURL, data);
-        print(res);
+        //print(res);
     }
 
     public static void SetProperty(string key, string value, string login)
@@ -157,9 +161,76 @@ public class Connector: MonoBehaviour
         const string ex0 = "{\"query\":\"getInfo\", \"data\":\"";
         const string ex1 = "\", \"login\":\"";
         const string ex3 = "\"}";
-        var data = ex0 + key + ex1 + login  + ex3;
-        var res= Post(DataURL, data).Split('\"')[3];
-        print(res);
+        var data = ex0 + key + ex1 + login + ex3;
+        var res = Post(DataURL, data).Split('\"')[3];
+        //print(res);
         return res;
+    }
+
+    public static List<Room> GetRoomsList()
+    {
+        var data = "{\"query\":\"getListRooms\"}";
+        var res = Post(GameURL, data);
+
+        //{"pizdec123":{"name":"pizdec123","1":"ff","2":""},"bebra":{"name":"bebra","1":"bebrinsk","2":""},"neBebra":{"name":"neBebra","1":"bebrinsk","2":""}}
+        res = res.Remove(0, 1);
+        res = res.Remove(res.Length - 1);
+        var ms = Regex.Matches(res, "{(.*?)}");
+        var rooms = new List<Room>();
+        foreach (var m in ms)
+        {
+            var sp = m.ToString().Split('\"');
+            var roomName = sp[3];
+            var firstPlayer = sp[7];
+            var secondPlayer = sp[11];
+            var room = new Room(roomName, firstPlayer, secondPlayer);
+            rooms.Add(room);
+        }
+        //print(res);
+
+        return rooms;
+    }
+
+    public static void CreateRoom(string token, string name)
+    {
+        const string ex0 = "{\"query\":\"createRoom\", \"token\":\"";
+        const string ex1 = "\", \"name\":\"";
+        const string ex3 = "\"}";
+        var data = ex0 + token + ex1 + name + ex3;
+        var res = Post(GameURL, data);
+        //print(res);
+    }
+
+    public static string JoinRoom(string token, string name)
+    {
+        const string ex0 = "{\"query\":\"joinRoom\", \"token\":\"";
+        const string ex1 = "\", \"name\":\"";
+        const string ex3 = "\"}";
+        var data = ex0 + token + ex1 + name + ex3;
+        var res = Post(GameURL, data);
+        return res;
+    }
+
+    public static string TrySendBoard(string name, string token, string data)
+    {
+        const string ex0 = "{\"query\":\"setData\", \"name\":\"";
+        const string ex1 = "\", \"token\":\"";
+        const string ex2 = "\", \"data\":";
+        const string ex3 = "}";
+        var customData = ex0 + name + ex1 + token + ex2 + data + ex3;
+        //print(customData);
+        return Post(GameURL, customData);
+    }
+
+    public static string GetBoard(string name, string token)
+    {
+        const string ex0 = "{\"query\":\"getData\", \"name\":\"";
+        const string ex1 = "\", \"token\":\"";
+        const string ex2 = "\", \"data\":";
+        const string ex3 = "}";
+        var data = "\"\"";
+        var customData = ex0 + name + ex1 + token + ex2 + data + ex3;
+        print(customData);
+        return Post(GameURL, customData);
     }
 }
