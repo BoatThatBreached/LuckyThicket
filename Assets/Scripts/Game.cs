@@ -74,28 +74,12 @@ public class Game : MonoBehaviour
 
     private void RefreshBoard(Dictionary<Point, Tribes> newBoard)
     {
-        var deleted = Board.Keys
-            .Where(p => !newBoard.ContainsKey(p))
-            .ToList();
-        var added = newBoard.Keys
-            .Where(p => !Board.ContainsKey(p))
-            .ToList();
-        var changed = Board.Keys
-            .Where(p => newBoard.ContainsKey(p) && newBoard[p] != Board[p].occupantTribe)
-            .ToList();
-        foreach (var point in deleted)
-            gameEngine.DestroyTile(point);
-        foreach (var point in added)
+        Board = new Dictionary<Point, Tile>();
+        foreach (var p in newBoard.Keys)
         {
-            gameEngine.AddTile(point);
-            if(newBoard[point]!=Tribes.None)
-                gameEngine.SpawnUnit(point, newBoard[point]);
-        }
-        foreach (var point in changed)
-        {
-            if(Board[point].occupantTribe!=Tribes.None)
-                gameEngine.KillUnit(point);
-            gameEngine.SpawnUnit(point, newBoard[point]);
+            gameEngine.AddTile(p);
+            if (newBoard[p]!=Tribes.None)
+                gameEngine.SpawnUnit(p, newBoard[p]);
         }
     }
 

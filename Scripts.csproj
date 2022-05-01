@@ -52,31 +52,33 @@
     <ImplicitlyExpandDesignTimeFacades>false</ImplicitlyExpandDesignTimeFacades>
   </PropertyGroup>
   <ItemGroup>
+     <Compile Include="Assets\Scripts\Account.cs" />
      <Compile Include="Assets\Scripts\Template.cs" />
+     <Compile Include="Assets\Scripts\Scenes.cs" />
+     <Compile Include="Assets\Scripts\Waiters.cs" />
      <Compile Include="Assets\Scripts\Player.cs" />
      <Compile Include="Assets\Scripts\Card.cs" />
+     <Compile Include="Assets\Scripts\AbRarContainer.cs" />
      <Compile Include="Assets\Scripts\Engine.cs" />
      <Compile Include="Assets\Scripts\Parser.cs" />
+     <Compile Include="Assets\Scripts\CustomSettings.cs" />
      <Compile Include="Assets\Scripts\CardInCollection.cs" />
      <Compile Include="Assets\Scripts\Collection.cs" />
      <Compile Include="Assets\Scripts\Connector.cs" />
      <Compile Include="Assets\Scripts\Tribes.cs" />
      <Compile Include="Assets\Scripts\Menu.cs" />
+     <Compile Include="Assets\Scripts\Login.cs" />
      <Compile Include="Assets\Scripts\Basis.cs" />
      <Compile Include="Assets\Scripts\Tile.cs" />
      <Compile Include="Assets\Scripts\Game.cs" />
      <Compile Include="Assets\Scripts\OccupantDesigner.cs" />
      <Compile Include="Assets\Scripts\ActionPointer.cs" />
+     <Compile Include="Assets\Scripts\Shop.cs" />
+     <Compile Include="Assets\Scripts\DeckPref.cs" />
+     <Compile Include="Assets\Scripts\AudioStatic.cs" />
+     <Compile Include="Assets\Scripts\Rooms.cs" />
      <Compile Include="Assets\Scripts\CardCharacter.cs" />
      <Compile Include="Assets\Scripts\DevScene.cs" />
-     <Compile Include="Assets\Scripts\AbRarContainer.cs" />
-     <Compile Include="Assets\Scripts\Login.cs" />
-     <Compile Include="Assets\Scripts\CustomSettings.cs" />
-     <Compile Include="Assets\Scripts\Account.cs" />
-     <Compile Include="Assets\Scripts\Waiters.cs" />
-     <Compile Include="Assets\Scripts\Scenes.cs" />
-     <Compile Include="Assets\Scripts\Shop.cs" />
-     <Compile Include="Assets\Scripts\Rooms.cs" />
      <None Include="Assets\Scripts\Scripts.asmdef" />
  <Reference Include="UnityEngine">
  <HintPath>C:/Program Files/Unity/Hub/Editor/2020.3.32f1/Editor/Data/Managed/UnityEngine/UnityEngine.dll</HintPath>
