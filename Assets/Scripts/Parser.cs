@@ -6,7 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Unity.Plastic.Newtonsoft.Json;
+//using Unity.Plastic.Newtonsoft.Json;
 
 public class Parser
 {
@@ -68,15 +68,17 @@ public class Parser
         var buffer = new byte[fStream.Length];
         fStream.Read(buffer, 0, buffer.Length);
         var jsonString = _encode.GetString(buffer);
-        var decks = JsonConvert.DeserializeObject<Dictionary<string, List<int>>>(jsonString);
+        var decks = JsonUtility.FromJson<Dictionary<string, List<int>>>(jsonString);
+        //var decks = JsonConvert.DeserializeObject<Dictionary<string, List<int>>>(jsonString);
         fStream.Close();
         return decks ?? new Dictionary<string, List<int>>();
     }
     
     public void SaveDecksToFile_(Dictionary<string, List<int>> decks)
     {
-        var jsonString = JsonConvert.SerializeObject(decks);
-        File.WriteAllText(PathToDecks, jsonString);
+        var json = JsonUtility.ToJson(decks);
+        //var jsonString = JsonConvert.SerializeObject(decks);
+        File.WriteAllText(PathToDecks, json);
     }
 
 
@@ -135,6 +137,8 @@ public class Parser
         var cardCharacter = JsonUtility.FromJson<CardCharacter>(json);
         var abilityString = cardCharacter.AbilityString;
         var q = new Queue<Basis>();
+        //Debug.Log(json);
+        
         foreach (var it in abilityString.Split(' ').ToArray())
         {
             if (it == "")

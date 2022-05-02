@@ -10,30 +10,33 @@ public class Login : MonoBehaviour
     public TMP_Text output;
     public TMP_InputField login;
     public TMP_InputField password;
-    public GameObject TribeChoice;
+    public GameObject tribeChoice;
     private bool _hidden = true;
 
     #region Buttons
 
     public void Exit() => Application.Quit();
 
-    private void Start() => Account.CurrentScene = Scenes.Login;
+    private void Start()
+    {
+        Account.Reset();
+    }
 
     public void StartRegister()
     {
         if (!IsInputCorrect())
             return;
-        TribeChoice.SetActive(true);
+        tribeChoice.SetActive(true);
     }
 
     public void FinishRegister(bool isBeaver)
     {
+        tribeChoice.SetActive(false);
         if (!TryRegister())
             return;
         var tribe = isBeaver ? Tribes.Beaver : Tribes.Magpie;
-        ShowSuccess("Registered successfully.");
+        //ShowSuccess("Registered successfully.");
         Connector.InitNewUser(login.text, tribe);
-        TribeChoice.SetActive(false);
     }
 
     public void LogIn()
@@ -122,10 +125,9 @@ public class Login : MonoBehaviour
 
     private bool TryRegister()
     {
-        var result = Connector.TryRegister(login.text, password.text, out var errors);
-        if (!result)
-            ShowError(errors);
-        return result;
+        var result = Connector.Register(login.text, password.text);
+        ShowError(result);
+        return !result.Contains("error");
     }
 
     public void HideText()=> duckPassword.text = string.Join("", Enumerable.Range(0, password.text.Length).Select(z => "*"));

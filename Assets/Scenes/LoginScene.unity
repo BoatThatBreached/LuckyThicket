@@ -161,7 +161,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -240, y: 240}
+  m_AnchoredPosition: {x: -380, y: 400}
   m_SizeDelta: {x: 360, y: 360}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &76273981
@@ -821,7 +821,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -460, y: 240}
+  m_AnchoredPosition: {x: -160, y: 400}
   m_SizeDelta: {x: 60, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &316889241
@@ -3658,7 +3658,7 @@ MonoBehaviour:
   output: {fileID: 936127900}
   login: {fileID: 581737803}
   password: {fileID: 945869200}
-  TribeChoice: {fileID: 2015160935}
+  tribeChoice: {fileID: 2015160935}
 --- !u!82 &1741267954
 AudioSource:
   m_ObjectHideFlags: 0

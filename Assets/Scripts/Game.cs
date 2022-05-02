@@ -68,13 +68,20 @@ public class Game : MonoBehaviour
         if (isMyTurn) 
             return;
         print("fetching!");
-        var cor = Waiters.LoopFor(5, StartTurn);
+        var cor = Waiters.LoopFor(2, StartTurn);
         StartCoroutine(cor);
     }
 
     private void RefreshBoard(Dictionary<Point, Tribes> newBoard)
     {
         Board = new Dictionary<Point, Tile>();
+        foreach (Transform child in transform)
+        {
+            foreach(Transform occupant in child)
+                Destroy(occupant.gameObject);
+            Destroy(child.gameObject);
+        }
+
         foreach (var p in newBoard.Keys)
         {
             gameEngine.AddTile(p);
@@ -103,4 +110,10 @@ public class Game : MonoBehaviour
     }
 
     public void Exit() => SceneManager.LoadScene("MenuScene");
+
+    public void Forfeit()
+    {
+        Connector.DestroyRoom(Account.Token, Account.Room.Name);
+        SceneManager.LoadScene("RoomScene");
+    }
 }

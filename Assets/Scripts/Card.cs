@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Drawing;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -43,12 +42,14 @@ public class Card : MonoBehaviour
 
     public void Drag()
     {
-        return;
-        transform.position = Input.mousePosition;
+        print("dragged!");
+        //return;
+        //transform.position = Input.mousePosition;
     }
     public void Drop()
     {
-        return;
+        print("dropped!");
+        //return;
         //var p = game.pointer.Position;
         // print(p);
         // var selections = new Queue<Point>();

@@ -26,15 +26,16 @@ public class Collection : MonoBehaviour
         Account.CurrentScene = Scenes.Collection;
         AudioStatic.AddMainTheme(AudioStatic.MainTheme, gameObject);
         AudioStatic.AddSoundsToButtons(AudioStatic.Click, gameObject);
-        CurrentDeck = Account.Decks.Keys.First();
-        SortByRarity();
-        Reload();
+        
+        CurrentDeck = Account.Decks.Keys.FirstOrDefault();
+        if(CurrentDeck!=default)
+            SortByRarity();
     }
 
     public void Reload()
     {
         Reload(Account.Collection, collectionPanel);
-        var cardInDeck = Account.Decks[CurrentDeck].Select(id => Account.Collection.First(card => card.Id == id));
+        var cardInDeck = Account.Decks[CurrentDeck].Select(id => Account.Collection.FirstOrDefault(card => card.Id == id));
         Reload(cardInDeck, deckPanel);
         ReloadDecks();
     }
@@ -60,7 +61,7 @@ public class Collection : MonoBehaviour
             
             cardChar.AbilityMask = cardGroup.Key.AbilityMask;
             cardChar.Name = card.Name + countString;
-            cardChar.Rarity = card.Rarity;
+            cardChar.rarity = card.Rarity;
             cardChar.Color = card.Rarity switch
             {
                 Rarity.Common => Color.gray,

@@ -9,22 +9,20 @@ public enum SchemaType
 
 //TODO: Rotate
 
-public class Template
+public abstract class Template
 {
     public Dictionary<Point, Tribes> Points { get; }
     public SchemaType Type { get; }
-    public bool IsRotatable { get; }
 
-    public Template(Tribes[,] schema, SchemaType type, bool isRotatable)
+    protected Template(Tribes[,] schema, SchemaType type)
     {
         Points = new Dictionary<Point, Tribes>();
 
-        for (int i = 0; i < schema.GetLength(0); i++)
-        for (int j = 0; j < schema.GetLength(1); j++)
+        for (var i = 0; i < schema.GetLength(0); i++)
+        for (var j = 0; j < schema.GetLength(1); j++)
             if (schema[i, j] != Tribes.None)
                 Points[new Point(i, j)] = schema[i, j];
 
-        IsRotatable = isRotatable;
         Type = type;
     }
 }

@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Networking;
 
 public class Connector : MonoBehaviour
 {
@@ -41,11 +42,12 @@ public class Connector : MonoBehaviour
     private static string Post(string url, string data)
     {
         var req = (HttpWebRequest) WebRequest.Create(url);
+        
         req.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:99.0) Gecko/20100101 Firefox/99.0";
         req.Method = "POST";
         req.Timeout = 1000000;
         req.ContentType = "application/x-www-form-urlencoded";
-        var sentData = Encoding.GetEncoding(1251).GetBytes(data);
+        var sentData = Encoding.Default.GetBytes(data);
         req.ContentLength = sentData.Length;
         var sendStream = req.GetRequestStream();
         sendStream.Write(sentData, 0, sentData.Length);
@@ -70,22 +72,14 @@ public class Connector : MonoBehaviour
         return result;
     }
 
-    public static bool TryRegister(string login, string password, out string errors)
+    public static string Register(string login, string password)
     {
         const string ex0 = "{\"query\":\"register\", \"login\":\"";
         const string ex1 = "\", \"password\":\"";
         const string ex2 = "\"}";
         var data = ex0 + login + ex1 + password + ex2;
         var ans = Post(AuthURL, data);
-        //print(ans);
-        if (ans.Contains("errors"))
-        {
-            errors = ans.Split('\"')[3];
-            return false;
-        }
-
-        errors = "";
-        return true;
+        return ans;
     }
 
     public static IEnumerable<CardCharacter> GetCollection(IEnumerable<int> ids)
@@ -143,7 +137,7 @@ public class Connector : MonoBehaviour
         const string ex2 = "]}";
         var data = ex0 + login + ex1 + string.Join(",", ids) + ex2;
         var res = Post(CardsURL, data);
-        //print(res);
+        print(res);
     }
 
     public static void SetProperty(string key, string value, string login)
@@ -171,20 +165,31 @@ public class Connector : MonoBehaviour
     {
         var data = "{\"query\":\"getListRooms\"}";
         var res = Post(GameURL, data);
-
-        //{"pizdec123":{"name":"pizdec123","1":"ff","2":""},"bebra":{"name":"bebra","1":"bebrinsk","2":""},"neBebra":{"name":"neBebra","1":"bebrinsk","2":""}}
         res = res.Remove(0, 1);
         res = res.Remove(res.Length - 1);
-        var ms = Regex.Matches(res, "{(.*?)}");
+        var ms = Regex.Matches(res, "({.*?})");
         var rooms = new List<Room>();
         foreach (var m in ms)
         {
-            var sp = m.ToString().Split('\"');
-            var roomName = sp[3];
-            var firstPlayer = sp[7];
-            var secondPlayer = sp[11];
-            var room = new Room(roomName, firstPlayer, secondPlayer);
-            rooms.Add(room);
+            var ch = m.ToString()
+                .Replace("\"1\"", "\"FirstPlayer\"")
+                .Replace("\"name\"", "\"Name\"")
+                .Replace("null", "\"___\"")
+                .Replace("\"2\"", "\"SecondPlayer\"");
+            if (ch.Contains("lastTurn"))
+                ch += "}";
+            try
+            {
+                //var sp = m.ToString().Split('\"');
+                
+                var s = JsonUtility.FromJson<Room>(ch);
+                rooms.Add(s);
+            }
+            catch(Exception e)
+            {
+                print(e.Message);
+                print(ch);
+            }
         }
         //print(res);
 
@@ -197,8 +202,9 @@ public class Connector : MonoBehaviour
         const string ex1 = "\", \"name\":\"";
         const string ex3 = "\"}";
         var data = ex0 + token + ex1 + name + ex3;
+        print(data);
         var res = Post(GameURL, data);
-        //print(res);
+        print(res);
     }
 
     public static string JoinRoom(string token, string name)
@@ -230,7 +236,18 @@ public class Connector : MonoBehaviour
         const string ex3 = "}";
         var data = "\"\"";
         var customData = ex0 + name + ex1 + token + ex2 + data + ex3;
-        print(customData);
         return Post(GameURL, customData);
+    }
+
+    public static string DestroyRoom(string token, string name)
+    {
+        const string ex0 = "{\"query\":\"exitRoom\", \"token\":\"";
+        const string ex1 = "\", \"name\":\"";
+        const string ex3 = "\"}";
+        
+        var data = ex0 + token + ex1 + name + ex3;
+        print(data);
+        var res = Post(GameURL, data);
+        return res;
     }
 }

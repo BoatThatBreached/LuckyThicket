@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
@@ -62,6 +61,7 @@ public class Rooms : MonoBehaviour
     //BEBRA
     public void CreateRoom()
     {
+        print(roomName.text);
         if(_rooms.Count(r => r.IsHere(Account.Nickname))<3)
             Connector.CreateRoom(Account.Token, roomName.text);
         RefreshRooms();
@@ -70,9 +70,11 @@ public class Rooms : MonoBehaviour
 
 public class Room
 {
-    public string Name { get; set; }
-    public string FirstPlayer { get; set; }
-    public string SecondPlayer { get; set; }
+    public string Name;
+    public string FirstPlayer;
+    public string SecondPlayer;
+    public string lastTurn;
+    public Dictionary<string, string> data;
 
     public bool IsValid(string login) =>
         IsHere(login) &&
@@ -81,11 +83,16 @@ public class Room
         && SecondPlayer != string.Empty;
 
     public bool IsHere(string login) => FirstPlayer == login || SecondPlayer == login;
-
+    
     public Room(string name, string f, string s)
     {
         Name = name;
         FirstPlayer = f;
         SecondPlayer = s;
+    }
+
+    public override string ToString()
+    {
+        return $"{Name}:{FirstPlayer} and {SecondPlayer}";
     }
 }
