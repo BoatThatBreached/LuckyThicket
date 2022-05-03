@@ -174,6 +174,22 @@ public class Parser
 
         return result;
     }
+    
+    private static Template GetTemplateFromString(string s)
+    {
+        var lines = s.Split('|');
+        var array = new List<List<Tribes>>();
+
+        foreach (var line in lines)
+        {
+            var tribes = line.Split(' ');
+            array.Add(new List<Tribes>());
+            foreach (var tribe in tribes)
+                array.Last().Add((Tribes) Enum.Parse(typeof(Tribes), tribe));
+        }
+
+        return new Template(array, array.Count > 3 ? SchemaType.Big : SchemaType.Small, false);
+    }
 }
 
 public static class StringExtensions
