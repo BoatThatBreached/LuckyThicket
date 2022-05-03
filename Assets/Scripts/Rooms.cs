@@ -19,7 +19,7 @@ public class Rooms : MonoBehaviour
 
     private void Fetch()
     {
-        var cor = Waiters.LoopFor(10, Fetch);
+        var cor = Waiters.LoopFor(2, Fetch);
         RefreshRooms();
         StartCoroutine(cor);
     }
@@ -74,7 +74,6 @@ public class Room
     public string FirstPlayer;
     public string SecondPlayer;
     public string lastTurn;
-    public Dictionary<string, string> data;
 
     public bool IsValid(string login) =>
         IsHere(login) &&

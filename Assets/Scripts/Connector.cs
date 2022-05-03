@@ -176,7 +176,7 @@ public class Connector : MonoBehaviour
                 .Replace("\"name\"", "\"Name\"")
                 .Replace("null", "\"___\"")
                 .Replace("\"2\"", "\"SecondPlayer\"");
-            if (ch.Contains("lastTurn"))
+            if (ch.Contains("data"))
                 ch += "}";
             try
             {
@@ -187,8 +187,7 @@ public class Connector : MonoBehaviour
             }
             catch(Exception e)
             {
-                print(e.Message);
-                print(ch);
+                print($"Error: {e.Message} on string: {ch}");
             }
         }
         //print(res);

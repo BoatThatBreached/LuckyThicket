@@ -14,19 +14,17 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.2d.common": {
-      "version": "6.0.3",
+      "version": "4.2.0",
       "depth": 1,
       "source": "registry",
       "dependencies": {
         "com.unity.2d.sprite": "1.0.0",
-        "com.unity.mathematics": "1.1.0",
-        "com.unity.modules.uielements": "1.0.0",
-        "com.unity.burst": "1.5.1"
+        "com.unity.modules.uielements": "1.0.0"
       },
       "url": "https://packages.unity.com"
     },
     "com.unity.2d.path": {
-      "version": "5.0.2",
+      "version": "4.0.2",
       "depth": 1,
       "source": "registry",
       "dependencies": {},
@@ -73,15 +71,6 @@
       "depth": 0,
       "source": "builtin",
       "dependencies": {}
-    },
-    "com.unity.burst": {
-      "version": "1.6.4",
-      "depth": 2,
-      "source": "registry",
-      "dependencies": {
-        "com.unity.mathematics": "1.2.1"
-      },
-      "url": "https://packages.unity.com"
     },
     "com.unity.collab-proxy": {
       "version": "1.15.15",
@@ -132,7 +121,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.mathematics": {
-      "version": "1.2.5",
+      "version": "1.1.0",
       "depth": 1,
       "source": "registry",
       "dependencies": {},
