@@ -19,8 +19,8 @@ public static class Account
     public static void Reset()
     {
         Nickname = string.Empty;
-        SoundsVolume = 0;
-        MusicVolume = 0;
+        SoundsVolume = 0.5f;
+        MusicVolume = 0.5f;
         Balance = 0;
         Collection = new List<CardCharacter>();
         Unowned = new List<CardCharacter>();
@@ -44,11 +44,11 @@ public static class Account
             Collection.Add(card);
         foreach (var card in unownedCards)
             Unowned.Add(card);
-        Decks = new Parser().ListDecksFromFile_();
-        if (Decks.Count == 0)
-        {
-            Decks["Стандартная"] = new List<int>();
-        }
+        // Decks = new Parser().ListDecksFromFile_();
+        // if (Decks.Count == 0)
+        // {
+        //     Decks["Стандартная"] = new List<int>();
+        // }
         Balance = int.Parse(Connector.GetProperty("balance", login));
 
     }
