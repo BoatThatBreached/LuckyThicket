@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using UnityEngine;
@@ -151,32 +152,53 @@ public class Parser
 
     public static string ConvertBoardToJson(Dictionary<Point, Tile> board)
     {
-        var lines = new List<string>();
-        foreach (var point in board.Keys)
-        {
-            var key = $"({point.X}_{point.Y})";
-            var val = board[point].occupantTribe.ToString();
-            var line = $"\"{key}\":\"{val}\"";
-            lines.Add(line);
-        }
-
+        var lines = (from point in board.Keys 
+            let key = $"({point.X}_{point.Y})" 
+            let val = board[point].occupantTribe.ToString() 
+            select $"\"{key}\":\"{val}\"").ToList();
         return "{"+string.Join(",", lines)+"}";
+    }
+    public static string ConvertBoardToJson(Dictionary<Point, Tribes> board)
+    {
+        var lines = (from point in board.Keys 
+            let key = $"({point.X}_{point.Y})" 
+            let val = board[point].ToString() 
+            select $"\"{key}\":\"{val}\"").ToList();
+        return "{"+string.Join(",", lines)+"}";
+    }
+
+    public static Dictionary<Point, Tribes> EmptyField(int size)
+    {
+        var points = Enumerable.Range(0, size * size)
+            .Select(i => new Point(i / size, i % size));
+        var result = new Dictionary<Point, Tribes>();
+        foreach (var p in points)
+            result[p] = Tribes.None;
+        return result;
     }
 
     public static Dictionary<Point, Tribes> ConvertJsonToBoard(string json)
     {
-        var result = new Dictionary<Point, Tribes>();
-        var sp = json.Replace("{", "").Replace("}", "").Split(',');
-        foreach (var line in sp)
+        try
         {
-            var unquoted = line.Replace("\"", "").Split(':');
-            var coords = unquoted[0].Replace("(", "").Replace(")", "").Split('_');
-            var p = new Point(int.Parse(coords[0]), int.Parse(coords[1]));
-            var tribe = (Tribes)Enum.Parse(typeof(Tribes), unquoted[1]);
-            result[p] = tribe;
-        }
+            var result = new Dictionary<Point, Tribes>();
+            var sp = json.Replace("{", "").Replace("}", "").Split(',');
+            foreach (var line in sp)
+            {
+                var unquoted = line.Replace("\"", "").Split(':');
+                var coords = unquoted[0].Replace("(", "").Replace(")", "").Split('_');
+                var p = new Point(int.Parse(coords[0]), int.Parse(coords[1]));
+                var tribe = (Tribes) Enum.Parse(typeof(Tribes), unquoted[1]);
+                result[p] = tribe;
+            }
 
-        return result;
+            return result;
+        }
+        catch (Exception e)
+        {
+            Debug.Log($"An error occured: {e.Message}. Sending empty board!");
+            return EmptyField(3);
+        }
     }
 }
 
@@ -190,5 +212,17 @@ public static class StringExtensions
         return !suffix
             .Where((t, i) => source[delta + i] != t)
             .Any();
+    }
+
+    public static string ToSystemRoom(this string source) => $"S1Y2S3T4E5M{source}R6O7O8M";
+    public static string FromSystemRoom(this string source) => source.Substring(11, source.Length - 18);
+    public static string ToSystemDeck(this string source) => $"S1Y2S3T4E5M{source}D6E7C8K";
+    public static string FromSystemDeck(this string source) => source.Substring(11, source.Length - 18);
+    public static string ToJsonList(this IEnumerable<string> source) => $"[{string.Join(",", source)}]";
+
+    public static List<string> FromJsonList(this string source)
+    {
+        var trim = source.Replace("[", "").Replace("]", "");
+        return trim == "" ? new List<string>() : trim.Split(',').ToList();
     }
 }

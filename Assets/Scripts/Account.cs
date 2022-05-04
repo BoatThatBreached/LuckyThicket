@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 public static class Account
 {
+    public const string DeckNames = "DECK_NAMES";
+    
     public static string Nickname;
     public static float SoundsVolume;
     public static float MusicVolume;
@@ -44,11 +47,9 @@ public static class Account
             Collection.Add(card);
         foreach (var card in unownedCards)
             Unowned.Add(card);
-        // Decks = new Parser().ListDecksFromFile_();
-        // if (Decks.Count == 0)
-        // {
-        //     Decks["Стандартная"] = new List<int>();
-        // }
+        GetDecks();
+        if (Decks.Count == 0)
+            Decks["Стандарт"] = new List<int>();
         Balance = int.Parse(Connector.GetProperty("balance", login));
 
     }
@@ -62,5 +63,28 @@ public static class Account
         Connector.InitCollection(Nickname, Collection.Select(c=>c.Id));
     }
     
-    public static void SaveDecks() => new Parser().SaveDecksToFile_(Decks);
+    public static void SaveDecks()
+    {
+        //new Parser().SaveDecksToFile_(Decks);
+        foreach (var name in Decks.Keys)
+            Connector.SetProperty(name.ToSystemDeck(), Decks[name].Select(i=>i.ToString()).ToJsonList(), Nickname);
+        Connector.SetProperty(DeckNames, Decks.Keys.ToJsonList(), Nickname);
+    }
+
+    public static void GetDecks()
+    {
+        Decks = new Dictionary<string, List<int>>();
+        var names = Connector.GetProperty(DeckNames, Nickname).FromJsonList();
+        foreach (var name in names)
+        {
+            Debug.Log(name);
+            var right_name = System.Text.Encoding.UTF8.GetString(System.Text.Encoding.UTF8.GetBytes(name));
+            Decks[right_name] = Connector
+                .GetProperty(name.ToSystemDeck(), Nickname)
+                .FromJsonList()
+                .Select(int.Parse)
+                .ToList();
+        }
+    }
 }
+

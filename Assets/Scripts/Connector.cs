@@ -114,6 +114,8 @@ public class Connector : MonoBehaviour
     {
         SetProperty("balance", "100", login);
         SetProperty("level", "1", login);
+        
+        SetProperty(Account.DeckNames, "[]", login);
 
         switch (tribe)
         {
@@ -165,45 +167,27 @@ public class Connector : MonoBehaviour
     {
         var data = "{\"query\":\"getListRooms\"}";
         var res = Post(GameURL, data);
-        res = res.Remove(0, 1);
-        res = res.Remove(res.Length - 1);
-        var ms = Regex.Matches(res, "({.*?})");
-        var rooms = new List<Room>();
-        foreach (var m in ms)
-        {
-            var ch = m.ToString()
-                .Replace("\"1\"", "\"FirstPlayer\"")
-                .Replace("\"name\"", "\"Name\"")
-                .Replace("null", "\"___\"")
-                .Replace("\"2\"", "\"SecondPlayer\"");
-            if (ch.Contains("data"))
-                ch += "}";
-            try
-            {
-                //var sp = m.ToString().Split('\"');
-                
-                var s = JsonUtility.FromJson<Room>(ch);
-                rooms.Add(s);
-            }
-            catch(Exception e)
-            {
-                print($"Error: {e.Message} on string: {ch}");
-            }
-        }
         //print(res);
-
-        return rooms;
+        var names = Regex.Matches(res, "S1Y2S3T4E5M(.+?(?=R6O7O8M))");
+        var namesSet = new HashSet<string>();
+        foreach (var name in names)
+            namesSet.Add(name.ToString().Substring(11));
+        foreach (var name in namesSet)
+        {
+            print(name.ToSystemRoom());
+            print(GetRoom(name.ToSystemRoom(), Account.Token));
+        }
+        return new List<Room>();
     }
 
-    public static void CreateRoom(string token, string name)
+    public static string CreateRoom(string token, string name)
     {
         const string ex0 = "{\"query\":\"createRoom\", \"token\":\"";
         const string ex1 = "\", \"name\":\"";
         const string ex3 = "\"}";
         var data = ex0 + token + ex1 + name + ex3;
-        print(data);
         var res = Post(GameURL, data);
-        print(res);
+        return res;
     }
 
     public static string JoinRoom(string token, string name)
@@ -216,7 +200,7 @@ public class Connector : MonoBehaviour
         return res;
     }
 
-    public static string TrySendBoard(string name, string token, string data)
+    public static string SendRoom(string name, string token, string data)
     {
         const string ex0 = "{\"query\":\"setData\", \"name\":\"";
         const string ex1 = "\", \"token\":\"";
@@ -227,14 +211,14 @@ public class Connector : MonoBehaviour
         return Post(GameURL, customData);
     }
 
-    public static string GetBoard(string name, string token)
+    public static string GetRoom(string name, string token)
     {
         const string ex0 = "{\"query\":\"getData\", \"name\":\"";
         const string ex1 = "\", \"token\":\"";
-        const string ex2 = "\", \"data\":";
+        //const string ex2 = "\", \"data\":";
         const string ex3 = "}";
-        var data = "\"\"";
-        var customData = ex0 + name + ex1 + token + ex2 + data + ex3;
+        //var data = "\"\"";
+        var customData = ex0 + name + ex1 + token + ex3;
         return Post(GameURL, customData);
     }
 

@@ -28,8 +28,7 @@ public class Collection : MonoBehaviour
         AudioStatic.AddSoundsToButtons(AudioStatic.Click, gameObject);
         
         CurrentDeck = Account.Decks.Keys.FirstOrDefault();
-        if(CurrentDeck!=default)
-            SortByRarity();
+        SortByRarity();
     }
 
     public void Reload()
