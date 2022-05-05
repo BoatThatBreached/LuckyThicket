@@ -99,6 +99,7 @@ public class Collection : MonoBehaviour
         }
 
         deckTitle.text = CurrentDeckName;
+        Account.ChosenDeck = CurrentDeckName;
         cardCountInDeck.text = DeckPref.GetCountLabel(CurrentDeck);
         cardCountInDeck.color = DeckPref.IsValid(CardInDeck).Item1 switch
         {

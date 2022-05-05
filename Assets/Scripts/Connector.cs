@@ -168,16 +168,38 @@ public class Connector : MonoBehaviour
         var data = "{\"query\":\"getListRooms\"}";
         var res = Post(GameURL, data);
         //print(res);
-        var names = Regex.Matches(res, "S1Y2S3T4E5M(.+?(?=R6O7O8M))");
-        var namesSet = new HashSet<string>();
-        foreach (var name in names)
-            namesSet.Add(name.ToString().Substring(11));
-        foreach (var name in namesSet)
+        var trim = res.Remove(0, 1);
+        trim = trim.Remove(trim.Length-1, 1);
+        //print(trim);
+        var rooms = new List<Room>();
+        var jsons = Regex.Matches(trim, "{.+?(?=})");
+        foreach(var json in jsons)
         {
-            print(name.ToSystemRoom());
-            print(GetRoom(name.ToSystemRoom(), Account.Token));
+            var realJson = json + "}";
+            if (realJson.Contains("data"))
+                realJson += "}";
+            realJson = realJson
+                .Replace("\"name\"", "\"Name\"")
+                .Replace("\"1\"", "\"FirstPlayer\"")
+                .Replace("\"2\"", "\"SecondPlayer\"")
+                .Replace("\"lastTurn\"", "\"LastTurn\"");
+            
+            var room = JsonUtility.FromJson<Room>(realJson);
+            room.Name = room.Name.FromSystemRoom();
+            if (!realJson.Contains("data"))
+                room.Board = Parser.EmptyField(3);
+            else
+            {
+                var board = Regex.Match(realJson, "{.+?(?=})")+"}";
+                var field = Parser.ConvertJsonToBoard(board);
+                room.Board = field;
+            }
+
+            rooms.Add(room);
+            //print(realJson);
         }
-        return new List<Room>();
+
+        return rooms;
     }
 
     public static string CreateRoom(string token, string name)

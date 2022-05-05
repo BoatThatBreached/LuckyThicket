@@ -18,7 +18,7 @@ public class Rooms : MonoBehaviour
     {
         //Connector.DestroyRoom(Account.Token, "era".ToSystemRoom());
         //Connector.DestroyRoom(Account.Token, "hello".ToSystemRoom());
-        //Fetch();
+        Fetch();
     }
 
     private void Fetch()
@@ -45,9 +45,6 @@ public class Rooms : MonoBehaviour
             else
                 color = room.IsHere(Account.Nickname) ? Color.white : Color.green;
             button.GetComponent<Image>().color = color;
-
-            //print($"{room.Name} : {room.Board.Keys.Count}");
-            //print($"{string.Join("\n", room.Board.Keys)}");
             var s = room.Name;
             button.GetComponent<Button>().onClick.AddListener(() => Play(room));
         }
@@ -83,7 +80,7 @@ public class Rooms : MonoBehaviour
         };
         print(Connector.CreateRoom(Account.Token, room.Name.ToSystemRoom()));
         //print(Connector.SendRoom(room.Name.ToSystemRoom(), Account.Token, room.ToJson()));
-        print(Connector.GetRoom(room.Name.ToSystemRoom(), Account.Token));
+        //print(Connector.GetRoom(room.Name.ToSystemRoom(), Account.Token));
         //RefreshRooms();
     }
 }

@@ -39,9 +39,9 @@ public class Game : MonoBehaviour
 
     private void InitDeck()
     {
-        var cards = Account.Collection;
-        for (var i = 0; i < 20; i++)
-            player.Deck.Push(cards.GetRandom());
+        var cards = Account.Decks[Account.ChosenDeck];
+        foreach (var index in cards)
+            player.Deck.Push(Account.GetCard(index));
         for (var i = 0; i < 5; i++)
             player.DrawCard();
     }

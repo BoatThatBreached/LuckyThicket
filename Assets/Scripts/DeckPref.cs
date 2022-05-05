@@ -11,15 +11,15 @@ using Color = UnityEngine.Color;
 public class DeckPref : MonoBehaviour
 {
     public List<int> CardsId { get; set; }
-    public const int MaxCardCountInDeck = 20;
-    public const int MinCardCountInDeck = 15;
+    public const int MaxCardCountInDeck = 30;
+    public const int MinCardCountInDeck = 20;
 
     public static readonly Dictionary<Rarity, int> MaxRarity = new Dictionary<Rarity, int>()
     {
-        [Rarity.Common] = Int32.MaxValue,
-        [Rarity.Rare] = Int32.MaxValue,
-        [Rarity.Epic] = 5,
-        [Rarity.Legendary] = 1
+        [Rarity.Common] = 30,//Int32.MaxValue,
+        [Rarity.Rare] = 15,//Int32.MaxValue,
+        [Rarity.Epic] = 7,//5,
+        [Rarity.Legendary] = 3
     };
 
     public Image backImage;
