@@ -17,9 +17,18 @@ public class Collection : MonoBehaviour
     public Toggle reverser;
     public TMP_InputField finder;
     public TMP_Text deckTitle;
+    public TMP_Text cardCountInDeck;
+    public GameObject displayErrorDialog;
+    public TMP_Text displayErrorText;
 
     public TMP_InputField newDeckName;
-    public string CurrentDeck { get; set; }
+    public string CurrentDeckName { get; set; }
+    public List<int> CurrentDeck
+    {
+        get => Account.Decks[CurrentDeckName];
+        set => Account.Decks[CurrentDeckName] = value;
+    }
+    public List<CardCharacter> CardInDeck { get; set; }
 
     private void Start()
     {
@@ -27,15 +36,15 @@ public class Collection : MonoBehaviour
         AudioStatic.AddMainTheme(AudioStatic.MainTheme, gameObject);
         AudioStatic.AddSoundsToButtons(AudioStatic.Click, gameObject);
         
-        CurrentDeck = Account.Decks.Keys.FirstOrDefault();
+        CurrentDeckName = Account.Decks.Keys.FirstOrDefault();
         SortByRarity();
     }
 
     public void Reload()
     {
         Reload(Account.Collection, collectionPanel);
-        var cardInDeck = Account.Decks[CurrentDeck].Select(id => Account.Collection.FirstOrDefault(card => card.Id == id));
-        Reload(cardInDeck, deckPanel);
+        CardInDeck = CurrentDeck.Select(id => Account.Collection.FirstOrDefault(card => card.Id == id)).ToList();
+        Reload(CardInDeck, deckPanel);
         ReloadDecks();
     }
 
@@ -82,9 +91,21 @@ public class Collection : MonoBehaviour
             var deckComponent = Instantiate(deckPref, decksPanel.transform).GetComponent<DeckPref>();
             deckComponent.Name = keyValuePair.Key;
             deckComponent.CardsId = keyValuePair.Value;
+            deckComponent.Color = deckComponent.IsValid().Item1 switch
+            {
+                true => new Color(20/255f, 164/255f, 0/255f),
+                false => Color.red
+            };
         }
 
-        deckTitle.text = CurrentDeck;
+        deckTitle.text = CurrentDeckName;
+        Account.ChosenDeck = CurrentDeckName;
+        cardCountInDeck.text = DeckPref.GetCountLabel(CurrentDeck);
+        cardCountInDeck.color = DeckPref.IsValid(CardInDeck).Item1 switch
+        {
+            true => new Color(20/255f, 164/255f, 0/255f),
+            false => Color.red
+        };
     }
 
     public void CreateDeck()
@@ -95,23 +116,46 @@ public class Collection : MonoBehaviour
         newDeckName.text = "";
     }
 
-
     public void SwapCard(CardInCollection cardInCollection)
     {
         var parent = cardInCollection.transform.parent.gameObject;
 
         if (parent == collectionPanel)
-            Account.Decks[CurrentDeck].Add(cardInCollection.CardCharacter.Id);
+        {
+            var (canAdd, errorMessage) = DeckPref.CanAddCard(CardInDeck, cardInCollection.CardCharacter);
+            if (canAdd)
+                CurrentDeck.Add(cardInCollection.CardCharacter.Id);
+            else
+                DisplayErrorMessage(errorMessage);
+        }
         else if (parent == deckPanel)
-            Account.Decks[CurrentDeck].Remove(cardInCollection.CardCharacter.Id);
+            CurrentDeck.Remove(cardInCollection.CardCharacter.Id);
         Account.SaveDecks();
         Reload();
     }
 
+    public void DisplayErrorMessage(string message)
+    {
+        Debug.Log(message);
+        displayErrorDialog.SetActive(true);
+        displayErrorText.text = message;
+    }
+
+    public void CloseDialog()
+    {
+        displayErrorDialog.SetActive(false);
+    }
+    
     public void BackToMenu()
     {
-        AudioStatic.RememberThemeState(gameObject);
-        SceneManager.LoadScene("MenuScene");
+        var (yes, errorMessage) = DeckPref.IsValid(CardInDeck);
+        if (yes)
+        {
+            AudioStatic.RememberThemeState(gameObject);
+            SceneManager.LoadScene("MenuScene");
+        }
+        else
+            DisplayErrorMessage(errorMessage);
     }
 
     private Func<CardCharacter, object> _criteria;

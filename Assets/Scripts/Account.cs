@@ -6,7 +6,7 @@ using UnityEngine;
 public static class Account
 {
     public const string DeckNames = "DECK_NAMES";
-    
+
     public static string Nickname;
     public static float SoundsVolume;
     public static float MusicVolume;
@@ -15,9 +15,12 @@ public static class Account
     public static List<CardCharacter> Unowned = new List<CardCharacter>();
     public static Dictionary<string, List<int>> Decks = new Dictionary<string, List<int>>();
     public static int Balance;
+
     public static string Token;
+
     //public static string RoomName;
     public static Room Room;
+    public static string ChosenDeck;
 
     public static void Reset()
     {
@@ -30,6 +33,7 @@ public static class Account
         Decks = new Dictionary<string, List<int>>();
         Token = string.Empty;
         Room = null;
+        ChosenDeck = "";
     }
 
     public static void Load(string login, string token)
@@ -39,10 +43,10 @@ public static class Account
         var maxID = Connector.GetMaxID();
         var owned = Connector.GetCollectionIDs(login);
         var ownedCards = Connector.GetCollection(owned);
-        
+
         var unowned = Enumerable.Range(0, maxID + 1).Where(id => !owned.Contains(id));
         var unownedCards = Connector.GetCollection(unowned);
-        
+
         foreach (var card in ownedCards)
             Collection.Add(card);
         foreach (var card in unownedCards)
@@ -60,14 +64,14 @@ public static class Account
         Unowned.Remove(currentChoice);
         Collection.Add(currentChoice);
         Connector.SetProperty("balance", Balance.ToString(), Nickname);
-        Connector.InitCollection(Nickname, Collection.Select(c=>c.Id));
+        Connector.InitCollection(Nickname, Collection.Select(c => c.Id));
     }
-    
+
     public static void SaveDecks()
     {
         //new Parser().SaveDecksToFile_(Decks);
         foreach (var name in Decks.Keys)
-            Connector.SetProperty(name.ToSystemDeck(), Decks[name].Select(i=>i.ToString()).ToJsonList(), Nickname);
+            Connector.SetProperty(name.ToSystemDeck(), Decks[name].Select(i => i.ToString()).ToJsonList(), Nickname);
         Connector.SetProperty(DeckNames, Decks.Keys.ToJsonList(), Nickname);
     }
 
@@ -77,6 +81,8 @@ public static class Account
         var names = Connector.GetProperty(DeckNames, Nickname).FromJsonList();
         foreach (var name in names)
         {
+            if (name == "info not found")
+                return;
             Debug.Log(name);
             var right_name = System.Text.Encoding.UTF8.GetString(System.Text.Encoding.UTF8.GetBytes(name));
             Decks[right_name] = Connector
@@ -86,5 +92,9 @@ public static class Account
                 .ToList();
         }
     }
+
+
+    public static CardCharacter GetCard(int index) => Collection.Find(card => card.Id == index);
+
 }
 
