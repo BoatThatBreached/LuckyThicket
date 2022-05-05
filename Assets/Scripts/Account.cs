@@ -8,8 +8,8 @@ public static class Account
     public const string DeckNames = "DECK_NAMES";
 
     public static string Nickname;
-    public static float SoundsVolume;
-    public static float MusicVolume;
+    public static float SoundsVolume = 0.2f;
+    public static float MusicVolume = 0.2f;
     public static Scenes CurrentScene;
     public static List<CardCharacter> Collection = new List<CardCharacter>();
     public static List<CardCharacter> Unowned = new List<CardCharacter>();

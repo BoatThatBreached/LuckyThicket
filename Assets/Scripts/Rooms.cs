@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -16,9 +17,10 @@ public class Rooms : MonoBehaviour
     
     private void Start()
     {
-        //Connector.DestroyRoom(Account.Token, "era".ToSystemRoom());
-        //Connector.DestroyRoom(Account.Token, "hello".ToSystemRoom());
         Fetch();
+        
+        AudioStatic.AddMainTheme(AudioStatic.MainTheme, gameObject);
+        AudioStatic.AddSoundsToButtons(AudioStatic.Click, gameObject);
     }
 
     private void Fetch()

@@ -10,7 +10,7 @@ public class Login : MonoBehaviour
     public TMP_Text output;
     public TMP_InputField login;
     public TMP_InputField password;
-    public GameObject tribeChoice;
+    public GameObject TribeChoice;
     private bool _hidden = true;
 
     #region Buttons
@@ -18,25 +18,28 @@ public class Login : MonoBehaviour
     public void Exit() => Application.Quit();
 
     private void Start()
-    {
-        Account.Reset();
+    {   
+        Account.CurrentScene = Scenes.Login;
+        
+        AudioStatic.AddMainTheme(AudioStatic.MainTheme, gameObject);
+        AudioStatic.AddSoundsToButtons(AudioStatic.Click, gameObject);
     }
 
     public void StartRegister()
     {
         if (!IsInputCorrect())
             return;
-        tribeChoice.SetActive(true);
+        TribeChoice.SetActive(true);
     }
 
     public void FinishRegister(bool isBeaver)
     {
-        tribeChoice.SetActive(false);
         if (!TryRegister())
             return;
         var tribe = isBeaver ? Tribes.Beaver : Tribes.Magpie;
-        //ShowSuccess("Registered successfully.");
+        ShowSuccess("Registered successfully.");
         Connector.InitNewUser(login.text, tribe);
+        TribeChoice.SetActive(false);
     }
 
     public void LogIn()
@@ -125,9 +128,10 @@ public class Login : MonoBehaviour
 
     private bool TryRegister()
     {
-        var result = Connector.Register(login.text, password.text);
-        ShowError(result);
-        return !result.Contains("error");
+        var result = Connector.TryRegister(login.text, password.text, out var errors);
+        if (!result)
+            ShowError(errors);
+        return result;
     }
 
     public void HideText()=> duckPassword.text = string.Join("", Enumerable.Range(0, password.text.Length).Select(z => "*"));
