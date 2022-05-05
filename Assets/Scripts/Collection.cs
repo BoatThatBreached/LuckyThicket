@@ -17,9 +17,14 @@ public class Collection : MonoBehaviour
     public Toggle reverser;
     public TMP_InputField finder;
     public TMP_Text deckTitle;
+    public TMP_Text cardCountInDeck;
+    public GameObject displayErrorDialog;
+    public TMP_Text displayErrorText;
 
     public TMP_InputField newDeckName;
     public string CurrentDeck { get; set; }
+    public const int MaxCardCountInDeck = 20;
+    public const int MinCardCountInDeck = 15;
 
     private void Start()
     {
@@ -85,6 +90,8 @@ public class Collection : MonoBehaviour
         }
 
         deckTitle.text = CurrentDeck;
+        var count = Account.Decks[CurrentDeck].Count.ToString();
+        cardCountInDeck.text = $"{count}/{MaxCardCountInDeck}";
     }
 
     public void CreateDeck()
@@ -95,23 +102,64 @@ public class Collection : MonoBehaviour
         newDeckName.text = "";
     }
 
+    public (bool, string) CanSaveDeck()
+    {
+        var currentDeck = Account.Decks[CurrentDeck];
+        if (currentDeck.Count > MaxCardCountInDeck)
+            return (false, $"В колоде может быть не более {MaxCardCountInDeck} карт");
+        if (currentDeck.Count < MinCardCountInDeck)
+            return (false, $"В колоде должно быть хотя бы {MinCardCountInDeck} карт");
+        return (true, "");
+    }
+
+    public (bool, string) CanAddCard(CardCharacter card)
+    {
+        var currentDeck = Account.Decks[CurrentDeck];
+        if (currentDeck.Count + 1 > MaxCardCountInDeck)
+            return (false, $"В колоде может быть не более {MaxCardCountInDeck} карт");
+        return (true, "");
+    }
 
     public void SwapCard(CardInCollection cardInCollection)
     {
         var parent = cardInCollection.transform.parent.gameObject;
 
         if (parent == collectionPanel)
-            Account.Decks[CurrentDeck].Add(cardInCollection.CardCharacter.Id);
+        {
+            var (canAdd, errorMessage) = CanAddCard(cardInCollection.CardCharacter);
+            if (canAdd)
+                Account.Decks[CurrentDeck].Add(cardInCollection.CardCharacter.Id);
+            else
+                DisplayErrorMessage(errorMessage);
+        }
         else if (parent == deckPanel)
             Account.Decks[CurrentDeck].Remove(cardInCollection.CardCharacter.Id);
         Account.SaveDecks();
         Reload();
     }
 
+    public void DisplayErrorMessage(string message)
+    {
+        Debug.Log(message);
+        displayErrorDialog.SetActive(true);
+        displayErrorText.text = message;
+    }
+
+    public void CloseDialog()
+    {
+        displayErrorDialog.SetActive(false);
+    }
+    
     public void BackToMenu()
     {
-        AudioStatic.RememberThemeState(gameObject);
-        SceneManager.LoadScene("MenuScene");
+        var (yes, errorMessage) = CanSaveDeck();
+        if (yes)
+        {
+            AudioStatic.RememberThemeState(gameObject);
+            SceneManager.LoadScene("MenuScene");
+        }
+        else
+            DisplayErrorMessage(errorMessage);
     }
 
     private Func<CardCharacter, object> _criteria;

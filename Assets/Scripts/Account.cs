@@ -77,6 +77,8 @@ public static class Account
         var names = Connector.GetProperty(DeckNames, Nickname).FromJsonList();
         foreach (var name in names)
         {
+            if (name == "info not found")
+                return;
             Debug.Log(name);
             var right_name = System.Text.Encoding.UTF8.GetString(System.Text.Encoding.UTF8.GetBytes(name));
             Decks[right_name] = Connector
