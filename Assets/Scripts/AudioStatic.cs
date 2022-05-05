@@ -1,6 +1,4 @@
-﻿
-
-using System;
+﻿using System;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -8,17 +6,17 @@ using UnityEngine.UI;
 
 public class AudioStatic : MonoBehaviour
 {
-    public static string MainTheme = "Sounds/main_theme";
-    public static float MainThemeTime = 0;
-    public static string Click = "Sounds/click";
-    public static string Guidance = "Sounds/guidance";
-    private static GameObject Source;
+    public const string MainTheme = "Sounds/main_theme";
+    private static float _mainThemeTime;
+    public const string Click = "Sounds/click";
+    private const string Guidance = "Sounds/guidance";
+    private static GameObject _source;
     
     public class PointerEventsController : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         public void OnPointerEnter(PointerEventData eventData)
         {
-            PlayAudio(Resources.Load<AudioClip>(Guidance), Source, Account.SoundsVolume * 0.2F);
+            PlayAudio(Resources.Load<AudioClip>(Guidance), _source, Account.SoundsVolume * 0.2F);
         }
 
         public void OnPointerExit(PointerEventData eventData)
@@ -28,7 +26,7 @@ public class AudioStatic : MonoBehaviour
     }
     
     public static void RememberThemeState(GameObject source) {
-        MainThemeTime = source.GetComponents<AudioSource>()[1].time;
+        _mainThemeTime = source.GetComponents<AudioSource>()[1].time;
     }
 
     public static void AddMainTheme(string soundPath, GameObject source)
@@ -36,7 +34,7 @@ public class AudioStatic : MonoBehaviour
         var sound = source.GetComponents<AudioSource>()[1];
         sound.loop = true;
         sound.clip = Resources.Load<AudioClip>(soundPath);
-        sound.time = MainThemeTime;
+        sound.time = _mainThemeTime;
         sound.volume = Account.MusicVolume;
         sound.Play();
     }
@@ -44,7 +42,7 @@ public class AudioStatic : MonoBehaviour
     public static void AddSoundsToButtons(string soundPath, GameObject source)
     {
         var buttons = FindObjectsOfType<Button>(true);
-        Source = source; 
+        _source = source; 
         
         foreach (var button in buttons)
         {

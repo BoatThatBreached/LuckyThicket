@@ -128,10 +128,15 @@ public class Login : MonoBehaviour
 
     private bool TryRegister()
     {
-        var result = Connector.TryRegister(login.text, password.text, out var errors);
-        if (!result)
-            ShowError(errors);
-        return result;
+        var result = Connector.Register(login.text, password.text);
+        if (result.Contains("error"))
+        {
+            ShowError(result);
+            return false;
+        }
+
+        ShowSuccess("Registered successfully");
+        return true;
     }
 
     public void HideText()=> duckPassword.text = string.Join("", Enumerable.Range(0, password.text.Length).Select(z => "*"));

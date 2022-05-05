@@ -4,6 +4,7 @@ using UnityEngine;
 
 using System;
 using Random = UnityEngine.Random;
+// ReSharper disable InconsistentNaming
 
 [Serializable]
 public class CardCharacter
@@ -24,7 +25,7 @@ public class CardCharacter
     [SerializeField]public string Name;
     [SerializeField]public Rarity Rarity;
     [SerializeField]public string AbilityMask; 
-    [SerializeField]public Queue<Basis> Ability;
+    public Queue<Basis> Ability;
     [SerializeField]public string AbilityString;
 }
 

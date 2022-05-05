@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Drawing;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,7 +8,7 @@ public class CardInCollection : MonoBehaviour
 {
     public Image backImage;
     public Image picture;
-    public Rarity Rarity;
+    public Rarity rarity;
     public CardCharacter CardCharacter { get; set; }
 
     public Color Color

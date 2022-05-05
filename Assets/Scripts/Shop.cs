@@ -66,7 +66,7 @@ public class Shop : MonoBehaviour
             }
             cardChar.AbilityMask = card.AbilityMask;
             cardChar.Name = card.Name;
-            cardChar.Rarity = card.Rarity;
+            cardChar.rarity = card.Rarity;
             cardChar.Color = card.Rarity switch
             {
                 Rarity.Common => Color.gray,

@@ -1,10 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using Color = UnityEngine.Color;
 
 public class Rooms : MonoBehaviour
 {
@@ -23,7 +25,7 @@ public class Rooms : MonoBehaviour
 
     private void Fetch()
     {
-        var cor = Waiters.LoopFor(10, Fetch);
+        var cor = Waiters.LoopFor(2, Fetch);
         RefreshRooms();
         StartCoroutine(cor);
     }
@@ -39,60 +41,107 @@ public class Rooms : MonoBehaviour
             button.transform.GetChild(0).GetComponent<TMP_Text>().text = room.Name;
             button.transform.GetChild(1).GetComponent<TMP_Text>().text = room.FirstPlayer;
             button.transform.GetChild(2).GetComponent<TMP_Text>().text = room.SecondPlayer;
+            var color = new Color(1, 1, 1);
+            if (room.IsFull)
+                color = room.IsHere(Account.Nickname) ? Color.yellow : Color.red;
+            else
+                color = room.IsHere(Account.Nickname) ? Color.white : Color.green;
+            button.GetComponent<Image>().color = color;
             var s = room.Name;
-            button.GetComponent<Button>().onClick.AddListener(() =>
-            {
-                Connector.JoinRoom(Account.Token, s);
-                RefreshRooms();
-            });
-            if (room.IsValid(Account.Nickname))
-            {
-                //print($"BEBROCHKA IN ROOM {room.Name}");
-                Account.Room = room;
-                Play();
-            }
+            button.GetComponent<Button>().onClick.AddListener(() => Play(room));
         }
     }
 
-    public void Exit()
+    public void Exit() => SceneManager.LoadScene("MenuScene");
+    
+    private void Play(Room room)
     {
-        AudioStatic.RememberThemeState(gameObject);
-        SceneManager.LoadScene("MenuScene");
-    }
-
-    private void Play()
-    {
-        
-        SceneManager.LoadScene("GameScene");
+        if (room.IsFull&&!room.IsHere(Account.Nickname))
+            return;
+        if (!room.IsFull)
+        {
+            Connector.JoinRoom(Account.Token, room.Name);
+            RefreshRooms();
+        }
+        else
+        {
+            Account.Room = room;
+            print(room.BoardString());
+            print(room.LastTurn);
+            SceneManager.LoadScene("GameScene");
+        }
     }
 
     //BEBRA
     public void CreateRoom()
     {
-        if(_rooms.Count(r => r.IsHere(Account.Nickname))<3)
-            Connector.CreateRoom(Account.Token, roomName.text);
-        RefreshRooms();
+        var currName = roomName.text;
+        var room = new Room(currName, Account.Nickname, "")
+        {
+            Board = Parser.EmptyField(3)
+        };
+        print(Connector.CreateRoom(Account.Token, room.Name.ToSystemRoom()));
+        //print(Connector.SendRoom(room.Name.ToSystemRoom(), Account.Token, room.ToJson()));
+        //print(Connector.GetRoom(room.Name.ToSystemRoom(), Account.Token));
+        //RefreshRooms();
     }
 }
 
 public class Room
 {
-    public string Name { get; set; }
-    public string FirstPlayer { get; set; }
-    public string SecondPlayer { get; set; }
+    public string Name;
+    public string FirstPlayer;
+    public string SecondPlayer;
+    public string LastTurn;
+    public Dictionary<Point, Tribes> Board;
 
-    public bool IsValid(string login) =>
-        IsHere(login) &&
-        FirstPlayer != SecondPlayer
-        && FirstPlayer != string.Empty
-        && SecondPlayer != string.Empty;
+    public bool IsFull => SecondPlayer != "";
 
     public bool IsHere(string login) => FirstPlayer == login || SecondPlayer == login;
+
+    public string BoardString()
+    {
+        var res = "";
+        var minX = Board.Keys.Select(p => p.X).Min();
+        var minY = Board.Keys.Select(p => p.Y).Min();
+        var maxX = Board.Keys.Select(p => p.X).Max();
+        var maxY = Board.Keys.Select(p => p.Y).Max();
+        for (var j = maxY; j >= minY; j--)
+        {
+            var line = "";
+            for (var i = minX; i <= maxX; i++)
+            {
+                var p = new Point(i, j);
+                var ch = !Board.ContainsKey(p) ? "x" : Board[p].ToString()[0].ToString().ToLower();
+                line += ch;
+            }
+
+            res += line + '\n';
+        }
+
+        return res;
+    }
 
     public Room(string name, string f, string s)
     {
         Name = name;
         FirstPlayer = f;
         SecondPlayer = s;
+    }
+
+    public override string ToString()
+    {
+        return $"{Name}:{FirstPlayer} and {SecondPlayer}. LastTurn was made by {LastTurn}, board is {BoardString()}";
+    }
+
+    public string ToJson()
+    {
+        var res = "{";
+        res += $"\"FirstPlayer\":\"{FirstPlayer}\",";
+        res += $"\"SecondPlayer\":\"{SecondPlayer}\",";
+        res += $"\"LastTurn\":\"{LastTurn}\",";
+        res += $"\"Board\":{Parser.ConvertBoardToJson(Board)}";
+        res += "}";
+        return res;
     }
 }

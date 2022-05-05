@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Networking;
 
 public class Connector : MonoBehaviour
 {
@@ -41,11 +42,12 @@ public class Connector : MonoBehaviour
     private static string Post(string url, string data)
     {
         var req = (HttpWebRequest) WebRequest.Create(url);
+        
         req.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:99.0) Gecko/20100101 Firefox/99.0";
         req.Method = "POST";
         req.Timeout = 1000000;
         req.ContentType = "application/x-www-form-urlencoded";
-        var sentData = Encoding.GetEncoding(1251).GetBytes(data);
+        var sentData = Encoding.Default.GetBytes(data);
         req.ContentLength = sentData.Length;
         var sendStream = req.GetRequestStream();
         sendStream.Write(sentData, 0, sentData.Length);
@@ -70,22 +72,14 @@ public class Connector : MonoBehaviour
         return result;
     }
 
-    public static bool TryRegister(string login, string password, out string errors)
+    public static string Register(string login, string password)
     {
         const string ex0 = "{\"query\":\"register\", \"login\":\"";
         const string ex1 = "\", \"password\":\"";
         const string ex2 = "\"}";
         var data = ex0 + login + ex1 + password + ex2;
         var ans = Post(AuthURL, data);
-        //print(ans);
-        if (ans.Contains("errors"))
-        {
-            errors = ans.Split('\"')[3];
-            return false;
-        }
-
-        errors = "";
-        return true;
+        return ans;
     }
 
     public static IEnumerable<CardCharacter> GetCollection(IEnumerable<int> ids)
@@ -120,6 +114,8 @@ public class Connector : MonoBehaviour
     {
         SetProperty("balance", "100", login);
         SetProperty("level", "1", login);
+        
+        SetProperty(Account.DeckNames, "[]", login);
 
         switch (tribe)
         {
@@ -143,7 +139,7 @@ public class Connector : MonoBehaviour
         const string ex2 = "]}";
         var data = ex0 + login + ex1 + string.Join(",", ids) + ex2;
         var res = Post(CardsURL, data);
-        //print(res);
+        print(res);
     }
 
     public static void SetProperty(string key, string value, string login)
@@ -171,34 +167,49 @@ public class Connector : MonoBehaviour
     {
         var data = "{\"query\":\"getListRooms\"}";
         var res = Post(GameURL, data);
-
-        //{"pizdec123":{"name":"pizdec123","1":"ff","2":""},"bebra":{"name":"bebra","1":"bebrinsk","2":""},"neBebra":{"name":"neBebra","1":"bebrinsk","2":""}}
-        res = res.Remove(0, 1);
-        res = res.Remove(res.Length - 1);
-        var ms = Regex.Matches(res, "{(.*?)}");
-        var rooms = new List<Room>();
-        foreach (var m in ms)
-        {
-            var sp = m.ToString().Split('\"');
-            var roomName = sp[3];
-            var firstPlayer = sp[7];
-            var secondPlayer = sp[11];
-            var room = new Room(roomName, firstPlayer, secondPlayer);
-            rooms.Add(room);
-        }
         //print(res);
+        var trim = res.Remove(0, 1);
+        trim = trim.Remove(trim.Length-1, 1);
+        //print(trim);
+        var rooms = new List<Room>();
+        var jsons = Regex.Matches(trim, "{.+?(?=})");
+        foreach(var json in jsons)
+        {
+            var realJson = json + "}";
+            if (realJson.Contains("data"))
+                realJson += "}";
+            realJson = realJson
+                .Replace("\"name\"", "\"Name\"")
+                .Replace("\"1\"", "\"FirstPlayer\"")
+                .Replace("\"2\"", "\"SecondPlayer\"")
+                .Replace("\"lastTurn\"", "\"LastTurn\"");
+            
+            var room = JsonUtility.FromJson<Room>(realJson);
+            room.Name = room.Name.FromSystemRoom();
+            if (!realJson.Contains("data"))
+                room.Board = Parser.EmptyField(3);
+            else
+            {
+                var board = Regex.Match(realJson, "{.+?(?=})")+"}";
+                var field = Parser.ConvertJsonToBoard(board);
+                room.Board = field;
+            }
+
+            rooms.Add(room);
+            //print(realJson);
+        }
 
         return rooms;
     }
 
-    public static void CreateRoom(string token, string name)
+    public static string CreateRoom(string token, string name)
     {
         const string ex0 = "{\"query\":\"createRoom\", \"token\":\"";
         const string ex1 = "\", \"name\":\"";
         const string ex3 = "\"}";
         var data = ex0 + token + ex1 + name + ex3;
         var res = Post(GameURL, data);
-        //print(res);
+        return res;
     }
 
     public static string JoinRoom(string token, string name)
@@ -211,7 +222,7 @@ public class Connector : MonoBehaviour
         return res;
     }
 
-    public static string TrySendBoard(string name, string token, string data)
+    public static string SendRoom(string name, string token, string data)
     {
         const string ex0 = "{\"query\":\"setData\", \"name\":\"";
         const string ex1 = "\", \"token\":\"";
@@ -222,15 +233,26 @@ public class Connector : MonoBehaviour
         return Post(GameURL, customData);
     }
 
-    public static string GetBoard(string name, string token)
+    public static string GetRoom(string name, string token)
     {
         const string ex0 = "{\"query\":\"getData\", \"name\":\"";
         const string ex1 = "\", \"token\":\"";
-        const string ex2 = "\", \"data\":";
+        //const string ex2 = "\", \"data\":";
         const string ex3 = "}";
-        var data = "\"\"";
-        var customData = ex0 + name + ex1 + token + ex2 + data + ex3;
-        print(customData);
+        //var data = "\"\"";
+        var customData = ex0 + name + ex1 + token + ex3;
         return Post(GameURL, customData);
+    }
+
+    public static string DestroyRoom(string token, string name)
+    {
+        const string ex0 = "{\"query\":\"exitRoom\", \"token\":\"";
+        const string ex1 = "\", \"name\":\"";
+        const string ex3 = "\"}";
+        
+        var data = ex0 + token + ex1 + name + ex3;
+        print(data);
+        var res = Post(GameURL, data);
+        return res;
     }
 }

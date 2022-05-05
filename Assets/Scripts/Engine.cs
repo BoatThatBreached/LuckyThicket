@@ -11,13 +11,13 @@ public class Engine : MonoBehaviour
     private Queue<Basis> CurrentChain { get; set; }
     private Dictionary<Basis, Action> Actions { get; set; }
     private Point Anchor { get; set; }
-    private Point AnchorF { get; set; }
-    private Point AnchorS { get; set; }
-    private Point AnchorT { get; set; }
+    // private Point AnchorF { get; set; }
+    // private Point AnchorS { get; set; }
+    // private Point AnchorT { get; set; }
     private Tribes AnchorTribe { get; set; }
-    private Tribes AnchorTribeF { get; set; }
-    private Tribes AnchorTribeS { get; set; }
-    private Tribes AnchorTribeT { get; set; }
+    // private Tribes AnchorTribeF { get; set; }
+    // private Tribes AnchorTribeS { get; set; }
+    // private Tribes AnchorTribeT { get; set; }
     public Basis CurrentAction { get; private set; }
     private List<Func<Point, bool>> Criterias { get; set; }
     private bool NotExistingNeeded { get; set; }
@@ -172,7 +172,7 @@ public class Engine : MonoBehaviour
         if (NotExistingNeeded)
             pred = pred && Board.Keys
                 .Where(IsEdge)
-                .SelectMany(p => p.GetAdjacent())
+                .SelectMany(point => point.GetAdjacent())
                 .Contains(p);
         return pred;
     }
