@@ -17,7 +17,13 @@ public class Login : MonoBehaviour
 
     public void Exit() => Application.Quit();
 
-    private void Start() => Account.CurrentScene = Scenes.Login;
+    private void Start()
+    {   
+        Account.CurrentScene = Scenes.Login;
+        
+        AudioStatic.AddMainTheme(AudioStatic.MainTheme, gameObject);
+        AudioStatic.AddSoundsToButtons(AudioStatic.Click, gameObject);
+    }
 
     public void StartRegister()
     {

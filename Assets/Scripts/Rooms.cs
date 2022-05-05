@@ -16,6 +16,9 @@ public class Rooms : MonoBehaviour
     private void Start()
     {
         Fetch();
+        
+        AudioStatic.AddMainTheme(AudioStatic.MainTheme, gameObject);
+        AudioStatic.AddSoundsToButtons(AudioStatic.Click, gameObject);
     }
 
     private void Fetch()
@@ -51,8 +54,12 @@ public class Rooms : MonoBehaviour
         }
     }
 
-    public void Exit() => SceneManager.LoadScene("MenuScene");
-    
+    public void Exit()
+    {
+        AudioStatic.RememberThemeState(gameObject);
+        SceneManager.LoadScene("MenuScene");
+    }
+
     private void Play()
     {
         
