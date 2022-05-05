@@ -27,7 +27,8 @@ public class Game : MonoBehaviour
         
         InitDeck();
         StartTurn();
-        AudioStatic.AddMainTheme(AudioStatic.MainTheme, gameObject);
+        AudioStatic.RefreshSoundtrack();
+        StartCoroutine(AudioStatic.StartTracksCoroutine(gameObject));
         AudioStatic.AddSoundsToButtons(AudioStatic.Click, gameObject);
     }
 

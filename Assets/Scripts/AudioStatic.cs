@@ -1,4 +1,8 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -7,6 +11,8 @@ using UnityEngine.UI;
 public class AudioStatic : MonoBehaviour
 {
     public const string MainTheme = "Sounds/main_theme";
+    public static int ind = -1;
+    private static List<string> soundtracks = new List<string>(); 
     private static float _mainThemeTime;
     public const string Click = "Sounds/click";
     private const string Guidance = "Sounds/guidance";
@@ -39,6 +45,35 @@ public class AudioStatic : MonoBehaviour
         sound.Play();
     }
     
+    public static void RefreshSoundtrack()
+    {
+        ind = 0;
+        soundtracks = new DirectoryInfo(Directory.GetCurrentDirectory() + "\\Assets\\Resources\\Sounds\\Soundtracks")
+            .GetFiles()
+            .Select(x => x.Name)
+            .Where(x => !x.Contains("meta"))
+            .OrderBy(emp => Guid.NewGuid())
+            .ToList();
+    }
+
+
+    public static IEnumerator StartTracksCoroutine(GameObject source)
+    {
+        while (true)
+        {
+            var sound = source.GetComponents<AudioSource>()[1];
+            sound.clip = Resources.Load<AudioClip>("Sounds\\Soundtracks\\" + soundtracks[ind]
+                .Substring(0, soundtracks[ind].Length - 4));
+            sound.volume = Account.MusicVolume;
+            sound.Play();
+
+            while (sound.isPlaying)
+                yield return null;
+
+            ind = (ind + 1) % soundtracks.Count;
+        }
+    }
+
     public static void AddSoundsToButtons(string soundPath, GameObject source)
     {
         var buttons = FindObjectsOfType<Button>(true);
