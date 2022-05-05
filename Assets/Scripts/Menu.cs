@@ -16,7 +16,11 @@ public class Menu : MonoBehaviour
         AudioStatic.AddSoundsToButtons(AudioStatic.Click, gameObject);
     }
 
-    public void Play() => SceneManager.LoadScene("RoomScene");//SceneManager.LoadScene("GameScene");
+    public void Play()
+    {
+        AudioStatic.RememberThemeState(gameObject);
+        SceneManager.LoadScene("RoomScene");
+    }
 
     public void Exit()
     {
@@ -24,9 +28,17 @@ public class Menu : MonoBehaviour
         Application.Quit();
     }
 
-    public void EnterCollection() => SceneManager.LoadScene("CollectionScene");
+    public void EnterCollection()
+    {
+        AudioStatic.RememberThemeState(gameObject);
+        SceneManager.LoadScene("CollectionScene");
+    }
 
-    public void EnterSettings() => SceneManager.LoadScene("SettingsScene");
+    public void EnterSettings()
+    {
+        AudioStatic.RememberThemeState(gameObject);
+        SceneManager.LoadScene("SettingsScene");
+    }
 
     public void Logout()
     {
@@ -35,5 +47,9 @@ public class Menu : MonoBehaviour
         SceneManager.LoadScene("LoginScene");
     }
 
-    public void Shop() => SceneManager.LoadScene("ShopScene");
+    public void Shop()
+    {
+        AudioStatic.RememberThemeState(gameObject);
+        SceneManager.LoadScene("ShopScene");
+    }
 }
