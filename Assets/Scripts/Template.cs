@@ -15,14 +15,14 @@ public class Template
     public SchemaType Type { get; }
     public bool IsRotatable { get; }
 
-    public Template(Tribes[,] schema, SchemaType type, bool isRotatable)
+    public Template(List<List<Tribes>> schema, SchemaType type, bool isRotatable)
     {
         Points = new Dictionary<Point, Tribes>();
 
-        for (int i = 0; i < schema.GetLength(0); i++)
-        for (int j = 0; j < schema.GetLength(1); j++)
-            if (schema[i, j] != Tribes.None)
-                Points[new Point(i, j)] = schema[i, j];
+        for (int i = 0; i < schema.Count; i++)
+        for (int j = 0; j < schema[i].Count; j++)
+            if (schema[i][j] != Tribes.None)
+                Points[new Point(i, j)] = schema[i][j];
 
         IsRotatable = isRotatable;
         Type = type;
