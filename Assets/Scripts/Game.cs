@@ -30,7 +30,8 @@ public class Game : MonoBehaviour
         RefreshBoard(Account.Room.Board);
         InitDeck();
         StartTurn();
-        AudioStatic.AddMainTheme(AudioStatic.MainTheme, gameObject);
+        AudioStatic.RefreshSoundtrack();
+        StartCoroutine(AudioStatic.StartTracksCoroutine(gameObject));
         AudioStatic.AddSoundsToButtons(AudioStatic.Click, gameObject);
     }
 
