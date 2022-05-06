@@ -21,6 +21,9 @@ public class Game : MonoBehaviour
     public TMP_Text turnText;
     public bool isMyTurn;
     public TMP_Text tasks;
+    public GameObject gameStatus;
+    public TMP_Text gameStatusText;
+    
     private void Start()
     {
         designer.Init();
@@ -139,16 +142,27 @@ public class Game : MonoBehaviour
         print($"{player.Name} won!");
         if(shouldDestroy)
             Connector.DestroyRoom(Account.Token, Account.Room.Name.ToSystemRoom());
-        SceneManager.LoadScene("RoomScene");
         
+        gameStatus.SetActive(true);
+        gameStatusText.text = "Победа!";
+        Debug.Log("won!!!");
     }
     public void Lose(bool shouldDestroy)
     {
         print($"{player.Name} lost :(");
         if (shouldDestroy)
             Connector.DestroyRoom(Account.Token, Account.Room.Name.ToSystemRoom());
+  
+        gameStatus.SetActive(true);
+        gameStatusText.text = "Поражение!";
+        Debug.Log("lose!!!");
+    }
+
+    public void CloseGameStatus()
+    {
+        gameStatus.SetActive(false);
         SceneManager.LoadScene("RoomScene");
-        
+        Debug.Log("close!!!");
     }
 }
 
