@@ -124,6 +124,7 @@ public class Engine : MonoBehaviour
         Board[p].occupantTribe = t;
         var occupant = Instantiate(game.designer.occupantPref, Board[p].transform);
         occupant.GetComponent<SpriteRenderer>().color = game.designer.Colors[t];
+        occupant.transform.localScale = new Vector3(3, 3, 1);
         occupant.transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = game.designer.Sprites[t];
         FlushTribe();
     }
@@ -197,19 +198,40 @@ public class Engine : MonoBehaviour
 
     private void CheckWin()
     {
-        var player = game.player;
-        var list = player.GetTemplatesPlayerCanComplete(Board);
-        if (list.Count > 0)
+        var completedPlayer = game.player.GetTemplatesPlayerCanComplete(Board);
+        if (completedPlayer.Count > 0)
         {
-            print($"{player.Name} can complete smth and count is {list.Count}");
+            print($"{game.player.Name} can complete smth and count is {completedPlayer.Count}");
             // delete first completed
-            var template = list[0];
+            var template = completedPlayer[0];
             foreach (var p in template.Template.Points.Keys)
             {
                 var currp = new Point(p.X + template.StartingPoint.X, p.Y + template.StartingPoint.Y);
                 KillUnit(currp);
             }
+            game.player.CompleteTemplate(template.Template);
         }
+
+        if (game.player.CompletedCount()[SchemaType.Big] == 1 || game.player.CompletedCount()[SchemaType.Small] == 2)
+            game.Win(true);
+        
+        var completedOpponent = game.opponent.GetTemplatesPlayerCanComplete(Board);
+        if (completedOpponent.Count > 0)
+        {
+            print($"{game.opponent.Name} can complete smth and count is {completedOpponent.Count}");
+            // delete first completed
+            var template = completedOpponent[0];
+            foreach (var p in template.Template.Points.Keys)
+            {
+                var currp = new Point(p.X + template.StartingPoint.X, p.Y + template.StartingPoint.Y);
+                KillUnit(currp);
+            }
+            game.opponent.CompleteTemplate(template.Template);
+        }
+
+        if (game.opponent.CompletedCount()[SchemaType.Big] == 1 || game.opponent.CompletedCount()[SchemaType.Small] == 2)
+            game.Lose(true);
+        
     }
 
     private void SkipToAlso()
