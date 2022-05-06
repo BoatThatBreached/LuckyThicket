@@ -124,6 +124,7 @@ public class Engine : MonoBehaviour
         Board[p].occupantTribe = t;
         var occupant = Instantiate(game.designer.occupantPref, Board[p].transform);
         occupant.GetComponent<SpriteRenderer>().color = game.designer.Colors[t];
+        occupant.transform.localScale = new Vector3(3, 3, 1);
         occupant.transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = game.designer.Sprites[t];
         FlushTribe();
     }

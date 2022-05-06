@@ -201,7 +201,7 @@ public class Parser
         }
     }
     
-    private static Template GetTemplateFromString(string s)
+    public static Template GetTemplateFromString(string s)
     {
         var lines = s.Split('|');
         var array = new List<List<Tribes>>();

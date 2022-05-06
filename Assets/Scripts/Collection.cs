@@ -78,6 +78,14 @@ public class Collection : MonoBehaviour
                 Rarity.Legendary => (Color.red + Color.yellow) / 2,
                 _ => Color.black
             };
+            try
+            {
+                cardChar.picture.sprite = Resources.Load<Sprite>($"cards/{card.Name}");
+            }
+            catch
+            {
+                print("oof");
+            }
             cardChar.CardCharacter = card;
         }
     }

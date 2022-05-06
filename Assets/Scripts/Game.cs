@@ -24,7 +24,7 @@ public class Game : MonoBehaviour
         designer.Init();
         InitPlayer();
         //InitBoard(new Point(0, 2));
-        
+        RefreshBoard(Account.Room.Board);
         InitDeck();
         StartTurn();
         AudioStatic.AddMainTheme(AudioStatic.MainTheme, gameObject);
@@ -35,6 +35,8 @@ public class Game : MonoBehaviour
     {
         player.Init();
         player.Name = Account.Nickname;
+        var littleTemplate = Parser.GetTemplateFromString("Beaver Beaver None|None Beaver Beaver");
+        player.AddWinTemplate(littleTemplate);
     }
 
     private void InitDeck()
@@ -50,8 +52,11 @@ public class Game : MonoBehaviour
     {
         currentCardCharacter = null;
         currentCard = null;
-        var lastPlayer = Account.Room.LastTurn;
-        isMyTurn = lastPlayer == Account.Nickname;
+        //print(Connector.GetRoom(Account.Room.Name.ToSystemRoom(), Account.Token));
+        //return;
+        Account.Room = Connector.GetRoomsList().Find(room => room.Name == Account.Room.Name);
+        var lastPlayer = Account.Room.LastTurn ?? Account.Room.SecondPlayer;
+        isMyTurn = lastPlayer != Account.Nickname;
         turnText.text = isMyTurn ? "Your turn!" : "Opponent's turn!";
         RefreshBoard(Account.Room.Board);
         if (isMyTurn) 
@@ -80,25 +85,27 @@ public class Game : MonoBehaviour
         player.Hand.Remove(currentCardCharacter);
         player.Discard.Add(currentCardCharacter);
         Destroy(currentCard);
-        print(Connector.SendRoom(Account.Room.Name, Account.Token, Parser.ConvertBoardToJson(Board)));
+        print(Connector.SendRoom(Account.Room.Name.ToSystemRoom(), Account.Token, Parser.ConvertBoardToJson(Board)));
+        print(Connector.GetRoom(Account.Room.Name, Account.Token));
         StartTurn();
         
     }
 
     private void InitBoard(Point center)
     {
-        Size = 3;
+        //Size = 3;
         Board = new Dictionary<Point, Tile>();
-        for (var i = -Size / 2; i < Size / 2 + 1; i++)
-        for (var j = -Size / 2; j < Size / 2 + 1; j++)
-            gameEngine.AddTile(new Point(i+center.X, j+center.Y));
+        // for (var i = -Size / 2; i < Size / 2 + 1; i++)
+        // for (var j = -Size / 2; j < Size / 2 + 1; j++)
+        //     gameEngine.AddTile(new Point(i+center.X, j+center.Y));
+        
     }
 
     public void Exit() => SceneManager.LoadScene("MenuScene");
 
     public void Forfeit()
     {
-        Connector.DestroyRoom(Account.Token, Account.Room.Name);
+        Connector.DestroyRoom(Account.Token, Account.Room.Name.ToSystemRoom());
         SceneManager.LoadScene("RoomScene");
     }
 }
