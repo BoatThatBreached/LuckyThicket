@@ -203,6 +203,11 @@ public class Parser
     
     public static Template GetTemplateFromString(string s)
     {
+        // columns from down to top.
+        // Beaver Beaver None|None None None|None None Beaver converts to 
+        // **B
+        // B**
+        // B**
         var lines = s.Split('|');
         var array = new List<List<Tribes>>();
 

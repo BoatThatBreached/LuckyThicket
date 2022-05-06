@@ -139,4 +139,10 @@ public class Room
         res += "}";
         return res;
     }
+
+    public string Other(string nickname)
+    {
+        //assuming nickname already joined this room
+        return nickname == FirstPlayer ? SecondPlayer : FirstPlayer;
+    }
 }
