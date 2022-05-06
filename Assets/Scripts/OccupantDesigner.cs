@@ -13,8 +13,8 @@ public class OccupantDesigner: MonoBehaviour
     {
         Sprites = new Dictionary<Tribes, Sprite>();
         Colors = new Dictionary<Tribes, Color>();
-        Add(Tribes.Beaver, spriteArray[0], Color.red);
-        Add(Tribes.Magpie, spriteArray[1], Color.blue);
+        Add(Tribes.Beaver, spriteArray[0], new Color(155f/255, 103f/255, 60f/255));
+        Add(Tribes.Magpie, spriteArray[1], new Color(225f/255, 246f/255, 255f/255));
     }
 
     private void Add(Tribes t, Sprite sp, Color color)
