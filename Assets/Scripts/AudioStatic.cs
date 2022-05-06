@@ -19,11 +19,41 @@ public class AudioStatic : MonoBehaviour
     private static AudioSource SoundHandler;
     private static AudioSource MusicHandler;
 
+    public static Dictionary<Basis, Dictionary<Tribes, Action>> Sounds = new Dictionary<Basis, Dictionary<Tribes, Action>>
+    {
+        { Basis.Build, new Dictionary<Tribes, Action>
+            {
+                {Tribes.Beaver, () => PlayAudio("Sounds/click")}
+            }
+        },
+        { Basis.Destroy, new Dictionary<Tribes, Action>
+            {
+                {Tribes.Beaver, () => PlayAudio("Sounds/click")}
+            }
+        },
+        { Basis.Kill, new Dictionary<Tribes, Action>
+            {
+                {Tribes.Beaver, () => PlayAudio("Sounds/click")}
+            }
+        },
+        { Basis.Spawn, new Dictionary<Tribes, Action>
+            {
+                {Tribes.Beaver, () => PlayAudio("Sounds/click")}
+            }
+        },
+        { Basis.Select, new Dictionary<Tribes, Action>
+            {
+                {Tribes.Beaver, () => PlayAudio("Sounds/click")}
+            }
+        },
+    };
+
+
     public class PointerEventsController : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         public void OnPointerEnter(PointerEventData eventData)
         {
-            PlayAudio(Resources.Load<AudioClip>(Guidance), Account.SoundsVolume * 0.2F);
+            PlayAudio(Guidance);
         }
 
         public void OnPointerExit(PointerEventData eventData)
@@ -100,15 +130,16 @@ public class AudioStatic : MonoBehaviour
 
         foreach (var button in buttons)
         {
-            button.onClick.AddListener(() => PlayAudio(Resources.Load<AudioClip>(soundPath), Account.SoundsVolume));
+            button.onClick.AddListener(() => PlayAudio(soundPath));
             button.gameObject.AddComponent<PointerEventsController>();
         }
     }
     
-    private static void PlayAudio(AudioClip clip, float volume)
+    public static void PlayAudio(string path)
     {
-        SoundHandler.PlayOneShot(clip, volume);
-        //Thread.Sleep((int)Math.Round(clip.length*1000));
+        var clip = Resources.Load<AudioClip>(path);
+        SoundHandler.PlayOneShot(clip, Account.SoundsVolume);
+        Thread.Sleep((int)Math.Round(clip.length*500));
     }
 
     public static void MenuInitSounds(MonoBehaviour scene, GameObject source)
