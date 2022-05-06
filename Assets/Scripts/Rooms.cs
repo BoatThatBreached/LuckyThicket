@@ -20,8 +20,7 @@ public class Rooms : MonoBehaviour
         //Connector.DestroyRoom(Account.Token, "GW".ToSystemRoom());
         Fetch();
         
-        AudioStatic.AddMainTheme(AudioStatic.MainTheme, gameObject);
-        AudioStatic.AddSoundsToButtons(AudioStatic.Click, gameObject);
+        AudioStatic.MenuInitSounds(this, gameObject);
     }
 
     private void Fetch()

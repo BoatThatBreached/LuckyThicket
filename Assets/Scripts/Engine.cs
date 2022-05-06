@@ -190,6 +190,10 @@ public class Engine : MonoBehaviour
             game.EndTurn();
             return;
         }
+        
+        if (AudioStatic.Sounds.ContainsKey(CurrentAction))
+            if (AudioStatic.Sounds[CurrentAction].ContainsKey(AnchorTribe))
+                AudioStatic.Sounds[CurrentAction][AnchorTribe]();
 
         Actions[CurrentAction]();
         if (CurrentAction != Basis.Select && CurrentAction != Basis.Idle)
@@ -325,5 +329,10 @@ static class EngineExtensions
             .SelectMany(x => Enumerable.Range(-1, 3).Select(y => (x, y)))
             .Where(tuple => !(tuple.x == 0 && tuple.y == 0))
             .Select(tuple => new Point(p.X + tuple.x, p.Y + tuple.y));
+    }
+    
+    public static bool In<T>(this T val, params T[] values) where T : struct
+    {
+        return values.Contains(val);
     }
 }

@@ -23,6 +23,8 @@ public class Game : MonoBehaviour
     public TMP_Text tasks;
     private void Start()
     {
+        AudioStatic.GameInitSounds(this, gameObject);
+        
         designer.Init();
         InitPlayer();
         InitOpponent();
@@ -30,9 +32,6 @@ public class Game : MonoBehaviour
         RefreshBoard(Account.Room.Board);
         InitDeck();
         StartTurn();
-        AudioStatic.RefreshSoundtrack();
-        StartCoroutine(AudioStatic.StartTracksCoroutine(gameObject));
-        AudioStatic.AddSoundsToButtons(AudioStatic.Click, gameObject);
     }
 
     private void InitPlayer()
