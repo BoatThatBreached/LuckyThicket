@@ -33,8 +33,8 @@ public class Collection : MonoBehaviour
     private void Start()
     {
         Account.CurrentScene = Scenes.Collection;
-        AudioStatic.AddMainTheme(AudioStatic.MainTheme, gameObject);
-        AudioStatic.AddSoundsToButtons(AudioStatic.Click, gameObject);
+        
+        AudioStatic.MenuInitSounds(this, gameObject);
         
         CurrentDeckName = Account.Decks.Keys.FirstOrDefault();
         SortByRarity();
@@ -151,7 +151,6 @@ public class Collection : MonoBehaviour
         var (yes, errorMessage) = DeckPref.IsValid(CardInDeck);
         if (yes)
         {
-            AudioStatic.RememberThemeState(gameObject);
             SceneManager.LoadScene("MenuScene");
         }
         else

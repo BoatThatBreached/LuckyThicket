@@ -25,8 +25,6 @@ public static class Account
     public static void Reset()
     {
         Nickname = string.Empty;
-        SoundsVolume = 0.5f;
-        MusicVolume = 0.5f;
         Balance = 0;
         Collection = new List<CardCharacter>();
         Unowned = new List<CardCharacter>();

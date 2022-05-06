@@ -18,8 +18,7 @@ public class Rooms : MonoBehaviour
     {
         Fetch();
         
-        AudioStatic.AddMainTheme(AudioStatic.MainTheme, gameObject);
-        AudioStatic.AddSoundsToButtons(AudioStatic.Click, gameObject);
+        AudioStatic.MenuInitSounds(this, gameObject);
     }
 
     private void Fetch()

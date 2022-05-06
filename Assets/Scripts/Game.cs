@@ -27,9 +27,8 @@ public class Game : MonoBehaviour
         
         InitDeck();
         StartTurn();
-        AudioStatic.RefreshSoundtrack();
-        StartCoroutine(AudioStatic.StartTracksCoroutine(gameObject));
-        AudioStatic.AddSoundsToButtons(AudioStatic.Click, gameObject);
+        
+        AudioStatic.GameInitSounds(this, gameObject);
     }
 
     private void InitPlayer()

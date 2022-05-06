@@ -16,13 +16,14 @@ public class AudioStatic : MonoBehaviour
     private static float _mainThemeTime;
     public const string Click = "Sounds/click";
     private const string Guidance = "Sounds/guidance";
-    private static GameObject _source;
-    
+    private static AudioSource SoundHandler;
+    private static AudioSource MusicHandler;
+
     public class PointerEventsController : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         public void OnPointerEnter(PointerEventData eventData)
         {
-            PlayAudio(Resources.Load<AudioClip>(Guidance), _source, Account.SoundsVolume * 0.2F);
+            PlayAudio(Resources.Load<AudioClip>(Guidance), Account.SoundsVolume * 0.2F);
         }
 
         public void OnPointerExit(PointerEventData eventData)
@@ -30,22 +31,42 @@ public class AudioStatic : MonoBehaviour
         
         }
     }
-    
-    public static void RememberThemeState(GameObject source) {
-        _mainThemeTime = source.GetComponents<AudioSource>()[1].time;
+
+    public static void SetNewHandlers(GameObject source)
+    {
+        SoundHandler = source.GetComponents<AudioSource>()[0];
+        
+        MusicHandler = source.GetComponents<AudioSource>()[1];
+        MusicHandler.volume = Account.MusicVolume;
+        MusicHandler.loop = true;
     }
 
-    public static void AddMainTheme(string soundPath, GameObject source)
+    public static void ChangeVolumes()
     {
-        var sound = source.GetComponents<AudioSource>()[1];
-        sound.loop = true;
-        sound.clip = Resources.Load<AudioClip>(soundPath);
-        sound.time = _mainThemeTime;
-        sound.volume = Account.MusicVolume;
-        sound.Play();
+        MusicHandler.volume = Account.MusicVolume;
+        SoundHandler.volume = Account.SoundsVolume;
+    }
+
+    public static IEnumerator UpdateThemeTime()
+    {
+        while (true)
+        {
+            _mainThemeTime = MusicHandler.time;
+            Thread.Sleep(5);
+            yield return null;
+        }
+    }
+
+    public static void AddMainTheme(MonoBehaviour scene, string soundPath)
+    {
+        MusicHandler.clip = Resources.Load<AudioClip>(soundPath);
+        MusicHandler.Play();
+        MusicHandler.time = _mainThemeTime;
+        
+        scene.StartCoroutine(UpdateThemeTime());
     }
     
-    public static void RefreshSoundtrack()
+    private static void RefreshSoundtrack()
     {
         ind = 0;
         soundtracks = new DirectoryInfo(Directory.GetCurrentDirectory() + "\\Assets\\Resources\\Sounds\\Soundtracks")
@@ -56,18 +77,17 @@ public class AudioStatic : MonoBehaviour
             .ToList();
     }
 
-
-    public static IEnumerator StartTracksCoroutine(GameObject source)
+    private static  void StartSoundtrack(MonoBehaviour scene) => scene.StartCoroutine(TracksCoroutine()); 
+    public static IEnumerator TracksCoroutine()
     {
+        RefreshSoundtrack();
         while (true)
         {
-            var sound = source.GetComponents<AudioSource>()[1];
-            sound.clip = Resources.Load<AudioClip>("Sounds\\Soundtracks\\" + soundtracks[ind]
+            MusicHandler.clip = Resources.Load<AudioClip>("Sounds\\Soundtracks\\" + soundtracks[ind]
                 .Substring(0, soundtracks[ind].Length - 4));
-            sound.volume = Account.MusicVolume;
-            sound.Play();
+            MusicHandler.Play();
 
-            while (sound.isPlaying)
+            while (MusicHandler.isPlaying)
                 yield return null;
 
             ind = (ind + 1) % soundtracks.Count;
@@ -77,18 +97,30 @@ public class AudioStatic : MonoBehaviour
     public static void AddSoundsToButtons(string soundPath, GameObject source)
     {
         var buttons = FindObjectsOfType<Button>(true);
-        _source = source; 
-        
+
         foreach (var button in buttons)
         {
-            button.onClick.AddListener(() => PlayAudio(Resources.Load<AudioClip>(soundPath), source, Account.SoundsVolume));
+            button.onClick.AddListener(() => PlayAudio(Resources.Load<AudioClip>(soundPath), Account.SoundsVolume));
             button.gameObject.AddComponent<PointerEventsController>();
         }
     }
     
-    private static void PlayAudio(AudioClip clip, GameObject source, float volume)
+    private static void PlayAudio(AudioClip clip, float volume)
     {
-        source.GetComponent<AudioSource>().PlayOneShot(clip, volume);
-        Thread.Sleep((int)Math.Round(clip.length*1000));
+        SoundHandler.PlayOneShot(clip, volume);
+        //Thread.Sleep((int)Math.Round(clip.length*1000));
+    }
+
+    public static void MenuInitSounds(MonoBehaviour scene, GameObject source)
+    {
+        SetNewHandlers(source);
+        AddMainTheme(scene, MainTheme);
+        AddSoundsToButtons(Click, source);
+    }
+    public static void GameInitSounds(MonoBehaviour scene, GameObject source)
+    {
+        SetNewHandlers(source);
+        StartSoundtrack(scene);
+        AddSoundsToButtons(Click, source);
     }
 }
