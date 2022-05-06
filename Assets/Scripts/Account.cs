@@ -51,7 +51,7 @@ public static class Account
             Unowned.Add(card);
         GetDecks();
         if (Decks.Count == 0)
-            Decks["Стандарт"] = new List<int>();
+            Decks["Custom"] = new List<int>();
         Balance = int.Parse(Connector.GetProperty("balance", login));
 
     }
@@ -81,7 +81,7 @@ public static class Account
         {
             if (name == "info not found")
                 return;
-            Debug.Log(name);
+            //Debug.Log(name);
             var right_name = System.Text.Encoding.UTF8.GetString(System.Text.Encoding.UTF8.GetBytes(name));
             Decks[right_name] = Connector
                 .GetProperty(name.ToSystemDeck(), Nickname)

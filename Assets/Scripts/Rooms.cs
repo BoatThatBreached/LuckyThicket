@@ -16,6 +16,8 @@ public class Rooms : MonoBehaviour
     
     private void Start()
     {
+
+        //Connector.DestroyRoom(Account.Token, "GW".ToSystemRoom());
         Fetch();
         
         AudioStatic.MenuInitSounds(this, gameObject);
@@ -58,14 +60,14 @@ public class Rooms : MonoBehaviour
             return;
         if (!room.IsFull)
         {
-            Connector.JoinRoom(Account.Token, room.Name);
+            print(Connector.JoinRoom(Account.Token, room.Name.ToSystemRoom()));
             RefreshRooms();
         }
         else
         {
+            //if(room.FirstPlayer==Account.Nickname)
+            //    print(Connector.SendRoom(room.Name.ToSystemRoom(), Account.Token, Parser.ConvertBoardToJson(room.Board)));
             Account.Room = room;
-            print(room.BoardString());
-            print(room.LastTurn);
             SceneManager.LoadScene("GameScene");
         }
     }
@@ -73,15 +75,8 @@ public class Rooms : MonoBehaviour
     //BEBRA
     public void CreateRoom()
     {
-        var currName = roomName.text;
-        var room = new Room(currName, Account.Nickname, "")
-        {
-            Board = Parser.EmptyField(3)
-        };
-        print(Connector.CreateRoom(Account.Token, room.Name.ToSystemRoom()));
-        //print(Connector.SendRoom(room.Name.ToSystemRoom(), Account.Token, room.ToJson()));
-        //print(Connector.GetRoom(room.Name.ToSystemRoom(), Account.Token));
-        //RefreshRooms();
+        print(Connector.CreateRoom(Account.Token, roomName.text.ToSystemRoom()));
+        RefreshRooms();
     }
 }
 
@@ -135,11 +130,18 @@ public class Room
     public string ToJson()
     {
         var res = "{";
+        res += $"\"Name\":\"{Name}\",";
         res += $"\"FirstPlayer\":\"{FirstPlayer}\",";
         res += $"\"SecondPlayer\":\"{SecondPlayer}\",";
         res += $"\"LastTurn\":\"{LastTurn}\",";
         res += $"\"Board\":{Parser.ConvertBoardToJson(Board)}";
         res += "}";
         return res;
+    }
+
+    public string Other(string nickname)
+    {
+        //assuming nickname already joined this room
+        return nickname == FirstPlayer ? SecondPlayer : FirstPlayer;
     }
 }

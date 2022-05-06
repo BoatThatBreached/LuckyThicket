@@ -112,7 +112,7 @@ public class Connector : MonoBehaviour
 
     public static void InitNewUser(string login, Tribes tribe)
     {
-        SetProperty("balance", "100", login);
+        SetProperty("balance", "300", login);
         SetProperty("level", "1", login);
         
         SetProperty(Account.DeckNames, "[]", login);
@@ -176,27 +176,26 @@ public class Connector : MonoBehaviour
         foreach(var json in jsons)
         {
             var realJson = json + "}";
-            if (realJson.Contains("data"))
-                realJson += "}";
+            
             realJson = realJson
                 .Replace("\"name\"", "\"Name\"")
                 .Replace("\"1\"", "\"FirstPlayer\"")
                 .Replace("\"2\"", "\"SecondPlayer\"")
                 .Replace("\"lastTurn\"", "\"LastTurn\"");
-            
+            if (realJson.Contains("\"data\":"))
+                realJson += "}";
             var room = JsonUtility.FromJson<Room>(realJson);
-            room.Name = room.Name.FromSystemRoom();
-            if (!realJson.Contains("data"))
-                room.Board = Parser.EmptyField(3);
-            else
+            if (realJson.Contains("data"))
             {
-                var board = Regex.Match(realJson, "{.+?(?=})")+"}";
-                var field = Parser.ConvertJsonToBoard(board);
-                room.Board = field;
+                var r = realJson.Substring(realJson.IndexOf("\"data\":", StringComparison.Ordinal) + 7);
+                r.Remove(r.Length - 1);
+                room.Board = Parser.ConvertJsonToBoard(r);
             }
+            else
+                room.Board = Parser.EmptyField(3);
 
+            room.Name = room.Name.FromSystemRoom();
             rooms.Add(room);
-            //print(realJson);
         }
 
         return rooms;
