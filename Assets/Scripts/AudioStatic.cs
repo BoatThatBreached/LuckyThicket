@@ -14,39 +14,58 @@ public class AudioStatic : MonoBehaviour
     public static int ind = -1;
     private static List<string> soundtracks = new List<string>(); 
     private static float _mainThemeTime;
-    public const string Click = "Sounds/click";
+    public const string Click = "Sounds/wood_click";
     private const string Guidance = "Sounds/guidance";
     private static AudioSource SoundHandler;
     private static AudioSource MusicHandler;
 
-    public static Dictionary<Basis, Dictionary<Tribes, Action>> Sounds = new Dictionary<Basis, Dictionary<Tribes, Action>>
+    public static Dictionary<Basis, Dictionary<Tribes, Action>> sounds =
+        new Dictionary<Basis, Dictionary<Tribes, Action>>
+        {
+            {
+                Basis.Build, new Dictionary<Tribes, Action>
+                {
+                    { Tribes.Beaver, () => PlayAudio("Sounds/cell_build") },
+                    { Tribes.Magpie, () => PlayAudio("Sounds/cell_build") }
+                }
+            },
+            {
+                Basis.Destroy, new Dictionary<Tribes, Action>
+                {
+                    { Tribes.Beaver, () => PlayAudio("Sounds/cell_destroy") },
+                    { Tribes.Magpie, () => PlayAudio("Sounds/cell_destroy") }
+                }
+            },
+            {
+                Basis.Kill, new Dictionary<Tribes, Action>
+                {
+                    { Tribes.Beaver, () => PlayAudio("Sounds/beaver_kill") },
+                    { Tribes.Magpie, () => PlayAudio("Sounds/magpie_kill") }
+                }
+            },
+            {
+                Basis.Spawn, new Dictionary<Tribes, Action>
+                {
+                    { Tribes.Beaver, () => PlayAudio("Sounds/click") },
+                    { Tribes.Magpie, () => PlayAudio("Sounds/click") }
+                }
+            },
+            /*{
+                Basis.Select, new Dictionary<Tribes, Action>
+                {
+                    { Tribes.Beaver, () => PlayAudio("Sounds/click") },
+                    { Tribes.Magpie, () => PlayAudio("Sounds/click") }
+                }
+            },*/
+        };
+
+        
+    public static void PlaySound(Basis basis, Tribes tribe)
     {
-        { Basis.Build, new Dictionary<Tribes, Action>
-            {
-                {Tribes.Beaver, () => PlayAudio("Sounds/click")}
-            }
-        },
-        { Basis.Destroy, new Dictionary<Tribes, Action>
-            {
-                {Tribes.Beaver, () => PlayAudio("Sounds/click")}
-            }
-        },
-        { Basis.Kill, new Dictionary<Tribes, Action>
-            {
-                {Tribes.Beaver, () => PlayAudio("Sounds/click")}
-            }
-        },
-        { Basis.Spawn, new Dictionary<Tribes, Action>
-            {
-                {Tribes.Beaver, () => PlayAudio("Sounds/click")}
-            }
-        },
-        { Basis.Select, new Dictionary<Tribes, Action>
-            {
-                {Tribes.Beaver, () => PlayAudio("Sounds/click")}
-            }
-        },
-    };
+        if (sounds.ContainsKey(basis))
+            if (sounds[basis].ContainsKey(tribe))
+                sounds[basis][tribe]();
+    }
 
 
     public class PointerEventsController : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
