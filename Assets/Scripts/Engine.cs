@@ -190,10 +190,8 @@ public class Engine : MonoBehaviour
             game.EndTurn();
             return;
         }
-        
-        if (AudioStatic.Sounds.ContainsKey(CurrentAction))
-            if (AudioStatic.Sounds[CurrentAction].ContainsKey(AnchorTribe))
-                AudioStatic.Sounds[CurrentAction][AnchorTribe]();
+
+        AudioStatic.PlaySound(CurrentAction, AnchorTribe);
 
         Actions[CurrentAction]();
         if (CurrentAction != Basis.Select && CurrentAction != Basis.Idle)
