@@ -21,8 +21,7 @@ public class Login : MonoBehaviour
     {   
         Account.CurrentScene = Scenes.Login;
         
-        AudioStatic.AddMainTheme(AudioStatic.MainTheme, gameObject);
-        AudioStatic.AddSoundsToButtons(AudioStatic.Click, gameObject);
+            AudioStatic.MenuInitSounds(this, gameObject);
     }
 
     public void StartRegister()
