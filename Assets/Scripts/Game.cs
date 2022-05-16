@@ -37,24 +37,24 @@ public class Game : MonoBehaviour
     {
         player.Init();
         player.Name = Account.Nickname;
-        var littleTemplate = Parser.GetTemplateFromString("Beaver Beaver None|None None None|None None Beaver");
+        //var littleTemplate = Parser.GetTemplateFromString("Beaver Beaver None|None None None|None None Beaver");
         // columns from down to top.
         // rows from left to right
         // this converts to 
         // **B
         // B**
         // B**
-        player.AddWinTemplate(littleTemplate);
+        //player.AddWinTemplate(littleTemplate);
     }
 
     private void InitOpponent()
     {
         opponent.Init();
         opponent.Name = Account.Room.Other(Account.Nickname);
-        var littleTemplate = Parser.GetTemplateFromString("Beaver");
-
-        player.AddWinTemplate(littleTemplate);
-        player.AddWinTemplate(littleTemplate);
+        // var littleTemplate = Parser.GetTemplateFromString("Beaver");
+        //
+        // player.AddWinTemplate(littleTemplate);
+        // player.AddWinTemplate(littleTemplate);
     }
 
     private void InitDeck()
