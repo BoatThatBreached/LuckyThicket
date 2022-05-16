@@ -87,7 +87,7 @@ public class AudioStatic : MonoBehaviour
         
         MusicHandler = source.GetComponents<AudioSource>()[1];
         MusicHandler.volume = Account.MusicVolume;
-        MusicHandler.loop = true;
+        MusicHandler.loop = false;
     }
 
     public static void ChangeVolumes()
@@ -100,9 +100,14 @@ public class AudioStatic : MonoBehaviour
     {
         while (true)
         {
-            _mainThemeTime = MusicHandler.time;
-            Thread.Sleep(5);
-            yield return null;
+            MusicHandler.Play();
+
+            while (MusicHandler.isPlaying)
+            {
+                _mainThemeTime = MusicHandler.time;
+                Thread.Sleep(5);
+                yield return null;
+            }
         }
     }
 
