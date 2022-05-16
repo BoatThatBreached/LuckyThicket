@@ -197,7 +197,7 @@ public class Parser
         catch (Exception e)
         {
             Debug.Log($"An error occured: {e.Message}. Sending empty board!");
-            return EmptyField(3);
+            return EmptyField(5);
         }
     }
     

@@ -197,7 +197,7 @@ public class Connector : MonoBehaviour
                 room.Board = Parser.ConvertJsonToBoard(r);
             }
             else
-                room.Board = Parser.EmptyField(3);
+                room.Board = Parser.EmptyField(5);
 
             room.Name = room.Name.FromSystemRoom();
             rooms.Add(room);
