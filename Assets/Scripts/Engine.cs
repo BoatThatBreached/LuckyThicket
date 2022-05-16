@@ -10,80 +10,89 @@ public class Engine : MonoBehaviour
 {
     private Queue<Basis> CurrentChain { get; set; }
     private Dictionary<Basis, Action> Actions { get; set; }
-    private Point Anchor { get; set; }
-    // private Point AnchorF { get; set; }
+
+    private Point AnchorZ { get; set; }
+    private Point AnchorF { get; set; }
+
     // private Point AnchorS { get; set; }
     // private Point AnchorT { get; set; }
-    private Tribes AnchorTribe { get; set; }
-    // private Tribes AnchorTribeF { get; set; }
+    private Tribes AnchorTribeZ { get; set; }
+    private Tribes AnchorTribeF { get; set; }
+
     // private Tribes AnchorTribeS { get; set; }
     // private Tribes AnchorTribeT { get; set; }
     public Basis CurrentAction { get; private set; }
     private List<Func<Point, bool>> Criterias { get; set; }
     private bool NotExistingNeeded { get; set; }
-    private Random Rand { get; set; }
+    private Random random;
     public Game game;
     private Dictionary<Point, Tile> Board => game.Board;
     private Queue<Point> LoadedSelections { get; set; }
     private Queue<Point> SelfSelections { get; set; }
 
-    void Start()
+    private void Start()
     {
         CurrentChain = new Queue<Basis>();
         LoadedSelections = new Queue<Point>();
         SelfSelections = new Queue<Point>();
-        Anchor = Point.Empty;
-        AnchorTribe = Tribes.None;
+        FlushAnchor();
+        FlushTribe();
         NotExistingNeeded = false;
         Criterias = new List<Func<Point, bool>>();
-        Rand = new Random();
+        random = new Random();
         InitActions();
     }
 
     private void InitActions()
     {
-        Actions = new Dictionary<Basis, Action>();
-
-        Actions[Basis.Build] = () => AddTile(Anchor);
-        Actions[Basis.Destroy] = () => DestroyTile(Anchor);
-        Actions[Basis.Kill] = () => KillUnit(Anchor);
-
-        Actions[Basis.Spawn] = () => SpawnUnit(Anchor, AnchorTribe);
-        //Actions[Basis.PushUnit] = ()=>PushUnit(Anchor, AnchorTribe);
-        //Actions[Basis.PullUnit] = ()=>PullUnit(Anchor, AnchorTribe);
-        Actions[Basis.Beaver] = () => AnchorTribe = Tribes.Beaver;
-        Actions[Basis.Magpie] = () => AnchorTribe = Tribes.Magpie;
-
-        Actions[Basis.Free] = () => Criterias.Add(IsFree);
-        Actions[Basis.Adjacent] = () => Criterias.Add(IsAdjacentToAnchor);
-        Actions[Basis.Surrounding] = () => Criterias.Add(IsSurroundingToAnchor);
-        Actions[Basis.Occupied] = () => Criterias.Add(IsOccupiedByAnchorTribe);
-        Actions[Basis.Existing] = () => Criterias.Add(Exists);
-        Actions[Basis.NExisting] = () =>
+        Actions = new Dictionary<Basis, Action>
         {
-            Criterias.Add(p => !Exists(p));
-            NotExistingNeeded = true;
-        };
-        Actions[Basis.Edge] = () => Criterias.Add(IsEdge);
-        Actions[Basis.Select] = () =>
-        {
-            if (!ShowPossibleTiles())
-                SkipToAlso();
-            if (LoadedSelections.Count > 0)
+            [Basis.Build] = () => AddTile(AnchorZ),
+            [Basis.Destroy] = () => DestroyTile(AnchorZ),
+            [Basis.Kill] = () => Kill(AnchorZ),
+            [Basis.Spawn] = () => Spawn(AnchorZ, AnchorTribeZ),
+            [Basis.Push] = () => Push(AnchorF, AnchorZ),
+            [Basis.Pull] = () => Pull(AnchorF, AnchorZ),
+            [Basis.Convert] = () => Convert(AnchorZ, AnchorTribeZ),
+            [Basis.Drag] = () => Drag(AnchorF, AnchorZ),
+            [Basis.Beaver] = () => AnchorTribeZ = Tribes.Beaver,
+            [Basis.Magpie] = () => AnchorTribeZ = Tribes.Magpie,
+            [Basis.ShiftAnchor] = () => { AnchorF = AnchorZ; },
+            [Basis.ShiftTribe] = () => { AnchorTribeF = AnchorTribeZ; },
+            [Basis.Free] = () => Criterias.Add(IsFree),
+            [Basis.Adjacent] = () => Criterias.Add(IsAdjacentToAnchor),
+            [Basis.Surrounding] = () => Criterias.Add(IsSurroundingToAnchor),
+            [Basis.Occupied] = () => Criterias.Add(IsOccupiedByAnchorTribe),
+            [Basis.Existing] = () => Criterias.Add(Exists),
+            [Basis.NExisting] = () =>
             {
-                SelectPoint(LoadedSelections.Dequeue());
-            }
+                Criterias.Add(p => !Exists(p));
+                NotExistingNeeded = true;
+            },
+            [Basis.Edge] = () => Criterias.Add(IsEdge),
+            [Basis.Column] = () => Criterias.Add(IsOnAnchorColumn),
+            [Basis.Row] = () => Criterias.Add(IsOnAnchorRow),
+            [Basis.CrossPlus] = () => Criterias.Add(IsOnAnchorCrossPlus),
+            [Basis.CrossX] = () => Criterias.Add(IsOnAnchorCrossX),
+            [Basis.Select] = () =>
+            {
+                if (!ShowPossibleTiles())
+                    SkipToAlso();
+                if (LoadedSelections.Count > 0)
+                {
+                    SelectPoint(LoadedSelections.Dequeue());
+                }
+            },
+            [Basis.Also] = () => { },
+            [Basis.Random] = () =>
+            {
+                if (LoadedSelections.Count > 0)
+                    SelectPoint(LoadedSelections.Dequeue());
+                else
+                    TrySelectRandomPoint();
+            },
+            [Basis.Draw] = () => game.player.DrawCard()
         };
-        Actions[Basis.Also] = () => { };
-        Actions[Basis.Random] = () =>
-        {
-            if(LoadedSelections.Count>0)
-                SelectPoint(LoadedSelections.Dequeue());
-            else
-                TrySelectRandomPoint();
-        };
-
-        Actions[Basis.Draw] = () => game.player.DrawCard();
     }
 
     public bool Exists(Point p) => Board.ContainsKey(p);
@@ -95,10 +104,14 @@ public class Engine : MonoBehaviour
 
     public bool IsOccupied(Point p) => Exists(p) && Board[p].occupantTribe != Tribes.None;
     private bool IsFree(Point p) => Exists(p) && Board[p].occupantTribe == Tribes.None;
-    private bool IsAdjacentToAnchor(Point p) => Anchor.GetAdjacent().Contains(p);
-    private bool IsSurroundingToAnchor(Point p) => Anchor.GetSurrounding().Contains(p);
+    private bool IsAdjacentToAnchor(Point p) => AnchorZ.GetAdjacent().Contains(p);
+    private bool IsSurroundingToAnchor(Point p) => AnchorZ.GetSurrounding().Contains(p);
     private bool IsEdge(Point p) => p.GetAdjacent().Count(Exists) < 4;
-    private bool IsOccupiedByAnchorTribe(Point p) => GetOccupantTribe(p) == AnchorTribe;
+    private bool IsOccupiedByAnchorTribe(Point p) => GetOccupantTribe(p) == AnchorTribeZ;
+    private bool IsOnAnchorRow(Point p) => AnchorZ.GetRow(Board.Keys).Contains(p);
+    private bool IsOnAnchorColumn(Point p) => AnchorZ.GetColumn(Board.Keys).Contains(p);
+    private bool IsOnAnchorCrossPlus(Point p) => IsOnAnchorColumn(p) || IsOnAnchorRow(p);
+    private bool IsOnAnchorCrossX(Point p) => AnchorZ.GetCross(Board.Keys).Contains(p);
 
     #endregion
 
@@ -119,7 +132,7 @@ public class Engine : MonoBehaviour
         Board.Remove(p);
     }
 
-    public void SpawnUnit(Point p, Tribes t)
+    public void Spawn(Point p, Tribes t)
     {
         Board[p].occupantTribe = t;
         var occupant = Instantiate(game.designer.occupantPref, Board[p].transform);
@@ -129,16 +142,61 @@ public class Engine : MonoBehaviour
         FlushTribe();
     }
 
-    public void KillUnit(Point p)
+    private void Kill(Point p)
     {
         Board[p].occupantTribe = Tribes.None;
         Destroy(Board[p].transform.GetChild(0).gameObject);
         FlushTribe();
     }
 
+    private void Push(Point pusher, Point pushed)
+    {
+        var delta = pushed.Sub(pusher);
+        var curr = pushed;
+        while (IsFree(curr.Add(delta)))
+            curr = curr.Add(delta);
+        if (curr == pushed)
+            return;
+        Drag(pushed, curr);
+    }
+
+    private void Pull(Point puller, Point pulled)
+    {
+        var delta = puller.Sub(pulled).Uni();
+        var curr = pulled;
+        while (IsFree(curr.Add(delta)))
+            curr = curr.Add(delta);
+        if (curr == pulled)
+            return;
+        Drag(pulled, curr);
+    }
+
+    private void Convert(Point p, Tribes tribe)
+    {
+        Kill(p);
+        Spawn(p, tribe);
+    }
+
+    private void Drag(Point from, Point to)
+    {
+        Spawn(to, GetOccupantTribe(from));
+        Kill(from);
+        //TODO: Replace with smooth movement
+    }
+
     #endregion
 
-    private void FlushTribe() => AnchorTribe = Tribes.None;
+    private void FlushTribe()
+    {
+        AnchorTribeZ = Tribes.None;
+        AnchorTribeF = Tribes.None;
+    }
+
+    private void FlushAnchor()
+    {
+        AnchorZ = Point.Empty;
+        AnchorF = Point.Empty;
+    }
 
     public void TryLoadActions(Queue<Basis> chain, CardCharacter card, GameObject go)
     {
@@ -184,14 +242,14 @@ public class Engine : MonoBehaviour
         //print(CurrentAction);
         if (CurrentAction == Basis.Idle)
         {
-            Anchor = Point.Empty;
-            AnchorTribe = Tribes.None;
+            FlushAnchor();
+            FlushTribe();
             CheckWin();
             game.EndTurn();
             return;
         }
 
-        AudioStatic.PlaySound(CurrentAction, AnchorTribe);
+        AudioStatic.PlaySound(CurrentAction, AnchorTribeZ);
 
         Actions[CurrentAction]();
         if (CurrentAction != Basis.Select && CurrentAction != Basis.Idle)
@@ -209,14 +267,15 @@ public class Engine : MonoBehaviour
             foreach (var p in template.Template.Points.Keys)
             {
                 var currp = new Point(p.X + template.StartingPoint.X, p.Y + template.StartingPoint.Y);
-                KillUnit(currp);
+                Kill(currp);
             }
+
             game.player.CompleteTemplate(template.Template);
         }
 
         if (game.player.CompletedCount()[SchemaType.Big] == 1 || game.player.CompletedCount()[SchemaType.Small] == 2)
             game.Win(true);
-        
+
         var completedOpponent = game.opponent.GetTemplatesPlayerCanComplete(Board);
         if (completedOpponent.Count > 0)
         {
@@ -226,14 +285,15 @@ public class Engine : MonoBehaviour
             foreach (var p in template.Template.Points.Keys)
             {
                 var currp = new Point(p.X + template.StartingPoint.X, p.Y + template.StartingPoint.Y);
-                KillUnit(currp);
+                Kill(currp);
             }
+
             game.opponent.CompleteTemplate(template.Template);
         }
 
-        if (game.opponent.CompletedCount()[SchemaType.Big] == 1 || game.opponent.CompletedCount()[SchemaType.Small] == 2)
+        if (game.opponent.CompletedCount()[SchemaType.Big] == 1 ||
+            game.opponent.CompletedCount()[SchemaType.Small] == 2)
             game.Lose(true);
-        
     }
 
     private void SkipToAlso()
@@ -246,7 +306,7 @@ public class Engine : MonoBehaviour
 
     public void SelectPoint(Point p)
     {
-        Anchor = p;
+        AnchorZ = p;
         foreach (var t in Board.Values)
             t.Color = Color.white;
         SelfSelections.Enqueue(p);
@@ -307,11 +367,17 @@ public class Engine : MonoBehaviour
             return;
         }
 
-        SelectPoint(possible[Rand.Next(possible.Length)]);
+        SelectPoint(possible[random.Next(possible.Length)]);
     }
+
+    private Point CornerLu =>
+        Board.Keys.First(p => p.X == Board.Keys.Min(px => px.X) && p.Y == Board.Keys.Max(py => py.Y));
+
+    private Point CornerRd =>
+        Board.Keys.First(p => p.X == Board.Keys.Max(px => px.X) && p.Y == Board.Keys.Min(py => py.Y));
 }
 
-static class EngineExtensions
+internal static class EngineExtensions
 {
     public static IEnumerable<Point> GetAdjacent(this Point p)
     {
@@ -328,9 +394,26 @@ static class EngineExtensions
             .Where(tuple => !(tuple.x == 0 && tuple.y == 0))
             .Select(tuple => new Point(p.X + tuple.x, p.Y + tuple.y));
     }
-    
-    public static bool In<T>(this T val, params T[] values) where T : struct
+
+    public static IEnumerable<Point> GetColumn(this Point p, IEnumerable<Point> board)
     {
-        return values.Contains(val);
+        return board.Where(point => point != p && point.X == p.X);
     }
+
+    public static IEnumerable<Point> GetRow(this Point p, IEnumerable<Point> board)
+    {
+        return board.Where(point => point != p && point.Y == p.Y);
+    }
+
+    public static IEnumerable<Point> GetCross(this Point p, IEnumerable<Point> board)
+    {
+        return board.Where(point => point != p && point.Sub(p).Uni().X * point.Sub(p).Uni().Y != 0);
+    }
+
+    public static Point Add(this Point source, Point other) => new Point(source.X + other.X, source.Y + other.Y);
+    private static Point Neg(this Point source) => new Point(-source.X, -source.Y);
+    public static Point Sub(this Point source, Point other) => source.Add(other.Neg());
+
+    public static Point Uni(this Point source) =>
+        new Point(source.X == 0 ? 0 : Math.Sign(source.X), source.Y == 0 ? 0 : Math.Sign(source.Y));
 }

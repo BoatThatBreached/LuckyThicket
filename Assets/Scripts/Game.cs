@@ -1,7 +1,5 @@
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -12,7 +10,7 @@ public class Game : MonoBehaviour
 
     public Dictionary<Point, Tile> Board { get; private set; }
     public OccupantDesigner designer;
-    private int Size { get; set; }
+    //private int Size { get; set; }
     public Engine gameEngine;
     public Player player;
     public Opponent opponent;
@@ -21,10 +19,11 @@ public class Game : MonoBehaviour
     public TMP_Text turnText;
     public bool isMyTurn;
     public TMP_Text tasks;
+
     private void Start()
     {
         AudioStatic.GameInitSounds(this, gameObject);
-        
+
         designer.Init();
         InitPlayer();
         InitOpponent();
@@ -40,19 +39,20 @@ public class Game : MonoBehaviour
         player.Name = Account.Nickname;
         var littleTemplate = Parser.GetTemplateFromString("Beaver Beaver None|None None None|None None Beaver");
         // columns from down to top.
+        // rows from left to right
         // this converts to 
         // **B
         // B**
         // B**
         player.AddWinTemplate(littleTemplate);
     }
-    
+
     private void InitOpponent()
     {
         opponent.Init();
         opponent.Name = Account.Room.Other(Account.Nickname);
         var littleTemplate = Parser.GetTemplateFromString("Beaver");
-        
+
         player.AddWinTemplate(littleTemplate);
         player.AddWinTemplate(littleTemplate);
     }
@@ -83,9 +83,9 @@ public class Game : MonoBehaviour
         var lastPlayer = Account.Room.LastTurn ?? Account.Room.SecondPlayer;
         isMyTurn = lastPlayer != Account.Nickname;
         turnText.text = isMyTurn ? "Your turn!" : "Opponent's turn!";
-        
+
         RefreshBoard(Account.Room.Board);
-        if (isMyTurn) 
+        if (isMyTurn)
             return;
         print("fetching!");
         var cor = Waiters.LoopFor(2, StartTurn);
@@ -101,8 +101,8 @@ public class Game : MonoBehaviour
         foreach (var p in newBoard.Keys)
         {
             gameEngine.AddTile(p);
-            if (newBoard[p]!=Tribes.None)
-                gameEngine.SpawnUnit(p, newBoard[p]);
+            if (newBoard[p] != Tribes.None)
+                gameEngine.Spawn(p, newBoard[p]);
         }
     }
 
@@ -113,17 +113,6 @@ public class Game : MonoBehaviour
         Destroy(currentCard);
         print(Connector.SendRoom(Account.Room.Name.ToSystemRoom(), Account.Token, Parser.ConvertBoardToJson(Board)));
         StartTurn();
-        
-    }
-
-    private void InitBoard(Point center)
-    {
-        //Size = 3;
-        Board = new Dictionary<Point, Tile>();
-        // for (var i = -Size / 2; i < Size / 2 + 1; i++)
-        // for (var j = -Size / 2; j < Size / 2 + 1; j++)
-        //     gameEngine.AddTile(new Point(i+center.X, j+center.Y));
-        
     }
 
     public void Exit() => SceneManager.LoadScene("MenuScene");
@@ -137,18 +126,16 @@ public class Game : MonoBehaviour
     public void Win(bool shouldDestroy)
     {
         print($"{player.Name} won!");
-        if(shouldDestroy)
+        if (shouldDestroy)
             Connector.DestroyRoom(Account.Token, Account.Room.Name.ToSystemRoom());
         SceneManager.LoadScene("RoomScene");
-        
     }
+
     public void Lose(bool shouldDestroy)
     {
         print($"{player.Name} lost :(");
         if (shouldDestroy)
             Connector.DestroyRoom(Account.Token, Account.Room.Name.ToSystemRoom());
         SceneManager.LoadScene("RoomScene");
-        
     }
 }
-

@@ -49,7 +49,7 @@ public class GameTest
     public void SimpleSpawnTest()
     {
         var p0 = new Point(0, 0);
-        game3x3.gameEngine.SpawnUnit(p0, Tribes.Beaver);
+        game3x3.gameEngine.Spawn(p0, Tribes.Beaver);
         Assert.IsTrue(game3x3.gameEngine.IsOccupied(p0));
         var actual = game3x3.gameEngine.GetOccupantTribe(p0);
         Assert.AreEqual(Tribes.Beaver, actual);
@@ -60,7 +60,7 @@ public class GameTest
     {
         // Если спавним Tribes.None, то клетка очищается
         var p0 = new Point(0, 0);
-        game3x3.gameEngine.SpawnUnit(p0, Tribes.None);
+        game3x3.gameEngine.Spawn(p0, Tribes.None);
         Assert.IsFalse(game3x3.gameEngine.IsOccupied(p0));
         var actual = game3x3.gameEngine.GetOccupantTribe(p0);
         Assert.AreEqual(Tribes.None, actual);
@@ -85,7 +85,7 @@ public class GameTest
         var p0 = new Point(0, 0);
         Assert.IsFalse(game3x3.gameEngine.HasSurrounding(p0));
         
-        game3x3.gameEngine.SpawnUnit(p0, Tribes.Beaver);
+        game3x3.gameEngine.Spawn(p0, Tribes.Beaver);
         Assert.IsFalse(game3x3.gameEngine.HasSurrounding(p0));
 
         var p1 = new Point(1, 0);

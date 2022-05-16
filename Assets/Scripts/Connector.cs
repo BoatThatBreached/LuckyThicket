@@ -15,7 +15,12 @@ public class Connector : MonoBehaviour
     private const string DataURL = "http://a0664388.xsph.ru/infoExtend.php";
     private const string GameURL = "http://a0664388.xsph.ru/gameLogic.php";
 
-    private static string GetCardByID(int id)
+    public static string SendCard(CardCharacter card)
+    {
+        return Post(CardsURL, JsonUtility.ToJson(card));
+    }
+
+    public static string GetCardByID(int id)
     {
         var data = "{\"query\":\"queryCard\", \"Id\":" + id + "}";
         return Post(CardsURL, data);
@@ -123,7 +128,7 @@ public class Connector : MonoBehaviour
                 InitCollection(login, Enumerable.Range(0, 10));
                 break;
             case Tribes.Magpie:
-                InitCollection(login, Enumerable.Range(10, 10));
+                InitCollection(login, new []{10,11,12,13,14,15,16,17,18,21});
                 break;
             case Tribes.None:
                 break;

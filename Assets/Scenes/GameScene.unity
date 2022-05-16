@@ -321,12 +321,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 35.5
+  m_fontSize: 36
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
   m_fontSizeMin: 18
-  m_fontSizeMax: 72
+  m_fontSizeMax: 36
   m_fontStyle: 0
   m_HorizontalAlignment: 4
   m_VerticalAlignment: 1024
@@ -387,8 +387,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -110, y: -500}
-  m_SizeDelta: {x: 200, y: 300}
+  m_AnchoredPosition: {x: -140, y: -500}
+  m_SizeDelta: {x: 260, y: 300}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &350996700
 GameObject:
@@ -1026,8 +1026,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -91, y: -345}
-  m_SizeDelta: {x: 200, y: 50}
+  m_AnchoredPosition: {x: -130, y: -345}
+  m_SizeDelta: {x: 250, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1062822978
 MonoBehaviour:
@@ -1049,7 +1049,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: New Text
+  m_text: "\u0412\u044B \u0438\u0433\u0440\u0430\u0435\u0442\u0435 \u043F\u0440\u043E\u0442\u0438\u0432
+    Skok"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f5ee9ce41ea5dc4c8f34dc01181d9b8, type: 2}
   m_sharedMaterial: {fileID: -2464526318933638683, guid: 8f5ee9ce41ea5dc4c8f34dc01181d9b8, type: 2}
@@ -1083,8 +1084,8 @@ MonoBehaviour:
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
-  m_HorizontalAlignment: 1
-  m_VerticalAlignment: 256
+  m_HorizontalAlignment: 4
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0
