@@ -47,8 +47,8 @@ public class Engine : MonoBehaviour
     {
         Actions = new Dictionary<Basis, Action>
         {
-            [Basis.Build] = () => AddTile(AnchorZ),
-            [Basis.Destroy] = () => DestroyTile(AnchorZ),
+            [Basis.Build] = () => Build(AnchorZ),
+            [Basis.Destroy] = () => Destroy(AnchorZ),
             [Basis.Kill] = () => Kill(AnchorZ),
             [Basis.Spawn] = () => Spawn(AnchorZ, AnchorTribeZ),
             [Basis.Push] = () => Push(AnchorF, AnchorZ),
@@ -117,7 +117,7 @@ public class Engine : MonoBehaviour
 
     #region Operations
 
-    public void AddTile(Point p)
+    public void Build(Point p)
     {
         var tile = Instantiate(game.tilePref, transform);
         tile.transform.position = new Vector3(p.X, p.Y, 0);
@@ -125,7 +125,7 @@ public class Engine : MonoBehaviour
         Board[p] = t;
     }
 
-    public void DestroyTile(Point p)
+    public void Destroy(Point p)
     {
         var tile = Board[p].gameObject;
         Destroy(tile);
@@ -151,7 +151,7 @@ public class Engine : MonoBehaviour
 
     private void Push(Point pusher, Point pushed)
     {
-        var delta = pushed.Sub(pusher);
+        var delta = pushed.Sub(pusher).Uni();
         var curr = pushed;
         while (IsFree(curr.Add(delta)))
             curr = curr.Add(delta);

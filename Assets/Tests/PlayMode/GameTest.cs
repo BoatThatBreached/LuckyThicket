@@ -24,7 +24,7 @@ public class GameTest
         {
             for (int j = 0; j < 3; ++j)
             {
-                game3x3.gameEngine.AddTile(new Point(i, j));
+                game3x3.gameEngine.Build(new Point(i, j));
             }
         }
     }
@@ -35,10 +35,10 @@ public class GameTest
         var p2 = new Point(2, 2);
         var p3 = new Point(3, 2);
 
-        empty_game.gameEngine.AddTile(p1);
-        empty_game.gameEngine.AddTile(p2);
-        empty_game.gameEngine.AddTile(p3);
-        empty_game.gameEngine.DestroyTile(p2);
+        empty_game.gameEngine.Build(p1);
+        empty_game.gameEngine.Build(p2);
+        empty_game.gameEngine.Build(p3);
+        empty_game.gameEngine.Destroy(p2);
 
         Assert.IsTrue(empty_game.gameEngine.Exists(p1));
         Assert.IsTrue(empty_game.gameEngine.Exists(p3));

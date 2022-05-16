@@ -100,7 +100,7 @@ public class Game : MonoBehaviour
 
         foreach (var p in newBoard.Keys)
         {
-            gameEngine.AddTile(p);
+            gameEngine.Build(p);
             if (newBoard[p] != Tribes.None)
                 gameEngine.Spawn(p, newBoard[p]);
         }
