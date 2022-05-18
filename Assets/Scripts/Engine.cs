@@ -24,22 +24,33 @@ public class Engine : MonoBehaviour
     public Basis CurrentAction { get; private set; }
     private List<Func<Point, bool>> Criterias { get; set; }
     private bool NotExistingNeeded { get; set; }
-    private Random random;
+    private Random _random;
     public Game game;
     private Dictionary<Point, Tile> Board => game.Board;
+    private Dictionary<Point, Tile> TempTiles;
+    
     private Queue<Point> LoadedSelections { get; set; }
-    private Queue<Point> SelfSelections { get; set; }
+    public Queue<Point> SelfSelections { get; private set; }
+    private CardCharacter _loadedCard;
+    private bool _loaded;
+
+    private readonly Basis[] _cardInteractions =
+    {
+        Basis.Discard, Basis.Draw, Basis.Hand, Basis.Graveyard, Basis.Opponent,
+        Basis.Steal, Basis.Deck
+    };
 
     private void Start()
     {
         CurrentChain = new Queue<Basis>();
         LoadedSelections = new Queue<Point>();
         SelfSelections = new Queue<Point>();
+        TempTiles = new Dictionary<Point, Tile>();
         FlushAnchor();
         FlushTribe();
         NotExistingNeeded = false;
         Criterias = new List<Func<Point, bool>>();
-        random = new Random();
+        _random = new Random();
         InitActions();
     }
 
@@ -117,19 +128,23 @@ public class Engine : MonoBehaviour
 
     #region Operations
 
-    public void Build(Point p)
+    public void Build(Point p, bool temp=false)
     {
         var tile = Instantiate(game.tilePref, transform);
         tile.transform.position = new Vector3(p.X, p.Y, 0);
         var t = tile.GetComponent<Tile>();
-        Board[p] = t;
+        if (!temp)
+            Board[p] = t;
+        else
+            TempTiles[p] = t;
     }
 
-    public void Destroy(Point p)
+    public void Destroy(Point p, bool temp=false)
     {
-        var tile = Board[p].gameObject;
+        var dict = temp ? TempTiles : Board;
+        var tile = dict[p].gameObject;
         Destroy(tile);
-        Board.Remove(p);
+        dict.Remove(p);
     }
 
     public void Spawn(Point p, Tribes t)
@@ -198,30 +213,29 @@ public class Engine : MonoBehaviour
         AnchorF = Point.Empty;
     }
 
-    public void TryLoadActions(Queue<Basis> chain, CardCharacter card, GameObject go)
+    public void LoadSelfActions(CardCharacter card)
     {
-        if (game.currentCardCharacter != null)
-            return;
-        game.currentCardCharacter = card;
-        game.currentCard = go;
         Criterias.Clear();
         FlushTribe();
         CurrentChain.Clear();
         LoadedSelections.Clear();
         SelfSelections.Clear();
-        foreach (var act in chain)
+        _loadedCard = card;
+        foreach (var act in card.Ability)
             CurrentChain.Enqueue(act);
         Step();
     }
 
-    public void LoadActionsWithSelections_Unsafe(Queue<Basis> chain, Queue<Point> selections)
+    public void LoadOpponentActions(CardCharacter card, Queue<Point> selections)
     {
+        _loaded = true;
         Criterias.Clear();
         FlushTribe();
         CurrentChain.Clear();
-        foreach (var act in chain)
+        foreach (var act in card.Ability)
             CurrentChain.Enqueue(act);
         LoadedSelections = selections;
+        _loadedCard = card;
         Step();
     }
 
@@ -239,17 +253,24 @@ public class Engine : MonoBehaviour
     private void Step()
     {
         CurrentAction = CurrentChain.Count > 0 ? CurrentChain.Dequeue() : Basis.Idle;
-        //print(CurrentAction);
+
         if (CurrentAction == Basis.Idle)
         {
             FlushAnchor();
             FlushTribe();
+            if (_loaded) 
+                return;
             CheckWin();
-            game.EndTurn();
+            game.EndTurn(_loadedCard);
             return;
         }
 
         AudioStatic.PlaySound(CurrentAction, AnchorTribeZ);
+        if (_cardInteractions.Contains(CurrentAction) && _loaded)
+        {
+            Step();
+            return;
+        }
 
         Actions[CurrentAction]();
         if (CurrentAction != Basis.Select && CurrentAction != Basis.Idle)
@@ -265,10 +286,7 @@ public class Engine : MonoBehaviour
             // delete first completed
             var template = completedPlayer[0];
             foreach (var p in template.Template.Points.Keys)
-            {
-                var currp = new Point(p.X + template.StartingPoint.X, p.Y + template.StartingPoint.Y);
-                Kill(currp);
-            }
+                Kill(p.Add(template.StartingPoint));
 
             game.player.CompleteTemplate(template.Template);
         }
@@ -283,10 +301,7 @@ public class Engine : MonoBehaviour
             // delete first completed
             var template = completedOpponent[0];
             foreach (var p in template.Template.Points.Keys)
-            {
-                var currp = new Point(p.X + template.StartingPoint.X, p.Y + template.StartingPoint.Y);
-                Kill(currp);
-            }
+                Kill(p.Add(template.StartingPoint));
 
             game.opponent.CompleteTemplate(template.Template);
         }
@@ -309,6 +324,10 @@ public class Engine : MonoBehaviour
         AnchorZ = p;
         foreach (var t in Board.Values)
             t.Color = Color.white;
+        var pts = TempTiles.Keys.ToList();
+        foreach (var point in pts)
+            Destroy(point, true);
+        print(TempTiles.Count);
         SelfSelections.Enqueue(p);
         Criterias.Clear();
         NotExistingNeeded = false;
@@ -317,17 +336,24 @@ public class Engine : MonoBehaviour
 
     private bool ShowPossibleTiles()
     {
+        // if (_loaded)
+        //     return true;
         if (NotExistingNeeded)
         {
-            var pts = Board.Keys
+            var points = Board.Keys
                 .Where(IsEdge)
                 .SelectMany(p => p.GetAdjacent())
-                .Where(p => !Exists(p));
-            var neres = false;
-            foreach (var p in pts)
-                if (SatisfiesCriterias(p))
-                    neres = true;
-            return neres;
+                .Where(p => !Exists(p))
+                .ToList();
+            var notExistingRes = false;
+            foreach (var p in points.Where(SatisfiesCriterias))
+            {
+                notExistingRes = true;
+                Build(p, true);
+                TempTiles[p].Color = Color.yellow;
+            }
+
+            return notExistingRes;
         }
 
         var res = false;
@@ -367,14 +393,8 @@ public class Engine : MonoBehaviour
             return;
         }
 
-        SelectPoint(possible[random.Next(possible.Length)]);
+        SelectPoint(possible[_random.Next(possible.Length)]);
     }
-
-    private Point CornerLu =>
-        Board.Keys.First(p => p.X == Board.Keys.Min(px => px.X) && p.Y == Board.Keys.Max(py => py.Y));
-
-    private Point CornerRd =>
-        Board.Keys.First(p => p.X == Board.Keys.Max(px => px.X) && p.Y == Board.Keys.Min(py => py.Y));
 }
 
 internal static class EngineExtensions

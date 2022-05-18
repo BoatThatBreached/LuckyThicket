@@ -150,56 +150,6 @@ public class Parser
         return cardCharacter;
     }
 
-    public static string ConvertBoardToJson(Dictionary<Point, Tile> board)
-    {
-        var lines = (from point in board.Keys 
-            let key = $"({point.X}_{point.Y})" 
-            let val = board[point].occupantTribe.ToString() 
-            select $"\"{key}\":\"{val}\"").ToList();
-        return "{"+string.Join(",", lines)+"}";
-    }
-    public static string ConvertBoardToJson(Dictionary<Point, Tribes> board)
-    {
-        var lines = (from point in board.Keys 
-            let key = $"({point.X}_{point.Y})" 
-            let val = board[point].ToString() 
-            select $"\"{key}\":\"{val}\"").ToList();
-        return "{"+string.Join(",", lines)+"}";
-    }
-
-    public static Dictionary<Point, Tribes> EmptyField(int size)
-    {
-        var points = Enumerable.Range(0, size * size)
-            .Select(i => new Point(i / size, i % size));
-        var result = new Dictionary<Point, Tribes>();
-        foreach (var p in points)
-            result[p] = Tribes.None;
-        return result;
-    }
-
-    public static Dictionary<Point, Tribes> ConvertJsonToBoard(string json)
-    {
-        try
-        {
-            var result = new Dictionary<Point, Tribes>();
-            var sp = json.Replace("{", "").Replace("}", "").Split(',');
-            foreach (var line in sp)
-            {
-                var unquoted = line.Replace("\"", "").Split(':');
-                var coords = unquoted[0].Replace("(", "").Replace(")", "").Split('_');
-                var p = new Point(int.Parse(coords[0]), int.Parse(coords[1]));
-                var tribe = (Tribes) Enum.Parse(typeof(Tribes), unquoted[1]);
-                result[p] = tribe;
-            }
-
-            return result;
-        }
-        catch (Exception e)
-        {
-            Debug.Log($"An error occured: {e.Message}. Sending empty board!");
-            return EmptyField(5);
-        }
-    }
     
     public static Template GetTemplateFromString(string s)
     {
@@ -219,31 +169,76 @@ public class Parser
                 array.Last().Add((Tribes) Enum.Parse(typeof(Tribes), tribe));
         }
 
-        return new Template(array, array.Count > 3 ? SchemaType.Big : SchemaType.Small, false);
+        return new Template(array, array.Count > 3 ? SchemaType.Big : SchemaType.Small);
+    }
+
+    public static Queue<Point> ParseSelections(string selections)
+    {
+        var queue = new Queue<Point>();
+        foreach (var s in selections.Split(','))
+            queue.Enqueue(s.ToPoint());
+        return queue;
+    }
+
+    public static string ConvertSelections(Queue<Point> selections) 
+        => string.Join(",", selections.Select(p => p.ToCompactString()));
+
+    public static Dictionary<Point, Tribes> EmptyBoard(int size, Point center)
+    {
+        var board = new Dictionary<Point, Tribes>();
+        for (var i = -size / 2; i <= size / 2; i++)
+            for (var j = -size / 2; j <= size / 2; j++)
+                board[center.Add(new Point(i, j))] = Tribes.None;
+        return board;
     }
 }
 
 public static class StringExtensions
 {
-    public static bool EndsWith(this string source, string suffix)
-    {
-        var delta = source.Length - suffix.Length;
-        if (delta < 0)
-            return false;
-        return !suffix
-            .Where((t, i) => source[delta + i] != t)
-            .Any();
-    }
-
     public static string ToSystemRoom(this string source) => $"S1Y2S3T4E5M{source}R6O7O8M";
     public static string FromSystemRoom(this string source) => source.Substring(11, source.Length - 18);
-    public static string ToSystemDeck(this string source) => $"S1Y2S3T4E5M{source}D6E7C8K";
-    public static string FromSystemDeck(this string source) => source.Substring(11, source.Length - 18);
-    public static string ToJsonList(this IEnumerable<string> source) => $"[{string.Join(",", source)}]";
+    public static string ToJsonList<T>(this IEnumerable<T> source) => $"[{string.Join(",", source.Select(t=>t.ToString()))}]";
 
     public static List<string> FromJsonList(this string source)
     {
         var trim = source.Replace("[", "").Replace("]", "");
         return trim == "" ? new List<string>() : trim.Split(',').ToList();
     }
+
+    public static List<T> JsonsFromJsonList<T>(this string source)
+    {
+        return source.GetJsons().Select(JsonUtility.FromJson<T>).ToList();
+    }
+
+    public static List<string> GetJsons(this string source)
+    {
+        var trim = source.Substring(1).Substring(0, source.Length - 2);
+        var currJson = new StringBuilder();
+        var res = new List<string>();
+        var figBracketsCount = 0;
+        foreach (var ch in trim.Where(ch => figBracketsCount != 0 || "{}".Contains(ch)))
+        {
+            currJson.Append(ch);
+            switch (ch)
+            {
+                case '{':
+                    figBracketsCount++;
+                    break;
+                case '}':
+                    figBracketsCount--;
+                    break;
+            }
+
+            if (figBracketsCount != 0) continue;
+            res.Add(currJson.ToString());
+            currJson.Clear();
+        }
+
+        return res;
+    }
+
+    public static Point ToPoint(this string source) =>
+        new Point(int.Parse(source.Split('_')[0]), int.Parse(source.Split('_')[1]));
+
+    public static string ToCompactString(this Point source) => $"{source.X}_{source.Y}";
 }

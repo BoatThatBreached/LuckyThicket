@@ -16,19 +16,13 @@ public class Player: MonoBehaviour
 
     public Game game;
     public GameObject cardPref;
-    public Stack<CardCharacter> Deck { get; set; }
-    public List<CardCharacter> Discard { get; set; }
-    public List<CardCharacter> Hand { get; set; }
+    public PlayerCharacter Character;
     public Transform handPanel;
-    private List<Template> Templates { get; set; }
     private List<Template> CompletedTemplates { get; set; }
 
-    public void DrawCard()
+    public void DrawCard(int id)
     {
-        if (Hand.Count >= 5)
-            return;
-        var cardCharacter = Deck.Pop();
-        Hand.Add(cardCharacter);
+        var cardCharacter = Account.GetCard(id);
         var card = Instantiate(cardPref, handPanel).GetComponent<Card>();
         try
         {
@@ -39,36 +33,32 @@ public class Player: MonoBehaviour
             print("oof");
         }
 
-        card.Chain = cardCharacter.Ability;
-        card.game = game;
-        card.Name = cardCharacter.Name;
-        card.AbilityMask = cardCharacter.AbilityMask;
-        card.Color = cardCharacter.Rarity switch
-        {
-            Rarity.Common => Color.gray,
-            Rarity.Rare => Color.blue,
-            Rarity.Epic => Color.magenta,
-            Rarity.Legendary => (Color.red + Color.yellow) / 2,
-            _ => Color.black
-        };
-        
+        card.LoadFrom(cardCharacter, this);
+    }
+
+    public void DrawCard()
+    {
+        if (Character.HandList.Count >= 5)
+            return;
+        var id = Character.DeckList[0];
+        Character.DeckList.RemoveAt(0);
+        Character.HandList.Add(id);
+        Character.Push();
+        DrawCard(id);
     }
 
     public void Init()
     {
-        Templates = new List<Template>();
         CompletedTemplates = new List<Template>();
-        Deck = new Stack<CardCharacter>();
-        Discard = new List<CardCharacter>();
-        Hand = new List<CardCharacter>();
+        Character = Account.Room.Me(Account.Nickname);
     }
 
-    public void AddWinTemplate(Template template) => Templates.Add(template);
+    //public void AddWinTemplate(Template template) => Character.TemplatesList.Add(template);
 
     // важно чтобы сюда передавалась ссылка на темплэйт, находящийся в Templates - сравнение по ссылкам
     public void CompleteTemplate(Template template)
     {
-        Templates.Remove(template);
+        //Character.TemplatesList.Remove(template);
         CompletedTemplates.Add(template);
     }
 
@@ -83,14 +73,14 @@ public class Player: MonoBehaviour
     public List<PositionedTemplate> GetTemplatesPlayerCanComplete(Dictionary<Point, Tile> board)
     {
         var result = new List<PositionedTemplate>();
-        foreach (var i in Templates)
+        foreach (var i in Character.TemplatesList)
             foreach (var j in board)
             {
                 var posTemp = new PositionedTemplate(j.Key, i);
                 if (posTemp.CheckIfMatch(board))
                     result.Add(posTemp);
             }
-
+        
         return result;
     }  
 }

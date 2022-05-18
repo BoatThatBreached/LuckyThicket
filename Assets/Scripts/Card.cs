@@ -6,9 +6,7 @@ using Color = UnityEngine.Color;
 
 public class Card : MonoBehaviour
 {
-    public Queue<Basis> Chain;
     public Game game;
-
     public Image backImage;
     public Image picture;
     public CardCharacter cardCharacter;
@@ -32,7 +30,7 @@ public class Card : MonoBehaviour
     public void OnMouseDown()
     {
         if(game.isMyTurn)
-            game.gameEngine.TryLoadActions(Chain, cardCharacter, gameObject);
+            game.gameEngine.LoadSelfActions(cardCharacter);
     }
 
     public void ChangeSize(bool enlarging) =>
@@ -54,6 +52,22 @@ public class Card : MonoBehaviour
         // print(p);
         // var selections = new Queue<Point>();
         // selections.Enqueue(p);
-        // game.gameEngine.LoadActionsWithSelections_Unsafe(Chain, selections);
+        // game.gameEngine.LoadOpponentActions(Chain, selections);
+    }
+
+    public void LoadFrom(CardCharacter cardChar, Player player)
+    {
+        cardCharacter = cardChar;
+        game = player.game;
+        Name = cardCharacter.Name;
+        AbilityMask = cardCharacter.AbilityMask;
+        Color = cardCharacter.Rarity switch
+        {
+            Rarity.Common => Color.gray,
+            Rarity.Rare => Color.blue,
+            Rarity.Epic => Color.magenta,
+            Rarity.Legendary => (Color.red + Color.yellow) / 2,
+            _ => Color.black
+        };
     }
 }
