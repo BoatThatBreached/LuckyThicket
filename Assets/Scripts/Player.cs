@@ -22,7 +22,7 @@ public class Player: MonoBehaviour
 
     public void DrawCard(int id)
     {
-        var cardCharacter = Account.GetCard(id);
+        var cardCharacter = Account.GetLocalCard(id);
         var card = Instantiate(cardPref, handPanel).GetComponent<Card>();
         try
         {

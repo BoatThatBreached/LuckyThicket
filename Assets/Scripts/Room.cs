@@ -13,15 +13,21 @@ public class Room
     public Room()
     {
         Data = new RoomData();
-        Refresh();
+        Push();
     }
 
-    public void Refresh()
+    public void Push()
     {
         Data.Push();
         DataString = JsonUtility.ToJson(Data);
     }
-    
+
+    public void Pull()
+    {
+        Data = JsonUtility.FromJson<RoomData>(DataString);
+    }
+
+
     public bool IsFull => Data.SecondPlayer.Login != "";
     public bool IsHere(string login) => Data.FirstPlayer.Login == login || Data.SecondPlayer.Login == login;
 
@@ -37,7 +43,7 @@ public class Room
         room.Data.SecondPlayerString = room.DataString.GetJsons()[1].Replace("\\", "");
        
         room.Data.Pull();
-        room.Refresh();
+        room.Push();
         return room;
     }
 }

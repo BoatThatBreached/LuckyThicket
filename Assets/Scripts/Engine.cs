@@ -40,7 +40,7 @@ public class Engine : MonoBehaviour
         Basis.Steal, Basis.Deck
     };
 
-    private void Start()
+    private void Awake()
     {
         CurrentChain = new Queue<Basis>();
         LoadedSelections = new Queue<Point>();
@@ -215,6 +215,7 @@ public class Engine : MonoBehaviour
 
     public void LoadSelfActions(CardCharacter card)
     {
+        
         Criterias.Clear();
         FlushTribe();
         CurrentChain.Clear();
@@ -258,8 +259,11 @@ public class Engine : MonoBehaviour
         {
             FlushAnchor();
             FlushTribe();
-            if (_loaded) 
+            if (_loaded)
+            {
+                _loaded = false;
                 return;
+            }
             CheckWin();
             game.EndTurn(_loadedCard);
             return;
@@ -324,10 +328,10 @@ public class Engine : MonoBehaviour
         AnchorZ = p;
         foreach (var t in Board.Values)
             t.Color = Color.white;
-        var pts = TempTiles.Keys.ToList();
-        foreach (var point in pts)
-            Destroy(point, true);
-        print(TempTiles.Count);
+        // var pts = TempTiles.Keys.ToList();
+        // foreach (var point in pts)
+        //     Destroy(point, true);
+        // print(TempTiles.Count);
         SelfSelections.Enqueue(p);
         Criterias.Clear();
         NotExistingNeeded = false;
@@ -349,20 +353,19 @@ public class Engine : MonoBehaviour
             foreach (var p in points.Where(SatisfiesCriterias))
             {
                 notExistingRes = true;
-                Build(p, true);
-                TempTiles[p].Color = Color.yellow;
+                //Build(p, true);
+                //TempTiles[p].Color = Color.yellow;
             }
 
             return notExistingRes;
         }
 
         var res = false;
-        foreach (var p in Board.Keys)
-            if (SatisfiesCriterias(p))
-            {
-                Board[p].Color = Color.yellow;
-                res = true;
-            }
+        foreach (var p in Board.Keys.Where(SatisfiesCriterias))
+        {
+            Board[p].Color = Color.yellow;
+            res = true;
+        }
 
         return res;
     }

@@ -14,6 +14,7 @@ public class Rooms : MonoBehaviour
     
     private void Start()
     {
+        
         //Connector.DestroyRoom(Account.Token, "Egypt".ToSystemRoom());
         Fetch();
         AudioStatic.MenuInitSounds(this, gameObject);
@@ -57,7 +58,7 @@ public class Rooms : MonoBehaviour
         {
             print(Connector.JoinRoom(Account.Token, room.Name.ToSystemRoom()));
             room.Data.SecondPlayer.Init();
-            room.Refresh();
+            room.Push();
             print(Connector.SendRoom(room.Name.ToSystemRoom(), Account.Token, room.DataString));
             RefreshRooms();
         }
@@ -76,7 +77,7 @@ public class Rooms : MonoBehaviour
     {
         var room = new Room();
         room.Data.FirstPlayer.Init();
-        room.Refresh();
+        room.Push();
         print(room.Data.FirstPlayer.Login);
         print(Connector.CreateRoom(Account.Token, roomName.text.ToSystemRoom()));
         print(Connector.SendRoom(roomName.text.ToSystemRoom(), Account.Token, room.DataString));

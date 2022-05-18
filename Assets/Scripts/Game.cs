@@ -56,7 +56,7 @@ public class Game : MonoBehaviour
 
     private void InitCards()
     {
-        foreach(Transform child in transform)
+        foreach(Transform child in player.handPanel)
             Destroy(child.gameObject);
         foreach (var id in player.Character.HandList)
             player.DrawCard(id);
@@ -64,8 +64,12 @@ public class Game : MonoBehaviour
 
     private void StartTurn()
     {
-        Account.Room = Connector.GetRoomsList().Find(room => room.Name == Account.Room.Name);
-
+        var room = Connector.GetRoomsList().Find(room => room.Name == Account.Room.Name);
+        room.Data.FirstPlayer.Pull();
+        room.Data.SecondPlayer.Pull();
+        print(room.Data.Log);
+        Account.Room = room;
+        //Account.Room.Push();
         if (Account.Room == null)
         {
             Lose(false);
@@ -94,7 +98,7 @@ public class Game : MonoBehaviour
     private void ApplyOtherPlayerTurn(LogNote note)
     {
         gameEngine.LoadOpponentActions(
-            Account.GetCard(int.Parse(note.CardID)), 
+            Account.GetGlobalCard(int.Parse(note.CardID)), 
             Parser.ParseSelections(note.Selections));
     }
 
@@ -107,8 +111,8 @@ public class Game : MonoBehaviour
         player.Character.Push();
         var note = new LogNote(player.Character.Login, card, gameEngine.SelfSelections);
         Account.Room.Data.LogList.Add(note);
-        Account.Room.Data.Push();
         print(Account.Room.Data.Log);
+        Account.Room.Push();
         print(Connector.SendRoom(Account.Room.Name.ToSystemRoom(), Account.Token, Account.Room.DataString));
         
         StartTurn();

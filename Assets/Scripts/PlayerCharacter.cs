@@ -22,7 +22,7 @@ public class PlayerCharacter
     public void Init()
     {
         Login = Account.Nickname;
-        var deck = Account.Decks[Account.ChosenDeck].Select(Account.GetCard).Shuffled().Select(card=>card.Id).ToList();
+        var deck = Account.Decks[Account.ChosenDeck].Select(Account.GetLocalCard).Shuffled().Select(card=>card.Id).ToList();
         var hand = new List<int>();
         for(var i = 0; i<5;i++)
         {

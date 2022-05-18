@@ -17,10 +17,10 @@ public class Connector : MonoBehaviour
         return Post(CardsURL, JsonUtility.ToJson(card));
     }
 
-    public static string GetCardByID(int id)
+    public static CardCharacter GetCardByID(int id)
     {
         var data = "{\"query\":\"queryCard\", \"Id\":" + id + "}";
-        return Post(CardsURL, data);
+        return Parser.GetCardFromJson(Post(CardsURL, data));
     }
 
     public static bool TryLogin(string login, string password, out string errors)
@@ -95,7 +95,7 @@ public class Connector : MonoBehaviour
     }
 
     public static IEnumerable<CardCharacter> GetCollection(IEnumerable<int> ids)
-        => ids.Select(id => Parser.GetCardFromJson(GetCardByID(id)));
+        => ids.Select(GetCardByID);
 
     public static IEnumerable<int> GetCollectionIDs(string login)
     {
@@ -226,15 +226,20 @@ public class Connector : MonoBehaviour
         return Post(GameURL, customData);
     }
 
-    public static string GetRoom(string name, string token)
+    public static Room GetRoom(string name, string token)
     {
         const string ex0 = "{\"query\":\"getData\", \"name\":\"";
         const string ex1 = "\", \"token\":\"";
-        //const string ex2 = "\", \"data\":";
         const string ex3 = "}";
-        //var data = "\"\"";
         var customData = ex0 + name + ex1 + token + ex3;
-        return Post(GameURL, customData);
+        var res = Post(GameURL, customData).GetJsons()[0];
+        
+        var room = new Room
+        {
+            DataString = res
+        };
+        room.Pull();
+        return room;
     }
 
     public static string DestroyRoom(string token, string name)

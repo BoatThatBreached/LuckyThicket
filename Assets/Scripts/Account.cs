@@ -95,7 +95,8 @@ public static class Account
         ChosenDeck = Connector.GetProperty("LAST_CHOSEN_DECK", Nickname);
     }
 
-    public static CardCharacter GetCard(int index) => Collection.Find(card => card.Id == index);
+    public static CardCharacter GetLocalCard(int index) => Connector.GetCardByID(index);
+    public static CardCharacter GetGlobalCard(int index) => Connector.GetCardByID(index);
 
 }
 

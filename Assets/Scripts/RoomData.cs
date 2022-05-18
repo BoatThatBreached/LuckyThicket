@@ -5,9 +5,9 @@ public class RoomData
 {
     public string FirstPlayerString;
     public string SecondPlayerString;
+    public string Log;
     public PlayerCharacter FirstPlayer;
     public PlayerCharacter SecondPlayer;
-    public string Log;
     public List<LogNote> LogList;
 
     public RoomData()
