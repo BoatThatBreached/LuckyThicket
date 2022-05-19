@@ -30,6 +30,7 @@ public class CardInCollection : MonoBehaviour
 
     public void Click()
     {
+        AudioStatic.PlayAudio("Sounds/card");
         switch (Account.CurrentScene)
         {
             case Scenes.Shop:

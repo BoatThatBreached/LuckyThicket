@@ -158,7 +158,7 @@ public class AudioStatic : MonoBehaviour
             button.gameObject.AddComponent<PointerEventsController>();
         }
     }
-    
+
     public static void PlayAudio(string path)
     {
         var clip = Resources.Load<AudioClip>(path);
