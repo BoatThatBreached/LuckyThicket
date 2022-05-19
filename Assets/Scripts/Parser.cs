@@ -150,7 +150,7 @@ public class Parser
     }
 
 
-    public static Template GetTemplateFromString(string s, bool isBig=false)
+    public static Template GetTemplateFromString(string s)
     {
         // columns from down to top.
         // Beaver Beaver None|None None None|None None Beaver converts to 
@@ -168,6 +168,7 @@ public class Parser
                 array.Last().Add((Tribes) Enum.Parse(typeof(Tribes), tribe));
         }
 
+        var isBig = s.Replace("Beaver", "8").Replace("Magpie", "8").Count(ch => ch == '8') > 3;
         return new Template(array, isBig ? SchemaType.Big : SchemaType.Small, s);
     }
 

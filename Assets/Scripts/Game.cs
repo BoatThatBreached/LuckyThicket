@@ -24,8 +24,9 @@ public class Game : MonoBehaviour
 
         designer.Init();
         InitPlayer();
-        InitBoard();
         InitOpponent();
+        InitBoard();
+        
         
         StartTurn();
     }

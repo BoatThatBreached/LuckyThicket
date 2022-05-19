@@ -39,7 +39,7 @@ public class PlayerCharacter
                 var smallBeaverTemplate1 =
                     Parser.GetTemplateFromString("None None Beaver|None Beaver None|Beaver None None");
                 var bigBeaverTemplate =
-                    Parser.GetTemplateFromString("None Beaver None|Beaver Beaver Beaver|None Beaver None", true);
+                    Parser.GetTemplateFromString("None Beaver None|Beaver Beaver Beaver|None Beaver None");
                 var smallBeaverTemplate2 =
                     Parser.GetTemplateFromString("Beaver Beaver|Beaver None");
                 TemplatesList.Add(smallBeaverTemplate1);
@@ -50,7 +50,7 @@ public class PlayerCharacter
                 var smallMagpieTemplate1 =
                     Parser.GetTemplateFromString("Magpie None None|None None Magpie|Magpie None None");
                 var bigMagpieTemplate =
-                    Parser.GetTemplateFromString("Magpie None Magpie|None Magpie None|Magpie None Magpie", true);
+                    Parser.GetTemplateFromString("Magpie None Magpie|None Magpie None|Magpie None Magpie");
                 var smallMagpieTemplate2 =
                     Parser.GetTemplateFromString("None Magpie|Magpie None|None Magpie");
                 TemplatesList.Add(smallMagpieTemplate1);
