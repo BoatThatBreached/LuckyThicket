@@ -44,7 +44,11 @@ public class Rooms : MonoBehaviour
             else
                 color = room.IsHere(Account.Nickname) ? Color.white : Color.green;
             button.GetComponent<Image>().color = color;
-            button.GetComponent<Button>().onClick.AddListener(() => Play(room));
+            button.GetComponent<Button>().onClick.AddListener(() =>
+            {
+                AudioStatic.PlayAudio(AudioStatic.Click);
+                Play(room);
+            });
         }
     }
 

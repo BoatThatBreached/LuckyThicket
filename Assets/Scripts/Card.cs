@@ -29,8 +29,11 @@ public class Card : MonoBehaviour
 
     public void OnMouseDown()
     {
-        if(game.isMyTurn)
+        if (game.isMyTurn)
+        {
             game.gameEngine.LoadSelfActions(cardCharacter);
+            AudioStatic.PlayAudio("Sounds/card");
+        }
     }
 
     public void ChangeSize(bool enlarging) =>
