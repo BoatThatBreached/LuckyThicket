@@ -32,7 +32,7 @@ public class Game : MonoBehaviour
 
     private void InitBoard()
     {
-        var board = Parser.EmptyBoard(5, new Point(0,2));
+        var board = Parser.EmptyBoard(5, new Point(0,2), true);
         Board = new Dictionary<Point, Tile>();
         foreach (var point in board.Keys)
             gameEngine.Build(point);

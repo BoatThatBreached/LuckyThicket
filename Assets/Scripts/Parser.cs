@@ -72,7 +72,7 @@ public class Parser
         fStream.Close();
         return decks ?? new Dictionary<string, List<int>>();
     }
-    
+
     public void SaveDecksToFile_(Dictionary<string, List<int>> decks)
     {
         var json = JsonUtility.ToJson(decks);
@@ -137,18 +137,19 @@ public class Parser
         var abilityString = cardCharacter.AbilityString;
         var q = new Queue<Basis>();
         //Debug.Log(json);
-        
+
         foreach (var it in abilityString.Split(' ').ToArray())
         {
             if (it == "")
                 continue;
             q.Enqueue((Basis) Enum.Parse(typeof(Basis), it));
         }
+
         cardCharacter.Ability = q;
         return cardCharacter;
     }
 
-    
+
     public static Template GetTemplateFromString(string s)
     {
         // columns from down to top.
@@ -178,15 +179,19 @@ public class Parser
         return queue;
     }
 
-    public static string ConvertSelections(Queue<Point> selections) 
+    public static string ConvertSelections(Queue<Point> selections)
         => string.Join(",", selections.Select(p => p.ToCompactString()));
 
-    public static Dictionary<Point, Tribes> EmptyBoard(int size, Point center)
+    public static Dictionary<Point, Tribes> EmptyBoard(int size, Point center, bool holes = false)
     {
         var board = new Dictionary<Point, Tribes>();
         for (var i = -size / 2; i <= size / 2; i++)
-            for (var j = -size / 2; j <= size / 2; j++)
-                board[center.Add(new Point(i, j))] = Tribes.None;
+        for (var j = -size / 2; j <= size / 2; j++)
+            board[center.Add(new Point(i, j))] = Tribes.None;
+        board.Remove(new Point(-size / 2, 0));
+        board.Remove(new Point(size / 2, 0));
+        board.Remove(new Point(1 - size / 2, 1 - size / 2));
+        board.Remove(new Point(size / 2 - 1, size / 2 - 1));
         return board;
     }
 }
@@ -195,7 +200,9 @@ public static class StringExtensions
 {
     public static string ToSystemRoom(this string source) => $"S1Y2S3T4E5M{source}R6O7O8M";
     public static string FromSystemRoom(this string source) => source.Substring(11, source.Length - 18);
-    public static string ToJsonList<T>(this IEnumerable<T> source) => $"[{string.Join(",", source.Select(t=>t.ToString()))}]";
+
+    public static string ToJsonList<T>(this IEnumerable<T> source) =>
+        $"[{string.Join(",", source.Select(t => t.ToString()))}]";
 
     public static List<string> FromJsonList(this string source)
     {
