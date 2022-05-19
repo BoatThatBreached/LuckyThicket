@@ -70,7 +70,7 @@ public class Rooms : MonoBehaviour
         {
             room.Data.FirstPlayer.Pull();
             room.Data.SecondPlayer.Pull();
-            print(room.Data.Log);
+            //print(room.Data.Log);
             Account.Room = room;
             SceneManager.LoadScene("GameScene");
         }

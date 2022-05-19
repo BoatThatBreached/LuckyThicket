@@ -36,22 +36,18 @@ public class Game : MonoBehaviour
         Board = new Dictionary<Point, Tile>();
         foreach (var point in board.Keys)
             gameEngine.Build(point);
-        // foreach (var note in Account.Room.Data.LogList)
-        //     ApplyOtherPlayerTurn(note);
     }
 
     private void InitPlayer()
     {
         player.Init();
         player.Name = Account.Nickname;
-        //var littleTemplate = Parser.GetTemplateFromString("Beaver Beaver None|None None None|None None Beaver");
-        //player.AddWinTemplate(littleTemplate);
     }
 
     private void InitOpponent()
     {
         opponent.Init();
-        opponent.Name = Account.Room.Other(Account.Nickname).Login;
+        opponent.Name = Account.Room.Other.Login;
     }
 
     private void InitCards()
@@ -78,7 +74,7 @@ public class Game : MonoBehaviour
         
         InitCards();
         tasks.text =
-            $"Вы выполнили {player.CompletedCount()[SchemaType.Small]}/2 малых задач и {player.CompletedCount()[SchemaType.Big]}/1 больших.";
+            $"Вы выполнили {player.CompletedSmall}/2 малых задач и {player.CompletedBig}/1 больших.";
         var lastPlayer = Account.Room.LastTurn ?? Account.Room.Data.SecondPlayer.Login;
         print(lastPlayer);
         isMyTurn = lastPlayer != Account.Nickname;

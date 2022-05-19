@@ -31,8 +31,8 @@ public class Room
     public bool IsFull => Data.SecondPlayer.Login != "";
     public bool IsHere(string login) => Data.FirstPlayer.Login == login || Data.SecondPlayer.Login == login;
 
-    public PlayerCharacter Other(string nickname) => nickname == Data.FirstPlayer.Login ? Data.SecondPlayer : Data.FirstPlayer;
-    public PlayerCharacter Me(string nickname) => nickname != Data.FirstPlayer.Login ? Data.SecondPlayer : Data.FirstPlayer;
+    public PlayerCharacter Other => Account.Nickname == Data.FirstPlayer.Login ? Data.SecondPlayer : Data.FirstPlayer;
+    public PlayerCharacter Me=> Account.Nickname != Data.FirstPlayer.Login ? Data.SecondPlayer : Data.FirstPlayer;
 
     public static Room CreateFromJson(string json)
     {

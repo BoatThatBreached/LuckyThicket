@@ -69,11 +69,6 @@ public class PlayerCharacter
         }
 
         GraveList = new List<int>();
-
-        //Hand = $"[{string.Join(",", hand)}]";
-        //Deck = $"[{string.Join(",", deck)}]";
-        //Graveyard = "[]";
-        //Templates = $"[{string.Join(",",TemplatesList.Select(t=>t.TemplateString))}]";
         Push();
     }
 

@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using UnityEngine;
 using TMPro;
-using Color = UnityEngine.Color;
 
 public class Player: MonoBehaviour
 {
@@ -14,11 +14,16 @@ public class Player: MonoBehaviour
         set => nameField.text = value;
     }
 
+    public bool HasWon => Character.TemplatesList.Count(t=>t.Type==SchemaType.Big)==0 
+                          || Character.TemplatesList.Count(t=>t.Type==SchemaType.Small)==0;
+
+    public int CompletedSmall => 2-Character.TemplatesList.Count(t => t.Type == SchemaType.Small);
+    public int CompletedBig => 1-Character.TemplatesList.Count(t => t.Type == SchemaType.Big);
+
     public Game game;
     public GameObject cardPref;
     public PlayerCharacter Character;
     public Transform handPanel;
-    private List<Template> CompletedTemplates { get; set; }
 
     public void DrawCard(int id)
     {
@@ -49,25 +54,12 @@ public class Player: MonoBehaviour
 
     public void Init()
     {
-        CompletedTemplates = new List<Template>();
-        Character = Account.Room.Me(Account.Nickname);
+        Character = Account.Room.Me;
     }
-
-    //public void AddWinTemplate(Template template) => Character.TemplatesList.Add(template);
-
-    // важно чтобы сюда передавалась ссылка на темплэйт, находящийся в Templates - сравнение по ссылкам
+    
     public void CompleteTemplate(Template template)
     {
-        //Character.TemplatesList.Remove(template);
-        CompletedTemplates.Add(template);
-    }
-
-    public Dictionary<SchemaType, int> CompletedCount()
-    {
-        var dict = new Dictionary<SchemaType, int>() {{SchemaType.Big, 0}, {SchemaType.Small, 0}};
-        foreach (var template in CompletedTemplates)
-            dict[template.Type] += 1;
-        return dict;
+        Character.TemplatesList.Remove(template);
     }
 
     public List<PositionedTemplate> GetTemplatesPlayerCanComplete(Dictionary<Point, Tile> board)

@@ -293,7 +293,7 @@ public class Engine : MonoBehaviour
             game.player.CompleteTemplate(template.Template);
         }
 
-        if (game.player.CompletedCount()[SchemaType.Big] == 1 || game.player.CompletedCount()[SchemaType.Small] == 2)
+        if (game.player.HasWon)
             game.Win(true);
 
         var completedOpponent = game.opponent.GetTemplatesPlayerCanComplete(Board);
@@ -308,8 +308,7 @@ public class Engine : MonoBehaviour
             game.opponent.CompleteTemplate(template.Template);
         }
 
-        if (game.opponent.CompletedCount()[SchemaType.Big] == 1 ||
-            game.opponent.CompletedCount()[SchemaType.Small] == 2)
+        if (game.opponent.HasWon)
             game.Lose(true);
     }
 
@@ -326,10 +325,6 @@ public class Engine : MonoBehaviour
         AnchorZ = p;
         foreach (var t in Board.Values)
             t.Color = Color.white;
-        // var pts = TempTiles.Keys.ToList();
-        // foreach (var point in pts)
-        //     Destroy(point, true);
-        // print(TempTiles.Count);
         SelfSelections.Enqueue(p);
         Criterias.Clear();
         NotExistingNeeded = false;
@@ -338,8 +333,6 @@ public class Engine : MonoBehaviour
 
     private bool ShowPossibleTiles()
     {
-        // if (_loaded)
-        //     return true;
         if (NotExistingNeeded)
         {
             var points = Board.Keys
@@ -351,8 +344,6 @@ public class Engine : MonoBehaviour
             foreach (var p in points.Where(SatisfiesCriterias))
             {
                 notExistingRes = true;
-                //Build(p, true);
-                //TempTiles[p].Color = Color.yellow;
             }
 
             return notExistingRes;
