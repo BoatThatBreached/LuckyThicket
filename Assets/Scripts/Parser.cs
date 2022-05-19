@@ -188,8 +188,8 @@ public class Parser
         for (var i = -size / 2; i <= size / 2; i++)
         for (var j = -size / 2; j <= size / 2; j++)
             board[center.Add(new Point(i, j))] = Tribes.None;
-        board.Remove(center.Add(new Point(-size / 2, 0)));
-        board.Remove(center.Add(new Point(size / 2, 0)));
+        board.Remove(center.Add(new Point(0, -size / 2)));
+        board.Remove(center.Add(new Point(0, size / 2)));
         board.Remove(center.Add(new Point(1 - size / 2, 1 - size / 2)));
         board.Remove(center.Add(new Point(size / 2 - 1, size / 2 - 1)));
         return board;
