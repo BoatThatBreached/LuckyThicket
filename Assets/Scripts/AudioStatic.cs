@@ -105,18 +105,18 @@ public class AudioStatic : MonoBehaviour
             while (MusicHandler.isPlaying)
             {
                 _mainThemeTime = MusicHandler.time;
-                Thread.Sleep(5);
                 yield return null;
             }
+
+            MusicHandler.time = 0;
         }
     }
 
     public static void AddMainTheme(MonoBehaviour scene, string soundPath)
     {
         MusicHandler.clip = Resources.Load<AudioClip>(soundPath);
-        MusicHandler.Play();
         MusicHandler.time = _mainThemeTime;
-        
+
         scene.StartCoroutine(UpdateThemeTime());
     }
     
