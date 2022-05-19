@@ -190,8 +190,8 @@ public class Parser
             board[center.Add(new Point(i, j))] = Tribes.None;
         board.Remove(center.Add(new Point(0, -size / 2)));
         board.Remove(center.Add(new Point(0, size / 2)));
-        board.Remove(center.Add(new Point(1 - size / 2, 1 - size / 2)));
-        board.Remove(center.Add(new Point(size / 2 - 1, size / 2 - 1)));
+        board.Remove(center.Add(new Point(size / 2 - 1, 1 - size / 2)));
+        board.Remove(center.Add(new Point(1 - size / 2, size / 2 - 1)));
         return board;
     }
 }
