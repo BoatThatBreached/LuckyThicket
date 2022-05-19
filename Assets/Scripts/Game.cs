@@ -32,12 +32,12 @@ public class Game : MonoBehaviour
 
     private void InitBoard()
     {
-        var board = Parser.EmptyBoard(5, new Point(-1,2));
+        var board = Parser.EmptyBoard(5, new Point(0,2));
         Board = new Dictionary<Point, Tile>();
         foreach (var point in board.Keys)
             gameEngine.Build(point);
-        foreach (var note in Account.Room.Data.LogList)
-            ApplyOtherPlayerTurn(note);
+        // foreach (var note in Account.Room.Data.LogList)
+        //     ApplyOtherPlayerTurn(note);
     }
 
     private void InitPlayer()
