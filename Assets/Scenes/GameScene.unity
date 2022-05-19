@@ -141,7 +141,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &73748535
 RectTransform:
   m_ObjectHideFlags: 0
@@ -428,13 +428,6 @@ MonoBehaviour:
   gameEngine: {fileID: 350996704}
   player: {fileID: 672578093}
   opponent: {fileID: 1062822980}
-  currentCardCharacter:
-    Id: 0
-    Name: 
-    Rarity: 0
-    AbilityMask: 
-    AbilityString: 
-  currentCard: {fileID: 0}
   turnText: {fileID: 502121979}
   isMyTurn: 0
   tasks: {fileID: 126283000}
