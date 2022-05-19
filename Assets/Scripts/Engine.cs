@@ -28,7 +28,7 @@ public class Engine : MonoBehaviour
     public Game game;
     private Dictionary<Point, Tile> Board => game.Board;
     private Dictionary<Point, Tile> TempTiles;
-    
+
     private Queue<Point> LoadedSelections { get; set; }
     public Queue<Point> SelfSelections { get; private set; }
     private CardCharacter _loadedCard;
@@ -90,9 +90,7 @@ public class Engine : MonoBehaviour
                 if (!ShowPossibleTiles())
                     SkipToAlso();
                 if (LoadedSelections.Count > 0)
-                {
-                    SelectPoint(LoadedSelections.Dequeue());
-                }
+                    StartCoroutine(Waiters.LoopFor(0.5f, () => SelectPoint(LoadedSelections.Dequeue())));
             },
             [Basis.Also] = () => { },
             [Basis.Random] = () =>
@@ -128,7 +126,7 @@ public class Engine : MonoBehaviour
 
     #region Operations
 
-    public void Build(Point p, bool temp=false)
+    public void Build(Point p, bool temp = false)
     {
         var tile = Instantiate(game.tilePref, transform);
         tile.transform.position = new Vector3(p.X, p.Y, 0);
@@ -139,7 +137,7 @@ public class Engine : MonoBehaviour
             TempTiles[p] = t;
     }
 
-    public void Destroy(Point p, bool temp=false)
+    public void Destroy(Point p, bool temp = false)
     {
         var dict = temp ? TempTiles : Board;
         var tile = dict[p].gameObject;
@@ -215,7 +213,6 @@ public class Engine : MonoBehaviour
 
     public void LoadSelfActions(CardCharacter card)
     {
-        
         Criterias.Clear();
         FlushTribe();
         CurrentChain.Clear();
@@ -264,6 +261,7 @@ public class Engine : MonoBehaviour
                 _loaded = false;
                 return;
             }
+
             CheckWin();
             game.EndTurn(_loadedCard);
             return;

@@ -65,16 +65,17 @@ public class Game : MonoBehaviour
     private void StartTurn()
     {
         var room = Connector.GetRoomsList().Find(room => room.Name == Account.Room.Name);
+        if (room == null)
+        {
+            Win(false);
+            return;
+        }
         room.Data.FirstPlayer.Pull();
         room.Data.SecondPlayer.Pull();
         print(room.Data.Log);
         Account.Room = room;
         //Account.Room.Push();
-        if (Account.Room == null)
-        {
-            Lose(false);
-            return;
-        }
+        
         InitCards();
         tasks.text =
             $"Вы выполнили {player.CompletedCount()[SchemaType.Small]}/2 малых задач и {player.CompletedCount()[SchemaType.Big]}/1 больших.";
