@@ -12,9 +12,10 @@ public enum SchemaType
 public class Template
 {
     public Dictionary<Point, Tribes> Points { get; }
+    public string TemplateString;
     public SchemaType Type { get; }
 
-    public Template(List<List<Tribes>> schema, SchemaType type)
+    public Template(List<List<Tribes>> schema, SchemaType type, string templateString)
     {
         Points = new Dictionary<Point, Tribes>();
 
@@ -23,7 +24,10 @@ public class Template
             if (schema[i][j] != Tribes.None)
                 Points[new Point(i, j)] = schema[i][j];
         Type = type;
+        TemplateString = templateString;
     }
+
+    public static Template CreateFromString(string source) => Parser.GetTemplateFromString(source);
 }
 
 public class PositionedTemplate

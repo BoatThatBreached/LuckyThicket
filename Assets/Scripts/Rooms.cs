@@ -82,7 +82,7 @@ public class Rooms : MonoBehaviour
         var room = new Room();
         room.Data.FirstPlayer.Init();
         room.Push();
-        print(room.Data.FirstPlayer.Login);
+        print(room.Data.FirstPlayer.Templates);
         print(Connector.CreateRoom(Account.Token, roomName.text.ToSystemRoom()));
         print(Connector.SendRoom(roomName.text.ToSystemRoom(), Account.Token, room.DataString));
         RefreshRooms();
