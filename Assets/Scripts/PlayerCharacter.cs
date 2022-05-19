@@ -88,7 +88,7 @@ public class PlayerCharacter
     public void Push()
     {
         Deck = DeckList.ToJsonList();
-        Hand = Hand.ToJsonList();
+        Hand = HandList.ToJsonList();
         Graveyard = GraveList.ToJsonList();
         Templates = TemplatesList.Select(t => t.TemplateString).ToJsonList();
     }
