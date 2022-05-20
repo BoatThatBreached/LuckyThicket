@@ -26,14 +26,14 @@ public class Game : MonoBehaviour
         InitPlayer();
         InitOpponent();
         InitBoard();
-        
-        
+
+
         StartTurn();
     }
 
     private void InitBoard()
     {
-        var board = Parser.EmptyBoard(5, new Point(0,2), true);
+        var board = Parser.EmptyBoard(5, new Point(0, 2), true);
         Board = new Dictionary<Point, Tile>();
         foreach (var point in board.Keys)
             gameEngine.Build(point);
@@ -53,7 +53,7 @@ public class Game : MonoBehaviour
 
     private void InitCards()
     {
-        foreach(Transform child in player.handPanel)
+        foreach (Transform child in player.handPanel)
             Destroy(child.gameObject);
         foreach (var id in player.Character.HandList)
             player.DrawCard(id);
@@ -67,27 +67,27 @@ public class Game : MonoBehaviour
             Win(false);
             return;
         }
+
         room.Data.FirstPlayer.Pull();
         room.Data.SecondPlayer.Pull();
         print(room.Data.Log);
         Account.Room = room;
         //Account.Room.Push();
-        
+
         InitCards();
         tasks.text =
             $"Вы выполнили {player.CompletedSmall}/2 малых задач и {player.CompletedBig}/1 больших.";
         var lastPlayer = Account.Room.LastTurn ?? Account.Room.Data.SecondPlayer.Login;
-        print(lastPlayer);
         isMyTurn = lastPlayer != Account.Nickname;
         turnText.text = isMyTurn ? "Your turn!" : "Opponent's turn!";
 
-        //RefreshBoard(Account.Room.Board);
         if (isMyTurn)
         {
-            if(Account.Room.Data.LogList.Count>0)
+            if (Account.Room.Data.LogList.Count > 0)
                 ApplyOtherPlayerTurn(Account.Room.Data.LogList.Last());
             return;
         }
+
         print("fetching!");
         var cor = Waiters.LoopFor(1.2f, StartTurn);
         StartCoroutine(cor);
@@ -96,8 +96,19 @@ public class Game : MonoBehaviour
     private void ApplyOtherPlayerTurn(LogNote note)
     {
         gameEngine.LoadOpponentActions(
-            Account.GetGlobalCard(int.Parse(note.CardID)), 
+            Account.GetGlobalCard(int.Parse(note.CardID)),
             Parser.ParseSelections(note.Selections));
+        StartCoroutine(Waiters.LoopWhile(
+            () => !gameEngine.loaded,
+            () => { },
+            () =>
+            {
+                if (note.CompletedTemplate != "")
+                    gameEngine.RemoveTemplatesFromBoard(
+                        note.CompletedTemplate
+                            .FromJsonList()
+                            .Select(Parser.GetPositionedTemplateFromString));
+            }));
     }
 
     public void EndTurn(CardCharacter card)
@@ -107,12 +118,15 @@ public class Game : MonoBehaviour
         player.Character.HandList.Remove(card.Id);
         player.Character.GraveList.Add(card.Id);
         player.Character.Push();
-        var note = new LogNote(player.Character.Login, card, gameEngine.SelfSelections);
+        var note = new LogNote(player.Character.Login,
+            card,
+            gameEngine.SelfSelections,
+            gameEngine.LastCompletedTemplates);
         Account.Room.Data.LogList.Add(note);
-        print(Account.Room.Data.Log);
         Account.Room.Push();
-        print(Connector.SendRoom(Account.Room.Name.ToSystemRoom(), Account.Token, Account.Room.DataString));
-        
+        //print(Account.Room.Data.Log);
+        Connector.SendRoom(Account.Room.Name.ToSystemRoom(), Account.Token, Account.Room.DataString);
+
         StartTurn();
     }
 

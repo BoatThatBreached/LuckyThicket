@@ -7,8 +7,6 @@ public enum SchemaType
     Small
 }
 
-//TODO: Rotate
-
 public class Template
 {
     public Dictionary<Point, Tribes> Points { get; }
@@ -19,8 +17,8 @@ public class Template
     {
         Points = new Dictionary<Point, Tribes>();
 
-        for (int i = 0; i < schema.Count; i++)
-        for (int j = 0; j < schema[i].Count; j++)
+        for (var i = 0; i < schema.Count; i++)
+        for (var j = 0; j < schema[i].Count; j++)
             if (schema[i][j] != Tribes.None)
                 Points[new Point(i, j)] = schema[i][j];
         Type = type;

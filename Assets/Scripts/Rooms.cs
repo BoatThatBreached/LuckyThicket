@@ -14,8 +14,9 @@ public class Rooms : MonoBehaviour
     
     private void Start()
     {
+     
+        // Connector.DestroyRoom(Account.Token, "sasasasaas".ToSystemRoom());
         
-        //Connector.DestroyRoom(Account.Token, "Egypt".ToSystemRoom());
         Fetch();
         AudioStatic.MenuInitSounds(this, gameObject);
     }

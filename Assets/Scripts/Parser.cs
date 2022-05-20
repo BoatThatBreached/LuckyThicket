@@ -195,6 +195,20 @@ public class Parser
         board.Remove(center.Add(new Point(1 - size / 2, size / 2 - 1)));
         return board;
     }
+
+    public static string CompletedTemplate(Point point, Template template)
+    {
+        var res = $"{point.ToCompactString()}:{template.TemplateString}";
+        return res;
+    }
+
+    public static PositionedTemplate GetPositionedTemplateFromString(string posTemplate)
+    {
+        var split = posTemplate.Split(':');
+        var point = split[0].ToPoint();
+        var template = Template.CreateFromString(split[1]);
+        return new PositionedTemplate(point, template);
+    }
 }
 
 public static class StringExtensions

@@ -41,9 +41,10 @@ public class Player: MonoBehaviour
         card.LoadFrom(cardCharacter, this);
     }
 
-    public void DrawCard()
+    public void DrawCard(bool drawnByCard)
     {
-        if (Character.HandList.Count >= 5)
+        var extra = drawnByCard ? 1 : 0;
+        if (Character.HandList.Count >=  extra+5)
             return;
         var id = Character.DeckList[0];
         Character.DeckList.RemoveAt(0);

@@ -32,8 +32,9 @@ public class Engine : MonoBehaviour
     private Queue<Point> LoadedSelections { get; set; }
     public Queue<Point> SelfSelections { get; private set; }
     private CardCharacter _loadedCard;
-    private bool _loaded;
-
+    public bool loaded;
+    public List<PositionedTemplate> LastCompletedTemplates;
+    
     private readonly Basis[] _cardInteractions =
     {
         Basis.Discard, Basis.Draw, Basis.Hand, Basis.Graveyard, Basis.Opponent,
@@ -100,7 +101,7 @@ public class Engine : MonoBehaviour
                 else
                     TrySelectRandomPoint();
             },
-            [Basis.Draw] = () => game.player.DrawCard()
+            [Basis.Draw] = () => game.player.DrawCard(true)
         };
     }
 
@@ -226,7 +227,7 @@ public class Engine : MonoBehaviour
 
     public void LoadOpponentActions(CardCharacter card, Queue<Point> selections)
     {
-        _loaded = true;
+        loaded = true;
         Criterias.Clear();
         FlushTribe();
         CurrentChain.Clear();
@@ -256,9 +257,9 @@ public class Engine : MonoBehaviour
         {
             FlushAnchor();
             FlushTribe();
-            if (_loaded)
+            if (loaded)
             {
-                _loaded = false;
+                loaded = false;
                 return;
             }
 
@@ -268,7 +269,7 @@ public class Engine : MonoBehaviour
         }
 
         AudioStatic.PlaySound(CurrentAction, AnchorTribeZ);
-        if (_cardInteractions.Contains(CurrentAction) && _loaded)
+        if (_cardInteractions.Contains(CurrentAction) && loaded)
         {
             Step();
             return;
@@ -281,20 +282,23 @@ public class Engine : MonoBehaviour
 
     private void CheckWin()
     {
+        LastCompletedTemplates = new List<PositionedTemplate>();
         var completedPlayer = game.player.GetTemplatesPlayerCanComplete(Board);
         if (completedPlayer.Count > 0)
         {
             print($"{game.player.Name} can complete smth and count is {completedPlayer.Count}");
             // delete first completed
             var template = completedPlayer[0];
-            foreach (var p in template.Template.Points.Keys)
-                Kill(p.Add(template.StartingPoint));
-
+            RemoveTemplateFromBoard(template);
+            LastCompletedTemplates.Add(template);
             game.player.CompleteTemplate(template.Template);
         }
 
         if (game.player.HasWon)
+        {
             game.Win(true);
+            return;
+        }
 
         var completedOpponent = game.opponent.GetTemplatesPlayerCanComplete(Board);
         if (completedOpponent.Count > 0)
@@ -302,14 +306,14 @@ public class Engine : MonoBehaviour
             print($"{game.opponent.Name} can complete smth and count is {completedOpponent.Count}");
             // delete first completed
             var template = completedOpponent[0];
-            foreach (var p in template.Template.Points.Keys)
-                Kill(p.Add(template.StartingPoint));
-
+            RemoveTemplateFromBoard(template);
+            LastCompletedTemplates.Add(template);
             game.opponent.CompleteTemplate(template.Template);
         }
 
         if (game.opponent.HasWon)
             game.Lose(true);
+
     }
 
     private void SkipToAlso()
@@ -352,7 +356,8 @@ public class Engine : MonoBehaviour
         var res = false;
         foreach (var p in Board.Keys.Where(SatisfiesCriterias))
         {
-            Board[p].Color = Color.yellow;
+            if(!loaded)
+                Board[p].Color = Color.yellow;
             res = true;
         }
 
@@ -386,6 +391,18 @@ public class Engine : MonoBehaviour
         }
 
         SelectPoint(possible[_random.Next(possible.Length)]);
+    }
+
+    private void RemoveTemplateFromBoard(PositionedTemplate positionedTemplate)
+    {
+        foreach (var p in positionedTemplate.Template.Points.Keys)
+            Kill(p.Add(positionedTemplate.StartingPoint));
+    }
+
+    public void RemoveTemplatesFromBoard(IEnumerable<PositionedTemplate> templates)
+    {
+        foreach (var t in templates)
+            RemoveTemplateFromBoard(t);
     }
 }
 
