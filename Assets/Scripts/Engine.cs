@@ -23,7 +23,8 @@ public class Engine : MonoBehaviour
     // private Tribes AnchorTribeT { get; set; }
     public Basis CurrentAction { get; private set; }
     private List<Func<Point, bool>> Criterias { get; set; }
-    private bool NotExistingNeeded { get; set; }
+    private bool _notExistingNeeded;
+    private bool _all;
     private Random _random;
     public Game game;
     private Dictionary<Point, Tile> Board => game.Board;
@@ -34,7 +35,7 @@ public class Engine : MonoBehaviour
     private CardCharacter _loadedCard;
     public bool loaded;
     public List<PositionedTemplate> LastCompletedTemplates;
-    
+
     private readonly Basis[] _cardInteractions =
     {
         Basis.Discard, Basis.Draw, Basis.Hand, Basis.Graveyard, Basis.Opponent,
@@ -49,7 +50,7 @@ public class Engine : MonoBehaviour
         TempTiles = new Dictionary<Point, Tile>();
         FlushAnchor();
         FlushTribe();
-        NotExistingNeeded = false;
+        _notExistingNeeded = false;
         Criterias = new List<Func<Point, bool>>();
         _random = new Random();
         InitActions();
@@ -79,13 +80,14 @@ public class Engine : MonoBehaviour
             [Basis.NExisting] = () =>
             {
                 Criterias.Add(p => !Exists(p));
-                NotExistingNeeded = true;
+                _notExistingNeeded = true;
             },
             [Basis.Edge] = () => Criterias.Add(IsEdge),
             [Basis.Column] = () => Criterias.Add(IsOnAnchorColumn),
             [Basis.Row] = () => Criterias.Add(IsOnAnchorRow),
             [Basis.CrossPlus] = () => Criterias.Add(IsOnAnchorCrossPlus),
             [Basis.CrossX] = () => Criterias.Add(IsOnAnchorCrossX),
+            [Basis.All] = () => _all = true,
             [Basis.Select] = () =>
             {
                 if (!ShowPossibleTiles())
@@ -97,7 +99,7 @@ public class Engine : MonoBehaviour
             [Basis.Random] = () =>
             {
                 if (LoadedSelections.Count > 0)
-                    SelectPoint(LoadedSelections.Dequeue());
+                    StartCoroutine(Waiters.LoopFor(0.5f, () => SelectPoint(LoadedSelections.Dequeue())));
                 else
                     TrySelectRandomPoint();
             },
@@ -241,7 +243,7 @@ public class Engine : MonoBehaviour
     public bool SatisfiesCriterias(Point p)
     {
         var pred = Criterias.All(crit => crit(p));
-        if (NotExistingNeeded)
+        if (_notExistingNeeded)
             pred = pred && Board.Keys
                 .Where(IsEdge)
                 .SelectMany(point => point.GetAdjacent())
@@ -275,15 +277,30 @@ public class Engine : MonoBehaviour
             return;
         }
 
-        Actions[CurrentAction]();
+        if (_all)
+            ApplyAll();
+        else
+            Actions[CurrentAction]();
         if (CurrentAction != Basis.Select && CurrentAction != Basis.Idle)
             Step();
+    }
+
+    private void ApplyAll()
+    {
+        var pts = Board.Keys.Where(SatisfiesCriterias).ToList();
+        foreach (var p in pts)
+        {
+            AnchorZ = p;
+            Actions[CurrentAction]();
+        }
+
+        _all = false;
     }
 
     private void CheckWin()
     {
         LastCompletedTemplates = new List<PositionedTemplate>();
-        var completedPlayer = game.player.GetTemplatesPlayerCanComplete(Board);
+        var completedPlayer = game.player.GetTemplatesPlayerCanComplete(Board).OrderBy(pt=>pt.Template.Type==SchemaType.Big?0:1).ToList();
         if (completedPlayer.Count > 0)
         {
             print($"{game.player.Name} can complete smth and count is {completedPlayer.Count}");
@@ -313,7 +330,6 @@ public class Engine : MonoBehaviour
 
         if (game.opponent.HasWon)
             game.Lose(true);
-
     }
 
     private void SkipToAlso()
@@ -331,13 +347,13 @@ public class Engine : MonoBehaviour
             t.Color = Color.white;
         SelfSelections.Enqueue(p);
         Criterias.Clear();
-        NotExistingNeeded = false;
+        _notExistingNeeded = false;
         Step();
     }
 
     private bool ShowPossibleTiles()
     {
-        if (NotExistingNeeded)
+        if (_notExistingNeeded)
         {
             var points = Board.Keys
                 .Where(IsEdge)
@@ -356,7 +372,7 @@ public class Engine : MonoBehaviour
         var res = false;
         foreach (var p in Board.Keys.Where(SatisfiesCriterias))
         {
-            if(!loaded)
+            if (!loaded)
                 Board[p].Color = Color.yellow;
             res = true;
         }
@@ -367,7 +383,7 @@ public class Engine : MonoBehaviour
     private void TrySelectRandomPoint()
     {
         Point[] possible;
-        if (NotExistingNeeded)
+        if (_notExistingNeeded)
         {
             possible = Board
                 .Keys

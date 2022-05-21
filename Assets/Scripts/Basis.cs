@@ -47,6 +47,7 @@
     Column,
     CrossPlus,
     CrossX,
+    All,
 
     #endregion
 
