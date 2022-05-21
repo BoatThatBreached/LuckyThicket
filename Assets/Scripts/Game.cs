@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -8,7 +9,6 @@ using UnityEngine.SceneManagement;
 public class Game : MonoBehaviour
 {
     public GameObject tilePref;
-
     public Dictionary<Point, Tile> Board { get; private set; }
     public OccupantDesigner designer;
     public Engine gameEngine;
@@ -17,7 +17,8 @@ public class Game : MonoBehaviour
     public TMP_Text turnText;
     public bool isMyTurn;
     public TMP_Text tasks;
-
+    public Transform cardSlot;
+    public Camera cam;
     private void Start()
     {
         AudioStatic.GameInitSounds(this, gameObject);
@@ -84,7 +85,7 @@ public class Game : MonoBehaviour
         if (isMyTurn)
         {
             if (Account.Room.Data.LogList.Count > 0)
-                ApplyOtherPlayerTurn(Account.Room.Data.LogList.Last());
+                StartCoroutine(ApplyingTurn(Account.Room.Data.LogList.Last()));
             return;
         }
 
@@ -93,11 +94,30 @@ public class Game : MonoBehaviour
         StartCoroutine(cor);
     }
 
-    private void ApplyOtherPlayerTurn(LogNote note)
+    private IEnumerator ApplyingTurn(LogNote note)
     {
+        foreach (Transform child in cardSlot)
+            Destroy(child.gameObject);
+        var card = Instantiate(player.cardPref, cardSlot).GetComponent<Card>();
+        var cardChar = Account.GetGlobalCard(int.Parse(note.CardID));
+        card.LoadFrom(cardChar);
+        var offset = 2.7f;
+        card.GetComponent<RectTransform>().position -= Vector3.one*offset;
+        var time = 1f;
+        var left = time;
+        while (left > 0)
+        {
+            var dt = Time.deltaTime;
+            yield return Waiters.LoopFor(dt, () => card.GetComponent<RectTransform>().position += Vector3.one*dt*offset/time);
+            left -= dt;
+        }
+
+        
+        //yield return new WaitForSeconds(3);
+        var selections = Parser.ParseSelections(note.Selections);
         gameEngine.LoadOpponentActions(
-            Account.GetGlobalCard(int.Parse(note.CardID)),
-            Parser.ParseSelections(note.Selections));
+            cardChar,
+            selections);
         StartCoroutine(Waiters.LoopWhile(
             () => !gameEngine.loaded,
             () => { },
@@ -109,6 +129,11 @@ public class Game : MonoBehaviour
                             .FromJsonList()
                             .Select(Parser.GetPositionedTemplateFromString));
             }));
+        StartCoroutine(Waiters.LoopFor(3, () =>
+        {
+            foreach (Transform child in cardSlot)
+                Destroy(child.gameObject);
+        }));
     }
 
     public void EndTurn(CardCharacter card)

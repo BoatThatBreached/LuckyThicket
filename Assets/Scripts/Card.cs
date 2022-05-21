@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Color = UnityEngine.Color;
@@ -10,35 +9,39 @@ public class Card : MonoBehaviour
     public Image backImage;
     public Image picture;
     public CardCharacter cardCharacter;
-    public Color Color
+
+    private Color Color
     {
         set => backImage.color = value;
     }
+
     public TMP_Text nameField;
-    public string Name
+
+    private string Name
     {
         get => nameField.text;
         set => nameField.text = value;
     }
+
     public TMP_Text abilityField;
-    public string AbilityMask
+
+    private string AbilityMask
     {
         get => abilityField.text;
         set => abilityField.text = value;
-    } 
+    }
 
     public void OnMouseDown()
     {
-        if (game.isMyTurn)
-        {
-            game.gameEngine.LoadSelfActions(cardCharacter);
-            AudioStatic.PlayAudio("Sounds/card");
-        }
+        if (!game.isMyTurn)
+            return;
+        game.gameEngine.LoadSelfActions(cardCharacter);
+        AudioStatic.PlayAudio("Sounds/card");
     }
 
     public void ChangeSize(bool enlarging) =>
-        transform.localScale = enlarging 
-            ? new Vector3(1, 1, 1) * 1.25f 
+        transform.localScale = enlarging
+            ? new Vector3(1, 1, 1) * 1.25f
             : new Vector3(1, 1, 1);
 
     public void Drag()
@@ -47,6 +50,7 @@ public class Card : MonoBehaviour
         //return;
         //transform.position = Input.mousePosition;
     }
+
     public void Drop()
     {
         print("dropped!");
@@ -58,10 +62,11 @@ public class Card : MonoBehaviour
         // game.gameEngine.LoadOpponentActions(Chain, selections);
     }
 
-    public void LoadFrom(CardCharacter cardChar, Player player)
+    public void LoadFrom(CardCharacter cardChar, Player player = null)
     {
         cardCharacter = cardChar;
-        game = player.game;
+        if (!(player is null))
+            game = player.game;
         Name = cardCharacter.Name;
         AbilityMask = cardCharacter.AbilityMask;
         Color = cardCharacter.Rarity switch
@@ -72,5 +77,14 @@ public class Card : MonoBehaviour
             Rarity.Legendary => (Color.red + Color.yellow) / 2,
             _ => Color.black
         };
+        try
+        {
+            picture.sprite = Resources.Load<Sprite>($"cards/{cardCharacter.Name}");
+        }
+        catch
+        {
+            print("oof");
+        }
+        
     }
 }

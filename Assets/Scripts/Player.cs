@@ -29,15 +29,6 @@ public class Player: MonoBehaviour
     {
         var cardCharacter = Account.GetLocalCard(id);
         var card = Instantiate(cardPref, handPanel).GetComponent<Card>();
-        try
-        {
-            card.picture.sprite = Resources.Load<Sprite>($"cards/{cardCharacter.Name}");
-        }
-        catch
-        {
-            print("oof");
-        }
-
         card.LoadFrom(cardCharacter, this);
     }
 
