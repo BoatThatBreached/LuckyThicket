@@ -26,18 +26,22 @@ public class Game : MonoBehaviour
         designer.Init();
         InitPlayer();
         InitOpponent();
-        InitBoard();
+        StartCoroutine(InitBoard());
 
 
-        StartTurn();
+        
     }
 
-    private void InitBoard()
+    private IEnumerator InitBoard()
     {
         var board = Parser.EmptyBoard(5, new Point(0, 2), true);
         Board = new Dictionary<Point, Tile>();
         foreach (var point in board.Keys)
+        {
             gameEngine.Build(point);
+            yield return new WaitForSeconds(0.1f);
+        }
+        StartTurn();
     }
 
     private void InitPlayer()
