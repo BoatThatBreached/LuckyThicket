@@ -4,6 +4,8 @@
 
     Build,
     Destroy,
+    Lock,
+    Unlock,
     Spawn,
     Kill,
     Push,
@@ -17,6 +19,8 @@
 
     Beaver,
     Magpie,
+    Playable,
+    Obstacle,
 
     #endregion
 

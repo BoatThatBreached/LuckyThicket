@@ -68,8 +68,12 @@ public class Engine : MonoBehaviour
             [Basis.Pull] = () => Pull(AnchorF, AnchorZ),
             [Basis.Convert] = () => Convert(AnchorZ, AnchorTribeZ),
             [Basis.Drag] = () => Drag(AnchorF, AnchorZ),
+            [Basis.Lock] = () => Lock(AnchorZ),
+            [Basis.Unlock] = () => Unlock(AnchorZ),
             [Basis.Beaver] = () => AnchorTribeZ = Tribes.Beaver,
             [Basis.Magpie] = () => AnchorTribeZ = Tribes.Magpie,
+            [Basis.Playable] = () => AnchorTribeZ = Tribes.Playable,
+            [Basis.Obstacle] = () => AnchorTribeZ = Tribes.Obstacle,
             [Basis.ShiftAnchor] = () => { AnchorF = AnchorZ; },
             [Basis.ShiftTribe] = () => { AnchorTribeF = AnchorTribeZ; },
             [Basis.Free] = () => Criterias.Add(IsFree),
@@ -119,7 +123,15 @@ public class Engine : MonoBehaviour
     private bool IsAdjacentToAnchor(Point p) => AnchorZ.GetAdjacent().Contains(p);
     private bool IsSurroundingToAnchor(Point p) => AnchorZ.GetSurrounding().Contains(p);
     private bool IsEdge(Point p) => p.GetAdjacent().Count(Exists) < 4;
-    private bool IsOccupiedByAnchorTribe(Point p) => GetOccupantTribe(p) == AnchorTribeZ;
+
+    private bool IsOccupiedByAnchorTribe(Point p)
+    {
+        var tribe = GetOccupantTribe(p);
+        if (AnchorTribeZ == Tribes.Playable)
+            return tribe != Tribes.Obstacle;
+        return tribe == AnchorTribeZ;
+    }
+
     private bool IsOnAnchorRow(Point p) => AnchorZ.GetRow(Board.Keys).Contains(p);
     private bool IsOnAnchorColumn(Point p) => AnchorZ.GetColumn(Board.Keys).Contains(p);
     private bool IsOnAnchorCrossPlus(Point p) => IsOnAnchorColumn(p) || IsOnAnchorRow(p);
@@ -146,6 +158,16 @@ public class Engine : MonoBehaviour
         var tile = dict[p].gameObject;
         Destroy(tile);
         dict.Remove(p);
+    }
+
+    private void Lock(Point p)
+    {
+        Spawn(p, Tribes.Obstacle);
+    }
+
+    private void Unlock(Point p)
+    {
+        Kill(p);
     }
 
     public void Spawn(Point p, Tribes t)
@@ -300,7 +322,8 @@ public class Engine : MonoBehaviour
     private void CheckWin()
     {
         LastCompletedTemplates = new List<PositionedTemplate>();
-        var completedPlayer = game.player.GetTemplatesPlayerCanComplete(Board).OrderBy(pt=>pt.Template.Type==SchemaType.Big?0:1).ToList();
+        var completedPlayer = game.player.GetTemplatesPlayerCanComplete(Board)
+            .OrderBy(pt => pt.Template.Type == SchemaType.Big ? 0 : 1).ToList();
         if (completedPlayer.Count > 0)
         {
             print($"{game.player.Name} can complete smth and count is {completedPlayer.Count}");

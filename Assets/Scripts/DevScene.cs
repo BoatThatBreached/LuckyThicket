@@ -9,6 +9,7 @@ public class DevScene : MonoBehaviour
 {
     public TMP_InputField cardName;
     public TMP_InputField cardMask;
+    public TMP_InputField cardId;
     public AbRarContainer abRar;
 
     public void Start()
@@ -26,6 +27,7 @@ public class DevScene : MonoBehaviour
     {
         var q = new Queue<Basis>(abRar.ability);
         var card = new CardCharacter(cardName.text, cardMask.text, q, abRar.rarity);
+        card.Id = int.Parse(cardId.text);
         cardName.text = string.Empty;
         cardMask.text = string.Empty;
         abRar.ability = Array.Empty<Basis>();
@@ -39,7 +41,6 @@ public class DevScene : MonoBehaviour
         foreach (var token in card.Ability)
             sb.Append(token + " ");
         card.AbilityString = sb.ToString();
-        card.Id = Connector.GetMaxID()+1;
         var ans = Connector.SendCard(card);
         print(ans);
     }
