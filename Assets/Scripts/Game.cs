@@ -1,7 +1,7 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -9,28 +9,36 @@ using UnityEngine.SceneManagement;
 public class Game : MonoBehaviour
 {
     public GameObject tilePref;
-
     public Dictionary<Point, Tile> Board { get; private set; }
     public OccupantDesigner designer;
-    private int Size { get; set; }
     public Engine gameEngine;
     public Player player;
     public Opponent opponent;
-    public CardCharacter currentCardCharacter;
-    public GameObject currentCard;
     public TMP_Text turnText;
     public bool isMyTurn;
-    public TMP_Text tasks;
+    public Transform cardSlot;
+
     private void Start()
     {
         AudioStatic.GameInitSounds(this, gameObject);
-        
+
         designer.Init();
         InitPlayer();
         InitOpponent();
-        //InitBoard(new Point(0, 2));
-        RefreshBoard(Account.Room.Board);
-        InitDeck();
+        StartCoroutine(InitBoard());
+
+
+    }
+
+    private IEnumerator InitBoard()
+    {
+        var board = Parser.EmptyBoard(5, new Point(0, 2), true);
+        Board = new Dictionary<Point, Tile>();
+        foreach (var point in board.Keys)
+        {
+            gameEngine.Build(point);
+            yield return new WaitForSeconds(0.1f);
+        }
         StartTurn();
     }
 
@@ -38,92 +46,119 @@ public class Game : MonoBehaviour
     {
         player.Init();
         player.Name = Account.Nickname;
-        var littleTemplate = Parser.GetTemplateFromString("Beaver Beaver None|None None None|None None Beaver");
-        // columns from down to top.
-        // this converts to 
-        // **B
-        // B**
-        // B**
-        player.AddWinTemplate(littleTemplate);
     }
-    
+
     private void InitOpponent()
     {
         opponent.Init();
-        opponent.Name = Account.Room.Other(Account.Nickname);
-        var littleTemplate = Parser.GetTemplateFromString("Beaver");
-        
-        player.AddWinTemplate(littleTemplate);
-        player.AddWinTemplate(littleTemplate);
+        opponent.Name = Account.Room.Other.Login;
     }
 
-    private void InitDeck()
+    private void InitCards()
     {
-        var cards = Account.Decks[Account.ChosenDeck];
-        foreach (var index in cards)
-            player.Deck.Push(Account.GetCard(index));
-        for (var i = 0; i < 5; i++)
-            player.DrawCard();
+        foreach (Transform child in player.handPanel)
+            Destroy(child.gameObject);
+        foreach (var id in player.Character.HandList)
+            player.DrawCard(id);
     }
 
     private void StartTurn()
     {
-        currentCardCharacter = null;
-        currentCard = null;
-        Account.Room = Connector.GetRoomsList().Find(room => room.Name == Account.Room.Name);
-        //print(Account.Room.ToJson());
-        if (Account.Room == null)
+        var room = Connector.GetRoomsList().Find(room => room.Name == Account.Room.Name);
+        if (room == null)
         {
-            Lose(false);
+            Win(false);
             return;
         }
 
-        tasks.text =
-            $"Вы выполнили {player.CompletedCount()[SchemaType.Small]}/2 малых задач и {player.CompletedCount()[SchemaType.Big]}/1 больших.";
-        var lastPlayer = Account.Room.LastTurn ?? Account.Room.SecondPlayer;
+        room.Data.FirstPlayer.Pull();
+        room.Data.SecondPlayer.Pull();
+        print(room.Data.Log);
+        Account.Room = room;
+        player.Init();
+        opponent.Init();
+        //Account.Room.Push();
+
+        InitCards();
+        var lastPlayer = Account.Room.LastTurn ?? Account.Room.Data.SecondPlayer.Login;
         isMyTurn = lastPlayer != Account.Nickname;
         turnText.text = isMyTurn ? "Your turn!" : "Opponent's turn!";
-        
-        RefreshBoard(Account.Room.Board);
-        if (isMyTurn) 
+
+        if (isMyTurn)
+        {
+            if (Account.Room.Data.LogList.Count > 0)
+                StartCoroutine(ApplyingTurn(Account.Room.Data.LogList.Last()));
             return;
+        }
+
         print("fetching!");
-        var cor = Waiters.LoopFor(2, StartTurn);
+        var cor = Waiters.LoopFor(1.2f, StartTurn);
         StartCoroutine(cor);
     }
 
-    private void RefreshBoard(Dictionary<Point, Tribes> newBoard)
+    private IEnumerator ApplyingTurn(LogNote note)
     {
-        Board = new Dictionary<Point, Tile>();
-        foreach (Transform child in transform)
+        foreach (Transform child in cardSlot)
             Destroy(child.gameObject);
-
-        foreach (var p in newBoard.Keys)
+        var card = Instantiate(player.cardPref, cardSlot).GetComponent<Card>();
+        card.GetComponent<Card>().unplayable = true;
+        card.game = this;
+        var cardChar = Account.GetGlobalCard(int.Parse(note.CardID));
+        card.LoadFrom(cardChar);
+        
+        const float offset = 2.7f;
+        var rightDown = new Vector3(1, -1, 0);
+        card.GetComponent<RectTransform>().position -= rightDown*offset;
+        const float time = 1f;
+        var left = time;
+        while (left > 0)
         {
-            gameEngine.AddTile(p);
-            if (newBoard[p]!=Tribes.None)
-                gameEngine.SpawnUnit(p, newBoard[p]);
+            var dt = Time.deltaTime;
+            yield return Waiters.LoopFor(dt, () => card.GetComponent<RectTransform>().position += rightDown*dt*offset/time);
+            left -= dt;
         }
+
+        
+        //yield return new WaitForSeconds(3);
+        var selections = Parser.ParseSelections(note.Selections);
+        gameEngine.LoadOpponentActions(
+            cardChar,
+            selections);
+        StartCoroutine(Waiters.LoopWhile(
+            () => !gameEngine.loaded,
+            () => { },
+            () =>
+            {
+                if (note.CompletedTemplate != "")
+                    gameEngine.RemoveTemplatesFromBoard(
+                        note.CompletedTemplate
+                            .FromJsonList()
+                            .Select(Parser.GetPositionedTemplateFromString));
+            }));
+        StartCoroutine(Waiters.LoopFor(3, () =>
+        {
+            foreach (Transform child in cardSlot)
+                Destroy(child.gameObject);
+        }));
     }
 
-    public void EndTurn()
+    public void EndTurn(CardCharacter card)
     {
-        player.Hand.Remove(currentCardCharacter);
-        player.Discard.Add(currentCardCharacter);
-        Destroy(currentCard);
-        print(Connector.SendRoom(Account.Room.Name.ToSystemRoom(), Account.Token, Parser.ConvertBoardToJson(Board)));
+        var destroyedCard = FindObjectsOfType<Card>().First(c => c.cardCharacter == card);
+        Destroy(destroyedCard);
+        player.Character.HandList.Remove(card.Id);
+        player.Character.GraveList.Add(card.Id);
+        player.Character.Push();
+        var note = new LogNote(player.Character.Login,
+            card,
+            gameEngine.SelfSelections,
+            gameEngine.LastCompletedTemplates);
+        Account.Room.Data.LogList.Add(note);
+        Account.Room.Push();
+        //print(Account.Room.Data.Log);
+        Connector.SendRoom(Account.Room.Name.ToSystemRoom(), Account.Token, Account.Room.DataString);
+
         StartTurn();
-        
-    }
-
-    private void InitBoard(Point center)
-    {
-        //Size = 3;
-        Board = new Dictionary<Point, Tile>();
-        // for (var i = -Size / 2; i < Size / 2 + 1; i++)
-        // for (var j = -Size / 2; j < Size / 2 + 1; j++)
-        //     gameEngine.AddTile(new Point(i+center.X, j+center.Y));
-        
     }
 
     public void Exit() => SceneManager.LoadScene("MenuScene");
@@ -137,18 +172,16 @@ public class Game : MonoBehaviour
     public void Win(bool shouldDestroy)
     {
         print($"{player.Name} won!");
-        if(shouldDestroy)
+        if (shouldDestroy)
             Connector.DestroyRoom(Account.Token, Account.Room.Name.ToSystemRoom());
         SceneManager.LoadScene("RoomScene");
-        
     }
+
     public void Lose(bool shouldDestroy)
     {
         print($"{player.Name} lost :(");
         if (shouldDestroy)
             Connector.DestroyRoom(Account.Token, Account.Room.Name.ToSystemRoom());
         SceneManager.LoadScene("RoomScene");
-        
     }
 }
-

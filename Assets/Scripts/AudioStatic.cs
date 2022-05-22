@@ -87,7 +87,7 @@ public class AudioStatic : MonoBehaviour
         
         MusicHandler = source.GetComponents<AudioSource>()[1];
         MusicHandler.volume = Account.MusicVolume;
-        MusicHandler.loop = true;
+        MusicHandler.loop = false;
     }
 
     public static void ChangeVolumes()
@@ -100,18 +100,23 @@ public class AudioStatic : MonoBehaviour
     {
         while (true)
         {
-            _mainThemeTime = MusicHandler.time;
-            Thread.Sleep(5);
-            yield return null;
+            MusicHandler.Play();
+
+            while (MusicHandler.isPlaying)
+            {
+                _mainThemeTime = MusicHandler.time;
+                yield return null;
+            }
+
+            MusicHandler.time = 0;
         }
     }
 
     public static void AddMainTheme(MonoBehaviour scene, string soundPath)
     {
         MusicHandler.clip = Resources.Load<AudioClip>(soundPath);
-        MusicHandler.Play();
         MusicHandler.time = _mainThemeTime;
-        
+
         scene.StartCoroutine(UpdateThemeTime());
     }
     
@@ -153,7 +158,7 @@ public class AudioStatic : MonoBehaviour
             button.gameObject.AddComponent<PointerEventsController>();
         }
     }
-    
+
     public static void PlayAudio(string path)
     {
         var clip = Resources.Load<AudioClip>(path);

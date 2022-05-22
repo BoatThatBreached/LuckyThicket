@@ -19,9 +19,7 @@ public class Login : MonoBehaviour
 
     private void Start()
     {   
-        Account.CurrentScene = Scenes.Login;
-        
-            AudioStatic.MenuInitSounds(this, gameObject);
+        AudioStatic.MenuInitSounds(this, gameObject);
     }
 
     public void StartRegister()
@@ -62,7 +60,8 @@ public class Login : MonoBehaviour
 
     #endregion
     
-
+    
+    
     private bool TryConnect(out string token)
     {
         var result = Connector.TryLogin(login.text, password.text, out var message);

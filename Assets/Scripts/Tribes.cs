@@ -2,5 +2,7 @@
 {
     None,
     Beaver, 
-    Magpie
+    Magpie,
+    Playable,
+    Obstacle
 }

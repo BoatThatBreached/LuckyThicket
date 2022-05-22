@@ -13,15 +13,16 @@ public class ActionPointer : MonoBehaviour
         _center = new Vector3(Screen.width, Screen.height) / 2;
     }
 
-    void Update()
+    private void Update()
     {
-        rend.enabled = engine.CurrentAction == Basis.Select;
-        if (engine.CurrentAction != Basis.Select)
+        rend.enabled = engine.CurrentAction == Basis.Select&&!engine.loaded;
+        if (engine.CurrentAction != Basis.Select || engine.loaded)
             return;
-
-        if (Camera.main is null) return;
-        _ratio = Camera.main.orthographicSize / Screen.height * 2;
-        var input = (Input.mousePosition - _center) * _ratio + Camera.main.transform.position;
+        var cam = Camera.main;
+        if (cam is null) 
+            return;
+        _ratio = cam.orthographicSize / Screen.height * 2;
+        var input = (Input.mousePosition - _center) * _ratio + cam.transform.position;
         var p = new Point(Mathf.RoundToInt(input.x), Mathf.RoundToInt(input.y));
         transform.position = new Vector3(p.X, p.Y, 0);
         if (Input.GetMouseButtonDown(0) && engine.SatisfiesCriterias(p))

@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
-using System.Text.RegularExpressions;
 using UnityEngine;
-using UnityEngine.Networking;
 
 public class Connector : MonoBehaviour
 {
@@ -15,10 +12,15 @@ public class Connector : MonoBehaviour
     private const string DataURL = "http://a0664388.xsph.ru/infoExtend.php";
     private const string GameURL = "http://a0664388.xsph.ru/gameLogic.php";
 
-    private static string GetCardByID(int id)
+    public static string SendCard(CardCharacter card)
+    {
+        return Post(CardsURL, JsonUtility.ToJson(card));
+    }
+
+    public static CardCharacter GetCardByID(int id)
     {
         var data = "{\"query\":\"queryCard\", \"Id\":" + id + "}";
-        return Post(CardsURL, data);
+        return Parser.GetCardFromJson(Post(CardsURL, data));
     }
 
     public static bool TryLogin(string login, string password, out string errors)
@@ -41,35 +43,45 @@ public class Connector : MonoBehaviour
 
     private static string Post(string url, string data)
     {
-        var req = (HttpWebRequest) WebRequest.Create(url);
-        
-        req.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:99.0) Gecko/20100101 Firefox/99.0";
-        req.Method = "POST";
-        req.Timeout = 1000000;
-        req.ContentType = "application/x-www-form-urlencoded";
-        var sentData = Encoding.Default.GetBytes(data);
-        req.ContentLength = sentData.Length;
-        var sendStream = req.GetRequestStream();
-        sendStream.Write(sentData, 0, sentData.Length);
-        sendStream.Close();
-        var res = req.GetResponse();
-        var receiveStream = res.GetResponseStream();
-        if (receiveStream == null)
-            return string.Empty;
-        var sr = new System.IO.StreamReader(receiveStream, Encoding.UTF8);
-        var read = new char[256];
-        var count = sr.Read(read, 0, 256);
-        var result = string.Empty;
-        while (count > 0)
-        {
-            var str = new string(read, 0, count);
-            result += str;
-            count = sr.Read(read, 0, 256);
-        }
 
-        sr.Close();
-        receiveStream.Close();
-        return result;
+        try
+        {
+            var req = (HttpWebRequest) WebRequest.Create(url);
+
+            req.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:99.0) Gecko/20100101 Firefox/99.0";
+            req.Method = "POST";
+            req.Timeout = 1000000;
+            req.ContentType = "application/x-www-form-urlencoded";
+            var sentData = Encoding.Default.GetBytes(data);
+            req.ContentLength = sentData.Length;
+            var sendStream = req.GetRequestStream();
+            sendStream.Write(sentData, 0, sentData.Length);
+            sendStream.Close();
+            var res = req.GetResponse();
+            var receiveStream = res.GetResponseStream();
+            if (receiveStream == null)
+                return string.Empty;
+            var result = string.Empty;
+            var sr = new System.IO.StreamReader(receiveStream, Encoding.UTF8);
+            var read = new char[256];
+            var count = sr.Read(read, 0, 256);
+
+            while (count > 0)
+            {
+                var str = new string(read, 0, count);
+                result += str;
+                count = sr.Read(read, 0, 256);
+            }
+
+            sr.Close();
+            receiveStream.Close();
+            return result;
+        }
+        catch (WebException e)
+        {
+            print($"An error occured! Message: {e.Message}. Trying to rePOST");
+            return Post(url, data);
+        }
     }
 
     public static string Register(string login, string password)
@@ -83,7 +95,7 @@ public class Connector : MonoBehaviour
     }
 
     public static IEnumerable<CardCharacter> GetCollection(IEnumerable<int> ids)
-        => ids.Select(id => Parser.GetCardFromJson(GetCardByID(id)));
+        => ids.Select(GetCardByID);
 
     public static IEnumerable<int> GetCollectionIDs(string login)
     {
@@ -123,7 +135,7 @@ public class Connector : MonoBehaviour
                 InitCollection(login, Enumerable.Range(0, 10));
                 break;
             case Tribes.Magpie:
-                InitCollection(login, Enumerable.Range(10, 10));
+                InitCollection(login, new []{10,11,12,13,14,15,16,17,18,21});
                 break;
             case Tribes.None:
                 break;
@@ -165,35 +177,17 @@ public class Connector : MonoBehaviour
 
     public static List<Room> GetRoomsList()
     {
-        var data = "{\"query\":\"getListRooms\"}";
+        const string data = "{\"query\":\"getListRooms\"}";
         var res = Post(GameURL, data);
-        //print(res);
-        var trim = res.Remove(0, 1);
-        trim = trim.Remove(trim.Length-1, 1);
-        //print(trim);
+        var jsons = res.GetJsons();
         var rooms = new List<Room>();
-        var jsons = Regex.Matches(trim, "{.+?(?=})");
-        foreach(var json in jsons)
+        foreach (var room in jsons.Select(sJson => sJson
+            .Replace("\"1\"", "\"FPLegacy\"")
+            .Replace("\"2\"", "\"SPLegacy\"")
+            .Replace("\"name\"", "\"Name\"")
+            .Replace("\"data\"", "\"DataString\"")
+            .Replace("\"lastTurn\"", "\"LastTurn\"")).Select(Room.CreateFromJson))
         {
-            var realJson = json + "}";
-            
-            realJson = realJson
-                .Replace("\"name\"", "\"Name\"")
-                .Replace("\"1\"", "\"FirstPlayer\"")
-                .Replace("\"2\"", "\"SecondPlayer\"")
-                .Replace("\"lastTurn\"", "\"LastTurn\"");
-            if (realJson.Contains("\"data\":"))
-                realJson += "}";
-            var room = JsonUtility.FromJson<Room>(realJson);
-            if (realJson.Contains("data"))
-            {
-                var r = realJson.Substring(realJson.IndexOf("\"data\":", StringComparison.Ordinal) + 7);
-                r.Remove(r.Length - 1);
-                room.Board = Parser.ConvertJsonToBoard(r);
-            }
-            else
-                room.Board = Parser.EmptyField(3);
-
             room.Name = room.Name.FromSystemRoom();
             rooms.Add(room);
         }
@@ -232,15 +226,20 @@ public class Connector : MonoBehaviour
         return Post(GameURL, customData);
     }
 
-    public static string GetRoom(string name, string token)
+    public static Room GetRoom(string name, string token)
     {
         const string ex0 = "{\"query\":\"getData\", \"name\":\"";
         const string ex1 = "\", \"token\":\"";
-        //const string ex2 = "\", \"data\":";
         const string ex3 = "}";
-        //var data = "\"\"";
         var customData = ex0 + name + ex1 + token + ex3;
-        return Post(GameURL, customData);
+        var res = Post(GameURL, customData).GetJsons()[0];
+        
+        var room = new Room
+        {
+            DataString = res
+        };
+        room.Pull();
+        return room;
     }
 
     public static string DestroyRoom(string token, string name)

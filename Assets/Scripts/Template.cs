@@ -7,26 +7,25 @@ public enum SchemaType
     Small
 }
 
-//TODO: Rotate
-
 public class Template
 {
     public Dictionary<Point, Tribes> Points { get; }
+    public string TemplateString;
     public SchemaType Type { get; }
-    public bool IsRotatable { get; }
 
-    public Template(List<List<Tribes>> schema, SchemaType type, bool isRotatable)
+    public Template(List<List<Tribes>> schema, SchemaType type, string templateString)
     {
         Points = new Dictionary<Point, Tribes>();
 
-        for (int i = 0; i < schema.Count; i++)
-        for (int j = 0; j < schema[i].Count; j++)
+        for (var i = 0; i < schema.Count; i++)
+        for (var j = 0; j < schema[i].Count; j++)
             if (schema[i][j] != Tribes.None)
                 Points[new Point(i, j)] = schema[i][j];
-
-        IsRotatable = isRotatable;
         Type = type;
+        TemplateString = templateString;
     }
+
+    public static Template CreateFromString(string source) => Parser.GetTemplateFromString(source);
 }
 
 public class PositionedTemplate
@@ -45,8 +44,7 @@ public class PositionedTemplate
     {
         foreach (var i in Template.Points)
         {
-            var point = new Point(StartingPoint.X + i.Key.X,
-                StartingPoint.Y + i.Key.Y);
+            var point = i.Key.Add(StartingPoint);
             if (!board.ContainsKey(point) || board[point].occupantTribe != i.Value)
                 return false;
         }

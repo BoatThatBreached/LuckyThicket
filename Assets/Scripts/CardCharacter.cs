@@ -44,4 +44,17 @@ public static class CardExtensions
         var arr = source.ToArray();
         return arr[Random.Range(0,arr.Length)];
     }
+
+    public static List<CardCharacter> Shuffled(this IEnumerable<CardCharacter> source)
+    {
+        var list = source.ToList();
+        var res = new List<CardCharacter>();
+        while (list.Count > 0)
+        {
+            var card = list.GetRandom();
+            res.Add(card);
+            list.Remove(card);
+        }
+        return res;
+    }
 }
