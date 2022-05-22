@@ -16,9 +16,8 @@ public class Game : MonoBehaviour
     public Opponent opponent;
     public TMP_Text turnText;
     public bool isMyTurn;
-    public TMP_Text tasks;
     public Transform cardSlot;
-    public Camera cam;
+
     private void Start()
     {
         AudioStatic.GameInitSounds(this, gameObject);
@@ -29,7 +28,6 @@ public class Game : MonoBehaviour
         StartCoroutine(InitBoard());
 
 
-        
     }
 
     private IEnumerator InitBoard()
@@ -77,11 +75,11 @@ public class Game : MonoBehaviour
         room.Data.SecondPlayer.Pull();
         print(room.Data.Log);
         Account.Room = room;
+        player.Init();
+        opponent.Init();
         //Account.Room.Push();
 
         InitCards();
-        tasks.text =
-            $"Вы выполнили {player.CompletedSmall}/2 малых задач и {player.CompletedBig}/1 больших.";
         var lastPlayer = Account.Room.LastTurn ?? Account.Room.Data.SecondPlayer.Login;
         isMyTurn = lastPlayer != Account.Nickname;
         turnText.text = isMyTurn ? "Your turn!" : "Opponent's turn!";
@@ -103,16 +101,20 @@ public class Game : MonoBehaviour
         foreach (Transform child in cardSlot)
             Destroy(child.gameObject);
         var card = Instantiate(player.cardPref, cardSlot).GetComponent<Card>();
+        card.GetComponent<Card>().unplayable = true;
+        card.game = this;
         var cardChar = Account.GetGlobalCard(int.Parse(note.CardID));
         card.LoadFrom(cardChar);
-        var offset = 2.7f;
-        card.GetComponent<RectTransform>().position -= Vector3.one*offset;
-        var time = 1f;
+        
+        const float offset = 2.7f;
+        var rightDown = new Vector3(1, -1, 0);
+        card.GetComponent<RectTransform>().position -= rightDown*offset;
+        const float time = 1f;
         var left = time;
         while (left > 0)
         {
             var dt = Time.deltaTime;
-            yield return Waiters.LoopFor(dt, () => card.GetComponent<RectTransform>().position += Vector3.one*dt*offset/time);
+            yield return Waiters.LoopFor(dt, () => card.GetComponent<RectTransform>().position += rightDown*dt*offset/time);
             left -= dt;
         }
 

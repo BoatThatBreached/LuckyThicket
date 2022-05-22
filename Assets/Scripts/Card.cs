@@ -9,6 +9,7 @@ public class Card : MonoBehaviour
     public Image backImage;
     public Image picture;
     public CardCharacter cardCharacter;
+    public bool unplayable;
 
     private Color Color
     {
@@ -33,7 +34,7 @@ public class Card : MonoBehaviour
 
     public void OnMouseDown()
     {
-        if (!game.isMyTurn)
+        if (!game.isMyTurn||unplayable)
             return;
         game.gameEngine.LoadSelfActions(cardCharacter);
         AudioStatic.PlayAudio("Sounds/card");
