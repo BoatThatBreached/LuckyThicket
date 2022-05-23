@@ -26,8 +26,6 @@ public class Game : MonoBehaviour
         InitPlayer();
         InitOpponent();
         StartCoroutine(InitBoard());
-
-
     }
 
     private IEnumerator InitBoard()
@@ -36,6 +34,7 @@ public class Game : MonoBehaviour
         Board = new Dictionary<Point, Tile>();
         foreach (var point in board.Keys)
         {
+            AudioStatic.sounds[Basis.Build][Tribes.Beaver]();
             gameEngine.Build(point);
             yield return new WaitForSeconds(0.1f);
         }
