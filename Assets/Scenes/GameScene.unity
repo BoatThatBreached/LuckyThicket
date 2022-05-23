@@ -939,8 +939,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   spriteArray:
-  - {fileID: -2978653956524333172, guid: 6e390d73ad7b8ca4aa0e811c3197731c, type: 3}
-  - {fileID: -299690340437171572, guid: 6e390d73ad7b8ca4aa0e811c3197731c, type: 3}
+  - {fileID: 8077882848453586022, guid: 17ece420077decf4c98f4c083b9cdf41, type: 3}
+  - {fileID: -9117311125733374468, guid: 17ece420077decf4c98f4c083b9cdf41, type: 3}
+  - {fileID: 9010804507636666554, guid: 17ece420077decf4c98f4c083b9cdf41, type: 3}
   occupantPref: {fileID: 107081821892478534, guid: 88a337c0150629449a4211c71e16d3d9, type: 3}
 --- !u!114 &350996704
 MonoBehaviour:

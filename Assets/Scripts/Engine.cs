@@ -264,6 +264,8 @@ public class Engine : MonoBehaviour
 
     public bool SatisfiesCriterias(Point p)
     {
+        if (Criterias.Count == 0)
+            return true;
         var pred = Criterias.All(crit => crit(p));
         if (_notExistingNeeded)
             pred = pred && Board.Keys

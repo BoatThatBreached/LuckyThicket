@@ -16,7 +16,7 @@ public class Rooms : MonoBehaviour
     {
      
         // Connector.DestroyRoom(Account.Token, "sasasasaas".ToSystemRoom());
-        
+        print(Connector.GetCardByID(25).Name);
         Fetch();
         AudioStatic.MenuInitSounds(this, gameObject);
     }
