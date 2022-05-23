@@ -34,10 +34,10 @@ public class Card : MonoBehaviour
 
     public void OnMouseDown()
     {
-        if (!game.isMyTurn||unplayable)
+        AudioStatic.PlayAudio("Sounds/card");
+        if (!game.isMyTurn||unplayable||game.gameEngine.CurrentChain.Count>0)
             return;
         game.gameEngine.LoadSelfActions(cardCharacter);
-        AudioStatic.PlayAudio("Sounds/card");
     }
 
     public void ChangeSize(bool enlarging) =>

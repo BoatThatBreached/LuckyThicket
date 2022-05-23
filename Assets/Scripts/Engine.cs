@@ -8,7 +8,7 @@ using Random = System.Random;
 
 public class Engine : MonoBehaviour
 {
-    private Queue<Basis> CurrentChain { get; set; }
+    public Queue<Basis> CurrentChain { get; private set; }
     private Dictionary<Basis, Action> Actions { get; set; }
 
     private Point AnchorZ { get; set; }
