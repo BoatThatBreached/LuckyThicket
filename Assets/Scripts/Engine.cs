@@ -340,7 +340,8 @@ public class Engine : MonoBehaviour
             return;
         }
 
-        var completedOpponent = game.opponent.GetTemplatesPlayerCanComplete(Board);
+        var completedOpponent = game.opponent.GetTemplatesPlayerCanComplete(Board)
+        .OrderBy(pt => pt.Template.Type == SchemaType.Big ? 1 : 0).ToList();;
         if (completedOpponent.Count > 0)
         {
             print($"{game.opponent.Name} can complete smth and count is {completedOpponent.Count}");
