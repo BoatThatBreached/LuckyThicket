@@ -7,10 +7,10 @@ using UnityEngine;
 
 public class Connector : MonoBehaviour
 {
-    private const string CardsURL = "http://a0664388.xsph.ru/test.php";
-    private const string AuthURL = "http://a0664388.xsph.ru/auth.php";
-    private const string DataURL = "http://a0664388.xsph.ru/infoExtend.php";
-    private const string GameURL = "http://a0664388.xsph.ru/gameLogic.php";
+    private const string CardsURL = "http://a0677209.xsph.ru/test.php";
+    private const string AuthURL = "http://a0677209.xsph.ru/auth.php";
+    private const string DataURL = "http://a0677209.xsph.ru/infoExtend.php";
+    private const string GameURL = "http://a0677209.xsph.ru/gameLogic.php";
 
     public static string SendCard(CardCharacter card)
     {
@@ -51,7 +51,7 @@ public class Connector : MonoBehaviour
             req.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:99.0) Gecko/20100101 Firefox/99.0";
             req.Method = "POST";
             req.Timeout = 1000000;
-            req.ContentType = "application/x-www-form-urlencoded";
+            req.ContentType = "application/json; charset=utf-8";
             var sentData = Encoding.Default.GetBytes(data);
             req.ContentLength = sentData.Length;
             var sendStream = req.GetRequestStream();
