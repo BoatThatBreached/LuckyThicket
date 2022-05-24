@@ -150,7 +150,8 @@ public class Parser
             }
             catch
             {
-                throw new Exception("Something wrong with abilityString in " +cardCharacter.Id.ToString() + " card");
+                
+                throw new Exception($"Something wrong with {cardCharacter.AbilityString} in {cardCharacter.Id} card");
             }
         }
 
