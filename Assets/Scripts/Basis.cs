@@ -12,6 +12,7 @@
     Pull,
     Convert,
     Drag,
+    Invert,
 
     #endregion
 

@@ -20,9 +20,9 @@ for index, row in beavers.iterrows():
         s = {"Id": int(ind[3]), "Name": ind[0], "Rarity": int(rarityDict[ind[1]]), "AbilityMask": str(ind[2]),
              "AbilityString": str(ind[4])}
 
-        empty = "{" + "\"Id\": {0}, \"Name\": {1}, \"Rarity\": {2}, \"AbilityMask\": {3}, \"AbilityString\": {4}" \
-            .format(int(ind[3]), "", 0, "", "") + "}"
-
+##        empty = "{" + "\"Id\": {0}, \"Name\": {1}, \"Rarity\": {2}, \"AbilityMask\": {3}, \"AbilityString\": {4}" \
+##            .format(int(ind[3]), "", 0, "", "") + "}"
+        print(s)
         response = re.post(server_url, json=s, headers={"Content-type": "application/json; charset=utf-8"})
 
 for index, row in magpies.iterrows():
@@ -34,7 +34,7 @@ for index, row in magpies.iterrows():
              "AbilityMask": str(ind[2]),
              "AbilityString": str(ind[4])}
 
-        empty = "{" + "\"Id\": {0}, \"Name\": {1}, \"Rarity\": {2}, \"AbilityMask\": {3}, \"AbilityString\": {4}" \
-            .format(int(ind[3]), "", 0, "", "") + "}"
-
+##        empty = "{" + "\"Id\": {0}, \"Name\": {1}, \"Rarity\": {2}, \"AbilityMask\": {3}, \"AbilityString\": {4}" \
+##            .format(int(ind[3]), "", 0, "", "") + "}"
+        print(s)
         response = re.post(server_url, json=s)
