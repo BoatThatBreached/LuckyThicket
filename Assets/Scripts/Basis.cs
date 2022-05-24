@@ -12,6 +12,7 @@
     Pull,
     Convert,
     Drag,
+    Invert,
 
     #endregion
 
@@ -75,7 +76,9 @@
     #region Links
 
     Idle,
-    Also
+    Also,
 
     #endregion
+    
+    NotImplementedWord
 }

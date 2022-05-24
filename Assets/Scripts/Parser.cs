@@ -142,7 +142,9 @@ public class Parser
         {
             if (it == "")
                 continue;
-            q.Enqueue((Basis) Enum.Parse(typeof(Basis), it));
+            
+                
+            q.Enqueue((Basis) Enum.Parse(typeof(Basis), it=="nan"?"NotImplementedWord":it));
         }
 
         cardCharacter.Ability = q;

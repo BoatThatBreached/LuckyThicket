@@ -7,10 +7,10 @@ using UnityEngine;
 
 public class Connector : MonoBehaviour
 {
-    private const string CardsURL = "http://a0664388.xsph.ru/test.php";
-    private const string AuthURL = "http://a0664388.xsph.ru/auth.php";
-    private const string DataURL = "http://a0664388.xsph.ru/infoExtend.php";
-    private const string GameURL = "http://a0664388.xsph.ru/gameLogic.php";
+    private const string CardsURL = "http://a0677209.xsph.ru/test.php";
+    private const string AuthURL = "http://a0677209.xsph.ru/auth.php";
+    private const string DataURL = "http://a0677209.xsph.ru/infoExtend.php";
+    private const string GameURL = "http://a0677209.xsph.ru/gameLogic.php";
 
     public static string SendCard(CardCharacter card)
     {
