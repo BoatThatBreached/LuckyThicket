@@ -39,7 +39,7 @@ public enum Rarity
 
 public static class CardExtensions
 {
-    public static CardCharacter GetRandom(this IEnumerable<CardCharacter> source)
+    public static T GetRandom<T>(this IEnumerable<T> source)
     {
         var arr = source.ToArray();
         return arr[Random.Range(0,arr.Length)];

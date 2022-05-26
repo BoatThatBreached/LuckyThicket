@@ -51,7 +51,7 @@ public class Login : MonoBehaviour
     public void SwapPasswords()
     {
         _hidden = !_hidden;
-        password.textComponent.color = new Color(1, 1, 1, _hidden ? 0 : 1);
+        password.textComponent.color = new Color(0, 0, 0, _hidden ? 0 : 1);
         duckPassword.gameObject.SetActive(_hidden);
     }
     

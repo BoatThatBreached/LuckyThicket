@@ -9,7 +9,7 @@ using System.Linq;
 public class Opponent : MonoBehaviour
 {
     public TMP_Text nameField;
-    private PlayerCharacter Character;
+    public PlayerCharacter Character;
     public RectTransform bigTemplateSlot;
     public RectTransform[] smallTemplatesSlots;
     public GameObject templateTilePref;

@@ -17,7 +17,7 @@ public class Engine : MonoBehaviour
     // private Point AnchorS { get; set; }
     // private Point AnchorT { get; set; }
     private Tribes AnchorTribeZ { get; set; }
-    private Tribes AnchorTribeF { get; set; }
+    //private Tribes AnchorTribeF { get; set; }
 
     // private Tribes AnchorTribeS { get; set; }
     // private Tribes AnchorTribeT { get; set; }
@@ -27,8 +27,9 @@ public class Engine : MonoBehaviour
     private bool _all;
     private Random _random;
     public Game game;
+
     private Dictionary<Point, Tile> Board => game.Board;
-    private Dictionary<Point, Tile> TempTiles;
+    //private Dictionary<Point, Tile> TempTiles;
 
     private Queue<Point> LoadedSelections { get; set; }
     public Queue<Point> SelfSelections { get; private set; }
@@ -36,10 +37,14 @@ public class Engine : MonoBehaviour
     public bool loaded;
     public List<PositionedTemplate> LastCompletedTemplates;
 
+    private bool _opponentNeeds;
+    private List<int> _cardsSource;
+
     private readonly Basis[] _cardInteractions =
     {
-        Basis.Discard, Basis.Draw, Basis.Hand, Basis.Graveyard, Basis.Opponent,
-        Basis.Steal, Basis.Deck
+        Basis.Discard, Basis.Draw, //TODO: Steal?
+        Basis.Opponent,
+        Basis.Hand, Basis.Deck, Basis.Graveyard
     };
 
     private void Awake()
@@ -47,12 +52,14 @@ public class Engine : MonoBehaviour
         CurrentChain = new Queue<Basis>();
         LoadedSelections = new Queue<Point>();
         SelfSelections = new Queue<Point>();
-        TempTiles = new Dictionary<Point, Tile>();
+        //TempTiles = new Dictionary<Point, Tile>();
         FlushAnchor();
         FlushTribe();
         _notExistingNeeded = false;
+        _opponentNeeds = false;
         Criterias = new List<Func<Point, bool>>();
         _random = new Random();
+        _cardsSource = game.player.Character.DeckList;
         InitActions();
     }
 
@@ -76,7 +83,7 @@ public class Engine : MonoBehaviour
             [Basis.Playable] = () => AnchorTribeZ = Tribes.Playable,
             [Basis.Obstacle] = () => AnchorTribeZ = Tribes.Obstacle,
             [Basis.ShiftAnchor] = () => { AnchorF = AnchorZ; },
-            [Basis.ShiftTribe] = () => { AnchorTribeF = AnchorTribeZ; },
+            //[Basis.ShiftTribe] = () => { AnchorTribeF = AnchorTribeZ; },
             [Basis.Free] = () => Criterias.Add(IsFree),
             [Basis.Adjacent] = () => Criterias.Add(IsAdjacentToAnchor),
             [Basis.Surrounding] = () => Criterias.Add(IsSurroundingToAnchor),
@@ -108,7 +115,20 @@ public class Engine : MonoBehaviour
                 else
                     TrySelectRandomPoint();
             },
-            [Basis.Draw] = () => game.player.DrawCard(true)
+            [Basis.Draw] = () =>
+            {
+                if (!game.player.Draw(_cardsSource))
+                    SkipToAlso();
+            },
+            [Basis.Discard] = () =>
+            {
+                if (!game.player.Discard(_cardsSource, _loadedCard)) 
+                    SkipToAlso();
+            },
+            [Basis.Graveyard] = () => RefreshCardsSource(Basis.Graveyard),
+            [Basis.Deck] = () => RefreshCardsSource(Basis.Deck),
+            [Basis.Hand] = () => RefreshCardsSource(Basis.Hand),
+            [Basis.Opponent] = () => _opponentNeeds = true,
         };
     }
 
@@ -147,15 +167,15 @@ public class Engine : MonoBehaviour
         var tile = Instantiate(game.tilePref, transform);
         tile.transform.position = new Vector3(p.X, p.Y, 0);
         var t = tile.GetComponent<Tile>();
-        if (!temp)
-            Board[p] = t;
-        else
-            TempTiles[p] = t;
+        //if (!temp)
+        Board[p] = t;
+        // else
+        //     TempTiles[p] = t;
     }
 
     public void Destroy(Point p, bool temp = false)
     {
-        var dict = temp ? TempTiles : Board;
+        var dict = Board; //temp ? TempTiles : Board;
         var tile = dict[p].gameObject;
         Destroy(tile);
         dict.Remove(p);
@@ -184,7 +204,7 @@ public class Engine : MonoBehaviour
     private void Kill(Point p)
     {
         Board[p].occupantTribe = Tribes.None;
-        foreach(Transform child in Board[p].transform)
+        foreach (Transform child in Board[p].transform)
             Destroy(child.gameObject);
         FlushTribe();
     }
@@ -216,6 +236,7 @@ public class Engine : MonoBehaviour
         Kill(p);
         Spawn(p, tribe);
     }
+
     private void Invert(Point p)
     {
         switch (GetOccupantTribe(p))
@@ -239,10 +260,31 @@ public class Engine : MonoBehaviour
 
     #endregion
 
+    private void RefreshCardsSource(Basis b)
+    {
+        switch (b)
+        {
+            case Basis.Hand:
+                _cardsSource = (_opponentNeeds ? game.opponent.Character : game.player.Character)
+                    .HandList;
+                break;
+            case Basis.Graveyard:
+                _cardsSource = (_opponentNeeds ? game.opponent.Character : game.player.Character)
+                    .GraveList;
+                break;
+            case Basis.Deck:
+                _cardsSource = (_opponentNeeds ? game.opponent.Character : game.player.Character)
+                    .DeckList;
+                break;
+            default:
+                throw new ArgumentException($"Something is wrong with this cards source: {b}");
+        }
+    }
+
     private void FlushTribe()
     {
         AnchorTribeZ = Tribes.None;
-        AnchorTribeF = Tribes.None;
+        //AnchorTribeF = Tribes.None;
     }
 
     private void FlushAnchor()
@@ -359,7 +401,6 @@ public class Engine : MonoBehaviour
 
         var completedOpponent = game.opponent.GetTemplatesPlayerCanComplete(Board)
             .OrderBy(pt => pt.Template.Type == SchemaType.Big ? 1 : 0).ToList();
-        ;
         if (completedOpponent.Count > 0)
         {
             print($"{game.opponent.Name} can complete smth and count is {completedOpponent.Count}");
@@ -402,13 +443,8 @@ public class Engine : MonoBehaviour
                 .SelectMany(p => p.GetAdjacent())
                 .Where(p => !Exists(p))
                 .ToList();
-            var notExistingRes = false;
-            foreach (var p in points.Where(SatisfiesCriterias))
-            {
-                notExistingRes = true;
-            }
 
-            return notExistingRes;
+            return points.Any(SatisfiesCriterias);
         }
 
         var res = false;

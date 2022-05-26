@@ -60,7 +60,7 @@
 
     Draw,
     Discard,
-    Steal,
+    //Steal,
 
     #endregion
 
@@ -79,6 +79,4 @@
     Also,
 
     #endregion
-    
-    NotImplementedWord
 }

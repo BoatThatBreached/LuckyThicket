@@ -148,6 +148,7 @@ public class Game : MonoBehaviour
         player.Character.HandList.Remove(card.Id);
         player.Character.GraveList.Add(card.Id);
         player.Character.Push();
+        opponent.Character.Push();
         var note = new LogNote(player.Character.Login,
             card,
             gameEngine.SelfSelections,

@@ -41,16 +41,27 @@ public class Player : MonoBehaviour
         card.LoadFrom(cardCharacter, this);
     }
 
-    public void DrawCard(bool drawnByCard)
+    public bool Draw(List<int> source)
     {
-        var extra = drawnByCard ? 1 : 0;
-        if (Character.HandList.Count >= extra + 5)
-            return;
-        var id = Character.DeckList[0];
-        Character.DeckList.RemoveAt(0);
+        if (Character.HandList.Count >= 6)
+            return false;
+        var id = source[0];
+        source.RemoveAt(0);
         Character.HandList.Add(id);
-        Character.Push();
         DrawCard(id);
+        return true;
+    }
+
+    public bool Discard(List<int> source, CardCharacter cardCharacter)
+    {
+        if (source.Count == 1 && source[0] == cardCharacter.Id || source.Count == 0)
+            return false;
+        var copy = source.ToArray().ToList();
+        if (copy.Contains(cardCharacter.Id))
+            copy.Remove(cardCharacter.Id);
+        var id = copy.GetRandom();
+        source.Remove(id);
+        return true;
     }
 
     public void Init()
