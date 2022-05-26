@@ -134,6 +134,8 @@ public class Parser
     public static CardCharacter GetCardFromJson(string json)
     {
         var cardCharacter = JsonUtility.FromJson<CardCharacter>(json);
+        cardCharacter.Name = Encoding.UTF8.GetString(Encoding.Default.GetBytes(cardCharacter.Name));
+        cardCharacter.AbilityString = Encoding.UTF8.GetString(Encoding.Default.GetBytes(cardCharacter.AbilityString));
         var abilityString = cardCharacter.AbilityString;
         var q = new Queue<Basis>();
         //Debug.Log(json);
@@ -142,9 +144,15 @@ public class Parser
         {
             if (it == "")
                 continue;
-            
+            try
+            {
+                q.Enqueue((Basis)Enum.Parse(typeof(Basis), it));
+            }
+            catch
+            {
                 
-            q.Enqueue((Basis) Enum.Parse(typeof(Basis), it=="nan"?"NotImplementedWord":it));
+                throw new Exception($"Something wrong with {cardCharacter.AbilityString} in {cardCharacter.Id} card");
+            }
         }
 
         cardCharacter.Ability = q;

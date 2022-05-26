@@ -51,7 +51,7 @@ public class Connector : MonoBehaviour
             req.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:99.0) Gecko/20100101 Firefox/99.0";
             req.Method = "POST";
             req.Timeout = 1000000;
-            req.ContentType = "application/x-www-form-urlencoded";
+            req.ContentType = "application/json; charset=utf-8";
             var sentData = Encoding.Default.GetBytes(data);
             req.ContentLength = sentData.Length;
             var sendStream = req.GetRequestStream();
