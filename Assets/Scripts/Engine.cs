@@ -67,6 +67,7 @@ public class Engine : MonoBehaviour
             [Basis.Push] = () => Push(AnchorF, AnchorZ),
             [Basis.Pull] = () => Pull(AnchorF, AnchorZ),
             [Basis.Convert] = () => Convert(AnchorZ, AnchorTribeZ),
+            [Basis.Invert] = () => Invert(AnchorZ),
             [Basis.Drag] = () => Drag(AnchorF, AnchorZ),
             [Basis.Lock] = () => Lock(AnchorZ),
             [Basis.Unlock] = () => Unlock(AnchorZ),
@@ -183,7 +184,8 @@ public class Engine : MonoBehaviour
     private void Kill(Point p)
     {
         Board[p].occupantTribe = Tribes.None;
-        Destroy(Board[p].transform.GetChild(0).gameObject);
+        foreach(Transform child in Board[p].transform)
+            Destroy(child.gameObject);
         FlushTribe();
     }
 
@@ -213,6 +215,19 @@ public class Engine : MonoBehaviour
     {
         Kill(p);
         Spawn(p, tribe);
+    }
+    private void Invert(Point p)
+    {
+        switch (GetOccupantTribe(p))
+        {
+            case Tribes.Magpie:
+                Convert(p, Tribes.Beaver);
+                break;
+            case Tribes.Beaver:
+                Convert(p, Tribes.Magpie);
+                break;
+            //TODO: cyclic or dual inversion?
+        }
     }
 
     private void Drag(Point from, Point to)
@@ -343,7 +358,8 @@ public class Engine : MonoBehaviour
         }
 
         var completedOpponent = game.opponent.GetTemplatesPlayerCanComplete(Board)
-        .OrderBy(pt => pt.Template.Type == SchemaType.Big ? 1 : 0).ToList();;
+            .OrderBy(pt => pt.Template.Type == SchemaType.Big ? 1 : 0).ToList();
+        ;
         if (completedOpponent.Count > 0)
         {
             print($"{game.opponent.Name} can complete smth and count is {completedOpponent.Count}");
