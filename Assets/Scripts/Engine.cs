@@ -59,7 +59,7 @@ public class Engine : MonoBehaviour
         _opponentNeeds = false;
         Criterias = new List<Func<Point, bool>>();
         _random = new Random();
-        
+
         InitActions();
     }
 
@@ -122,7 +122,7 @@ public class Engine : MonoBehaviour
             },
             [Basis.Discard] = () =>
             {
-                if (!game.player.Discard(cardsSource, _loadedCard)) 
+                if (!game.player.Discard(cardsSource, _loadedCard))
                     SkipToAlso();
             },
             [Basis.Graveyard] = () => RefreshCardsSource(Basis.Graveyard),
@@ -149,7 +149,7 @@ public class Engine : MonoBehaviour
     {
         var tribe = GetOccupantTribe(p);
         if (AnchorTribeZ == Tribes.Playable)
-            return tribe != Tribes.Obstacle;
+            return tribe != Tribes.Obstacle && tribe != Tribes.None;
         return tribe == AnchorTribeZ;
     }
 
@@ -357,7 +357,7 @@ public class Engine : MonoBehaviour
             Step();
             return;
         }
-        
+
         if (_all)
             ApplyAll();
         else
@@ -490,7 +490,15 @@ public class Engine : MonoBehaviour
     private void RemoveTemplateFromBoard(PositionedTemplate positionedTemplate)
     {
         foreach (var p in positionedTemplate.Template.Points.Keys)
-            Kill(p.Add(positionedTemplate.StartingPoint));
+            Board[p].GetComponent<SpriteRenderer>().color = Color.magenta;
+        StartCoroutine(Waiters.LoopFor(1, () =>
+        {
+            foreach (var p in positionedTemplate.Template.Points.Keys)
+                Kill(p.Add(positionedTemplate.StartingPoint));
+            foreach (var p in positionedTemplate.Template.Points.Keys)
+                Board[p].GetComponent<SpriteRenderer>().color = Color.white;
+        }));
+        
     }
 
     public void RemoveTemplatesFromBoard(IEnumerable<PositionedTemplate> templates)
