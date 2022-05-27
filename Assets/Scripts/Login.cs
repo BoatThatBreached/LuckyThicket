@@ -124,11 +124,11 @@ public class Login : MonoBehaviour
         var result = Connector.Register(login.text, password.text);
         if (result.Contains("error"))
         {
-            ShowError(result);
+            ShowError("Пользователь с таким именем уже есть!");
             return false;
         }
 
-        ShowSuccess("Registered successfully");
+        ShowSuccess("Ура, теперь у вас есть аккаунт!");
         return true;
     }
 
