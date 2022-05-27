@@ -33,11 +33,18 @@ public class Connector : MonoBehaviour
         //print(ans);
         if (ans.Contains("errors"))
         {
-            errors = ans.Split('\"')[3];
+            errors = "Возникла ошибка!";
+            if (ans.Contains("bad pass"))
+                errors = "Пароль неверный!";
+            else if (ans.Contains("not found"))
+                errors = "Пользователь не найден!";
+            else if (ans.Contains("already"))
+                errors = "Пользователь с таким именем уже есть!";
             return false;
         }
 
         errors = ans;
+        
         return true;
     }
 
