@@ -60,7 +60,6 @@
 
     Draw,
     Discard,
-    //Steal,
 
     #endregion
 
@@ -79,4 +78,13 @@
     Also,
 
     #endregion
+    
+    Completed,
+    Player,
+    Await,
+    Zero,
+    Give,           
+    Temp,           
+    Inc,                  
+    Count
 }

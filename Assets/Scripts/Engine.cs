@@ -39,11 +39,14 @@ public class Engine : MonoBehaviour
 
     private bool _opponentNeeds;
     public List<int> cardsSource;
+    private int Counter;
+    private int ConditionCounter;
+    private Basis unitProperty;
 
     private readonly Basis[] _cardInteractions =
     {
-        Basis.Discard, Basis.Draw, //TODO: Steal?
-        Basis.Opponent,
+        Basis.Discard, Basis.Draw, Basis.Give,
+        Basis.Opponent, Basis.Player,
         Basis.Hand, Basis.Deck, Basis.Graveyard
     };
 
@@ -59,7 +62,7 @@ public class Engine : MonoBehaviour
         _opponentNeeds = false;
         Criterias = new List<Func<Point, bool>>();
         _random = new Random();
-
+        cardsSource = null;
         InitActions();
     }
 
@@ -125,10 +128,26 @@ public class Engine : MonoBehaviour
                 if (!game.player.Discard(cardsSource, _loadedCard))
                     SkipToAlso();
             },
+            [Basis.Give] = () =>
+            {
+                if (!game.player.Give(cardsSource))
+                    SkipToAlso();
+            },
             [Basis.Graveyard] = () => RefreshCardsSource(Basis.Graveyard),
             [Basis.Deck] = () => RefreshCardsSource(Basis.Deck),
             [Basis.Hand] = () => RefreshCardsSource(Basis.Hand),
             [Basis.Opponent] = () => _opponentNeeds = true,
+            [Basis.Player] = () => _opponentNeeds = false,
+            [Basis.Inc] = () => Counter++,
+            [Basis.Completed] = () => ConditionCounter = 3 - game.player.Character.TemplatesList.Count,
+            [Basis.Count] = () => ConditionCounter = Board.Keys.Count(SatisfiesCriterias),
+            [Basis.Temp] = () => unitProperty = Basis.Temp,
+            [Basis.Await] = () => unitProperty = Basis.Await,
+            [Basis.Zero] = () =>
+            {
+                if (ConditionCounter == 0)
+                    SkipToAlso();
+            }
         };
     }
 
@@ -177,6 +196,7 @@ public class Engine : MonoBehaviour
     {
         var dict = Board; //temp ? TempTiles : Board;
         var tile = dict[p].gameObject;
+        Kill(p);
         Destroy(tile);
         dict.Remove(p);
     }
@@ -193,6 +213,7 @@ public class Engine : MonoBehaviour
 
     public void Spawn(Point p, Tribes t)
     {
+        // TODO: Temp & Await
         Board[p].occupantTribe = t;
         var occupant = Instantiate(game.designer.occupantPref, Board[p].transform);
         occupant.GetComponent<SpriteRenderer>().color = game.designer.Colors[t];
@@ -360,15 +381,29 @@ public class Engine : MonoBehaviour
 
         if (_all)
             ApplyAll();
+        else if (Counter > 0)
+            ApplyCount();
         else
             Actions[CurrentAction]();
         if (CurrentAction != Basis.Select && CurrentAction != Basis.Idle)
             Step();
     }
 
+    private void ApplyCount()
+    {
+        var pts = Board.Keys.Where(SatisfiesCriterias).Shuffled().Take(Counter);
+        foreach (var p in pts)
+        {
+            AnchorZ = p;
+            Actions[CurrentAction]();
+        }
+
+        Counter = 0;
+    }
+
     private void ApplyAll()
     {
-        var pts = Board.Keys.Where(SatisfiesCriterias).ToList();
+        var pts = Board.Keys.Where(SatisfiesCriterias);
         foreach (var p in pts)
         {
             AnchorZ = p;
@@ -498,7 +533,6 @@ public class Engine : MonoBehaviour
             foreach (var p in positionedTemplate.Template.Points.Keys)
                 Board[p].GetComponent<SpriteRenderer>().color = Color.white;
         }));
-        
     }
 
     public void RemoveTemplatesFromBoard(IEnumerable<PositionedTemplate> templates)

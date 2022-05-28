@@ -77,7 +77,7 @@ public class Game : MonoBehaviour
         player.Init();
         opponent.Init();
         //Account.Room.Push();
-        gameEngine.cardsSource = player.Character.DeckList;
+        
         InitCards();
         var lastPlayer = Account.Room.LastTurn ?? Account.Room.Data.SecondPlayer.Login;
         isMyTurn = lastPlayer != Account.Nickname;

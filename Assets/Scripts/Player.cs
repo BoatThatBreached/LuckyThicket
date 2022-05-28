@@ -54,13 +54,22 @@ public class Player : MonoBehaviour
 
     public bool Discard(List<int> source, CardCharacter cardCharacter)
     {
-        if (source.Count == 1 && source[0] == cardCharacter.Id || source.Count == 0)
-            return false;
         var copy = source.ToArray().ToList();
         if (copy.Contains(cardCharacter.Id))
             copy.Remove(cardCharacter.Id);
+        if (copy.Count == 0)
+            return false;
         var id = copy.GetRandom();
         source.Remove(id);
+        return true;
+    }
+    public bool Give(List<int> source)
+    {
+        if (source.Count == 0)
+            return false;
+        var id = source.GetRandom();
+        source.Remove(id);
+        game.opponent.Character.HandList.Add(id);
         return true;
     }
 

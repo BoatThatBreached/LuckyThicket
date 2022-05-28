@@ -79,12 +79,12 @@
      <Compile Include="Assets\Scripts\OccupantDesigner.cs" />
      <Compile Include="Assets\Scripts\ActionPointer.cs" />
      <Compile Include="Assets\Scripts\Shop.cs" />
+     <Compile Include="Assets\Scripts\Popup.cs" />
      <Compile Include="Assets\Scripts\DeckPref.cs" />
      <Compile Include="Assets\Scripts\AudioStatic.cs" />
      <Compile Include="Assets\Scripts\Rooms.cs" />
      <Compile Include="Assets\Scripts\CardCharacter.cs" />
      <Compile Include="Assets\Scripts\DevScene.cs" />
-     <Compile Include="Assets\Scripts\Popup.cs" />
      <None Include="Assets\Scripts\Scripts.asmdef" />
  <Reference Include="UnityEngine">
  <HintPath>C:/Unity/2020.3.33f1/Editor/Data/Managed/UnityEngine/UnityEngine.dll</HintPath>
