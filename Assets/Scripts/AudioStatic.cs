@@ -40,14 +40,30 @@ public class AudioStatic : MonoBehaviour
                 Basis.Kill, new Dictionary<Tribes, Action>
                 {
                     { Tribes.Beaver, () => PlayAudio("Sounds/beaver_kill") },
-                    { Tribes.Magpie, () => PlayAudio("Sounds/magpie_kill") }
+                    { Tribes.Magpie, () => PlayAudio("Sounds/magpie_kill") },
+                    { Tribes.Obstacle, () => PlayAudio("Sounds/rustle") },
                 }
             },
             {
                 Basis.Spawn, new Dictionary<Tribes, Action>
                 {
                     { Tribes.Beaver, () => PlayAudio("Sounds/click") },
-                    { Tribes.Magpie, () => PlayAudio("Sounds/click") }
+                    { Tribes.Magpie, () => PlayAudio("Sounds/click") },
+                    { Tribes.Obstacle, () => PlayAudio("Sounds/rustle") }
+                }
+            },
+            {
+                Basis.Pull, new Dictionary<Tribes, Action>
+                {
+                    { Tribes.Beaver, () => PlayAudio("Sounds/meat_hook") },
+                    { Tribes.Magpie, () => PlayAudio("Sounds/meat_hook") },
+                }
+            },
+            {
+                Basis.Push, new Dictionary<Tribes, Action>
+                {
+                    { Tribes.Beaver, () => PlayAudio("Sounds/punch") },
+                    { Tribes.Magpie, () => PlayAudio("Sounds/punch") },
                 }
             },
             /*{

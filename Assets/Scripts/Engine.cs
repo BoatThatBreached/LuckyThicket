@@ -420,6 +420,7 @@ public class Engine : MonoBehaviour
             .OrderBy(pt => pt.Template.Type == SchemaType.Big ? 0 : 1).ToList();
         if (completedPlayer.Count > 0)
         {
+            AudioStatic.PlayAudio("Sounds/template_complete");
             print($"{game.player.Name} can complete smth and count is {completedPlayer.Count}");
             // delete first completed
             var template = completedPlayer[0];
