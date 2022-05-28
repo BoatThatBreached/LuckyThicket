@@ -32,6 +32,7 @@ public class Menu : MonoBehaviour
 
     public void Logout()
     {
+        Login.ClearCredentials();
         Account.Reset();
         SceneManager.LoadScene("LoginScene");
     }

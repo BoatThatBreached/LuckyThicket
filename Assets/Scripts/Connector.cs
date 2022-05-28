@@ -38,8 +38,7 @@ public class Connector : MonoBehaviour
                 errors = "Пароль неверный!";
             else if (ans.Contains("not found"))
                 errors = "Пользователь не найден!";
-            else if (ans.Contains("already"))
-                errors = "Пользователь с таким именем уже есть!";
+            
             return false;
         }
 

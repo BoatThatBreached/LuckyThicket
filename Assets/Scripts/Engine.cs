@@ -38,7 +38,7 @@ public class Engine : MonoBehaviour
     public List<PositionedTemplate> LastCompletedTemplates;
 
     private bool _opponentNeeds;
-    private List<int> _cardsSource;
+    public List<int> cardsSource;
 
     private readonly Basis[] _cardInteractions =
     {
@@ -59,7 +59,7 @@ public class Engine : MonoBehaviour
         _opponentNeeds = false;
         Criterias = new List<Func<Point, bool>>();
         _random = new Random();
-        _cardsSource = game.player.Character.DeckList;
+
         InitActions();
     }
 
@@ -117,12 +117,12 @@ public class Engine : MonoBehaviour
             },
             [Basis.Draw] = () =>
             {
-                if (!game.player.Draw(_cardsSource))
+                if (!game.player.Draw(cardsSource))
                     SkipToAlso();
             },
             [Basis.Discard] = () =>
             {
-                if (!game.player.Discard(_cardsSource, _loadedCard)) 
+                if (!game.player.Discard(cardsSource, _loadedCard))
                     SkipToAlso();
             },
             [Basis.Graveyard] = () => RefreshCardsSource(Basis.Graveyard),
@@ -149,7 +149,7 @@ public class Engine : MonoBehaviour
     {
         var tribe = GetOccupantTribe(p);
         if (AnchorTribeZ == Tribes.Playable)
-            return tribe != Tribes.Obstacle;
+            return tribe != Tribes.Obstacle && tribe != Tribes.None;
         return tribe == AnchorTribeZ;
     }
 
@@ -265,15 +265,15 @@ public class Engine : MonoBehaviour
         switch (b)
         {
             case Basis.Hand:
-                _cardsSource = (_opponentNeeds ? game.opponent.Character : game.player.Character)
+                cardsSource = (_opponentNeeds ? game.opponent.Character : game.player.Character)
                     .HandList;
                 break;
             case Basis.Graveyard:
-                _cardsSource = (_opponentNeeds ? game.opponent.Character : game.player.Character)
+                cardsSource = (_opponentNeeds ? game.opponent.Character : game.player.Character)
                     .GraveList;
                 break;
             case Basis.Deck:
-                _cardsSource = (_opponentNeeds ? game.opponent.Character : game.player.Character)
+                cardsSource = (_opponentNeeds ? game.opponent.Character : game.player.Character)
                     .DeckList;
                 break;
             default:
@@ -385,6 +385,7 @@ public class Engine : MonoBehaviour
             .OrderBy(pt => pt.Template.Type == SchemaType.Big ? 0 : 1).ToList();
         if (completedPlayer.Count > 0)
         {
+            AudioStatic.PlayAudio("Sounds/template_complete");
             print($"{game.player.Name} can complete smth and count is {completedPlayer.Count}");
             // delete first completed
             var template = completedPlayer[0];
@@ -490,7 +491,15 @@ public class Engine : MonoBehaviour
     private void RemoveTemplateFromBoard(PositionedTemplate positionedTemplate)
     {
         foreach (var p in positionedTemplate.Template.Points.Keys)
-            Kill(p.Add(positionedTemplate.StartingPoint));
+            Board[p].GetComponent<SpriteRenderer>().color = Color.magenta;
+        StartCoroutine(Waiters.LoopFor(1, () =>
+        {
+            foreach (var p in positionedTemplate.Template.Points.Keys)
+                Kill(p.Add(positionedTemplate.StartingPoint));
+            foreach (var p in positionedTemplate.Template.Points.Keys)
+                Board[p].GetComponent<SpriteRenderer>().color = Color.white;
+        }));
+        
     }
 
     public void RemoveTemplatesFromBoard(IEnumerable<PositionedTemplate> templates)
