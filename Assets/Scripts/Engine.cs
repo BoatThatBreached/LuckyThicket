@@ -41,7 +41,8 @@ public class Engine : MonoBehaviour
     public List<int> cardsSource;
     private int Counter;
     private int ConditionCounter;
-    private Basis unitProperty;
+    private Basis postponeProperty;
+    private List<PostponedAction> PostponedActions;
 
     private readonly Basis[] _cardInteractions =
     {
@@ -55,6 +56,7 @@ public class Engine : MonoBehaviour
         CurrentChain = new Queue<Basis>();
         LoadedSelections = new Queue<Point>();
         SelfSelections = new Queue<Point>();
+        PostponedActions = new List<PostponedAction>();
         //TempTiles = new Dictionary<Point, Tile>();
         FlushAnchor();
         FlushTribe();
@@ -141,8 +143,8 @@ public class Engine : MonoBehaviour
             [Basis.Inc] = () => Counter++,
             [Basis.Completed] = () => ConditionCounter = 3 - game.player.Character.TemplatesList.Count,
             [Basis.Count] = () => ConditionCounter = Board.Keys.Count(SatisfiesCriterias),
-            [Basis.Temp] = () => unitProperty = Basis.Temp,
-            [Basis.Await] = () => unitProperty = Basis.Await,
+            [Basis.Temp] = () => postponeProperty = Basis.Temp,
+            [Basis.Await] = () => postponeProperty = Basis.Await,
             [Basis.Zero] = () =>
             {
                 if (ConditionCounter == 0)
@@ -213,13 +215,37 @@ public class Engine : MonoBehaviour
 
     public void Spawn(Point p, Tribes t)
     {
-        // TODO: Temp & Await
-        Board[p].occupantTribe = t;
+        switch (postponeProperty)
+        {
+            case Basis.Temp:
+                Postpone(p, Basis.Kill, t);
+                Occupy(p, t);
+                break;
+            case Basis.Await:
+                Postpone(p, Basis.Spawn, t);
+                Occupy(p, t, true);
+                break;
+            default:
+                Occupy(p, t);
+                break;
+        }
+    }
+
+    private void Postpone(Point p, Basis b, Tribes t) => PostponedActions.Add(new PostponedAction(p, b, t));
+
+    private void Occupy(Point p, Tribes t, bool awaits = false)
+    {
+        Board[p].occupantTribe = awaits ? Board[p].occupantTribe : t;
         var occupant = Instantiate(game.designer.occupantPref, Board[p].transform);
-        occupant.GetComponent<SpriteRenderer>().color = game.designer.Colors[t];
+        var col = game.designer.Colors[t];
+        col.a = awaits ? 0.5f : 1;
+        occupant.GetComponent<SpriteRenderer>().color = col;
         occupant.transform.localScale = new Vector3(3, 3, 1);
         occupant.transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = game.designer.Sprites[t];
-        FlushTribe();
+        var iconCol = Color.white;
+        iconCol.a = awaits ? 0.5f : 1;
+        occupant.transform.GetChild(0).GetComponent<SpriteRenderer>().color = iconCol;
+        FlushTribe(); //TODO: optimize flushing (remove?)
     }
 
     private void Kill(Point p)
@@ -359,8 +385,9 @@ public class Engine : MonoBehaviour
 
         if (CurrentAction == Basis.Idle)
         {
-            FlushAnchor();
-            FlushTribe();
+            //FlushAnchor();
+            //FlushTribe();
+            TickPostponed();
             if (loaded)
             {
                 loaded = false;
@@ -399,6 +426,18 @@ public class Engine : MonoBehaviour
         }
 
         Counter = 0;
+    }
+
+    private void TickPostponed()
+    {
+        var ending = PostponedActions.Where(pa => pa.TryTick()).ToList();
+        foreach (var pa in ending)
+        {
+            PostponedActions.Remove(pa);
+            AnchorZ = pa.Anchor;
+            AnchorTribeZ = pa.AnchorTribe;
+            Actions[pa.Action]();
+        }
     }
 
     private void ApplyAll()
