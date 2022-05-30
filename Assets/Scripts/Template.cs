@@ -9,7 +9,7 @@ public enum SchemaType
 
 public class Template
 {
-    public Dictionary<Point, Tribes> Points { get; }
+    public Dictionary<Point, Tribes> Points { get; set; }
     public string TemplateString;
     public SchemaType Type { get; }
 
