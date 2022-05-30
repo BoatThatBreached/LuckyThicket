@@ -118,10 +118,14 @@ public class Player : MonoBehaviour
         var bigTemplates = Character.TemplatesList.Where(t => t.Type == SchemaType.Big);
         foreach (var t in bigTemplates)
         {
-            var width = t.Points.Keys.Select(p => p.X).Max() + 1;
-            var height = t.Points.Keys.Select(p => p.Y).Max() + 1;
-            for (var i = 0; i < width; i++)
-            for (var j = 0; j < height; j++)
+            var maxX = t.Points.Keys.Select(p => p.X).Max();
+            var maxY = t.Points.Keys.Select(p => p.Y).Max();
+            var minX = t.Points.Keys.Select(p => p.X).Min();
+            var minY = t.Points.Keys.Select(p => p.Y).Min();
+            var width = maxX - minX;
+            var height = maxY - minY;
+            for (var i = minX; i <= maxX; i++)
+            for (var j = minY; j <= maxY; j++)
             {
                 var templateTile = Instantiate(templateTilePref, bigTemplateSlot);
                 templateTile.transform.position = bigTemplateSlot.position +
