@@ -142,9 +142,6 @@ public class Game : MonoBehaviour
 
     public void EndTurn(CardCharacter card)
     {
-        var destroyedCard = FindObjectsOfType<Card>().First(c => c.cardCharacter == card);
-        Destroy(destroyedCard);
-        player.Character.HandList.Remove(card.Id);
         player.Character.GraveList.Add(card.Id);
         player.Character.Push();
         opponent.Character.Push();
@@ -182,5 +179,14 @@ public class Game : MonoBehaviour
         if (shouldDestroy)
             Connector.DestroyRoom(Account.Token, Account.Room.Name.ToSystemRoom());
         SceneManager.LoadScene("RoomScene");
+    }
+
+    public void SelectCard(Card card)
+    {
+        var cardChar = new CardCharacter(card.cardCharacter);
+        Destroy(card.gameObject);
+        player.Character.HandList.Remove(cardChar.Id);
+        player.Character.Push();
+        gameEngine.LoadSelfActions(card.cardCharacter);
     }
 }

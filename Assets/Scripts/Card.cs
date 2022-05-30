@@ -37,7 +37,7 @@ public class Card : MonoBehaviour
         AudioStatic.PlayAudio("Sounds/card");
         if (!game.isMyTurn||unplayable||game.gameEngine.CurrentChain.Count>0)
             return;
-        game.gameEngine.LoadSelfActions(cardCharacter);
+        game.SelectCard(this);
     }
 
     public void ChangeSize(bool enlarging) =>

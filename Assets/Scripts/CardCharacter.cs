@@ -21,6 +21,14 @@ public class CardCharacter
         AbilityMask = abilityMask;
         Ability = ability;
     }
+    public CardCharacter(CardCharacter origin)
+    {
+        Id = origin.Id;
+        Name = origin.Name;
+        Rarity = origin.Rarity;
+        AbilityMask = origin.AbilityMask;
+        Ability = new Queue<Basis>(origin.Ability.ToList());
+    }
     [SerializeField]public int Id; 
     [SerializeField]public string Name;
     [SerializeField]public Rarity Rarity;

@@ -129,7 +129,7 @@ public class Engine : MonoBehaviour
             },
             [Basis.Discard] = () =>
             {
-                if (!game.player.Discard(cardsSource, _loadedCard))
+                if (!game.player.Discard(cardsSource))
                     SkipToAlso();
             },
             [Basis.Give] = () =>

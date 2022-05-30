@@ -52,14 +52,11 @@ public class Player : MonoBehaviour
         return true;
     }
 
-    public bool Discard(List<int> source, CardCharacter cardCharacter)
+    public bool Discard(List<int> source)
     {
-        var copy = source.ToArray().ToList();
-        if (copy.Contains(cardCharacter.Id))
-            copy.Remove(cardCharacter.Id);
-        if (copy.Count == 0)
+        if (source.Count == 0)
             return false;
-        var id = copy.GetRandom();
+        var id = source.GetRandom();
         source.Remove(id);
         return true;
     }
