@@ -5,7 +5,7 @@ public class OccupantDesigner: MonoBehaviour
 {
     public Dictionary<Tribes, Sprite> Sprites;
     public Dictionary<Tribes, Color> Colors;
-    
+    public Dictionary<Tribes, Dictionary<Basis, Color>> ProperColors; 
     public Sprite[] spriteArray;
     public GameObject occupantPref;
     
@@ -16,6 +16,11 @@ public class OccupantDesigner: MonoBehaviour
         Add(Tribes.Beaver, spriteArray[0], new Color(155f/255, 103f/255, 60f/255));
         Add(Tribes.Magpie, spriteArray[1], new Color(225f/255, 246f/255, 255f/255));
         Add(Tribes.Obstacle, spriteArray[2], new Color(3f/255, 75f/255, 3f/255));
+        ProperColors = new Dictionary<Tribes, Dictionary<Basis, Color>>();
+        ProperColors[Tribes.Beaver] = new Dictionary<Basis, Color>();
+        ProperColors[Tribes.Magpie] = new Dictionary<Basis, Color>();
+        ProperColors[Tribes.Beaver][Basis.Await] = new Color(155f / 255, 103f / 255, 60f / 255, 128f / 255);
+        ProperColors[Tribes.Magpie][Basis.Await] = new Color(225f/255, 246f/255, 255f/255, 128f / 255);
     }
 
     private void Add(Tribes t, Sprite sp, Color color)

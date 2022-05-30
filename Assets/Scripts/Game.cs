@@ -66,13 +66,14 @@ public class Game : MonoBehaviour
         var room = Connector.GetRoomsList().Find(room => room.Name == Account.Room.Name);
         if (room == null)
         {
+            // TODO: Room status (win/lose/tie and who if possible)
             Win(false);
             return;
         }
 
         room.Data.FirstPlayer.Pull();
         room.Data.SecondPlayer.Pull();
-        print(room.Data.Log);
+        //print(room.Data.Log);
         Account.Room = room;
         player.Init();
         opponent.Init();
@@ -81,18 +82,16 @@ public class Game : MonoBehaviour
         InitCards();
         var lastPlayer = Account.Room.LastTurn ?? Account.Room.Data.SecondPlayer.Login;
         isMyTurn = lastPlayer != Account.Nickname;
-        turnText.text = isMyTurn ? "Your turn!" : "Opponent's turn!";
-
+        turnText.text = isMyTurn ? "Ваш ход!" : "Ход противника!";
+        // TODO: Popup
         if (isMyTurn)
         {
             if (Account.Room.Data.LogList.Count > 0)
                 StartCoroutine(ApplyingTurn(Account.Room.Data.LogList.Last()));
             return;
         }
-
         print("fetching!");
-        var cor = Waiters.LoopFor(1.2f, StartTurn);
-        StartCoroutine(cor);
+        StartCoroutine(Waiters.LoopFor(1f, StartTurn));
     }
 
     private IEnumerator ApplyingTurn(LogNote note)

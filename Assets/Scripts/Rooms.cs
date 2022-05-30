@@ -63,7 +63,7 @@ public class Rooms : MonoBehaviour
         {
             print(Connector.JoinRoom(Account.Token, room.Name.ToSystemRoom()));
             room.Data.SecondPlayer.Init();
-            print(room.Data.SecondPlayer.Templates);
+            //print(room.Data.SecondPlayer.Templates);
             room.Push();
             print(Connector.SendRoom(room.Name.ToSystemRoom(), Account.Token, room.DataString));
             RefreshRooms();
@@ -72,10 +72,10 @@ public class Rooms : MonoBehaviour
         {
             room.Data.FirstPlayer.Pull();
             room.Data.SecondPlayer.Pull();
-            print(room.Data.FirstPlayer.Templates);
-            print(room.Data.FirstPlayer.TemplatesList.Count);
-            print(room.Data.SecondPlayer.Templates);
-            print(room.Data.SecondPlayer.TemplatesList.Count);
+            // print(room.Data.FirstPlayer.Templates);
+            // print(room.Data.FirstPlayer.TemplatesList.Count);
+            // print(room.Data.SecondPlayer.Templates);
+            // print(room.Data.SecondPlayer.TemplatesList.Count);
             Account.Room = room;
             SceneManager.LoadScene("GameScene");
         }
@@ -87,7 +87,7 @@ public class Rooms : MonoBehaviour
         var room = new Room();
         room.Data.FirstPlayer.Init();
         room.Push();
-        print(room.Data.FirstPlayer.Templates);
+        //print(room.Data.FirstPlayer.Templates);
         print(Connector.CreateRoom(Account.Token, roomName.text.ToSystemRoom()));
         print(Connector.SendRoom(roomName.text.ToSystemRoom(), Account.Token, room.DataString));
         RefreshRooms();

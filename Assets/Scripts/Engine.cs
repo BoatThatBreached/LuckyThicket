@@ -226,7 +226,8 @@ public class Engine : MonoBehaviour
                 Occupy(p, t, true);
                 break;
             default:
-                Occupy(p, t);
+                if(!IsOccupied(p))
+                    Occupy(p, t);
                 break;
         }
     }
@@ -235,16 +236,12 @@ public class Engine : MonoBehaviour
 
     private void Occupy(Point p, Tribes t, bool awaits = false)
     {
+        Kill(p);
         Board[p].occupantTribe = awaits ? Board[p].occupantTribe : t;
         var occupant = Instantiate(game.designer.occupantPref, Board[p].transform);
-        var col = game.designer.Colors[t];
-        col.a = awaits ? 0.5f : 1;
-        occupant.GetComponent<SpriteRenderer>().color = col;
+        occupant.GetComponent<SpriteRenderer>().color = game.designer.ProperColors[t][postponeProperty];
         occupant.transform.localScale = new Vector3(3, 3, 1);
         occupant.transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = game.designer.Sprites[t];
-        var iconCol = Color.white;
-        iconCol.a = awaits ? 0.5f : 1;
-        occupant.transform.GetChild(0).GetComponent<SpriteRenderer>().color = iconCol;
         FlushTribe(); //TODO: optimize flushing (remove?)
     }
 
@@ -355,10 +352,8 @@ public class Engine : MonoBehaviour
 
     public void LoadOpponentActions(CardCharacter card, Queue<Point> selections)
     {
+        Reset();
         loaded = true;
-        Criterias.Clear();
-        FlushTribe();
-        CurrentChain.Clear();
         foreach (var act in card.Ability)
             CurrentChain.Enqueue(act);
         LoadedSelections = selections;
@@ -378,24 +373,25 @@ public class Engine : MonoBehaviour
                 .Contains(p);
         return pred;
     }
-
+    //TODO: remove recursion, while is our friend
     private void Step()
     {
         CurrentAction = CurrentChain.Count > 0 ? CurrentChain.Dequeue() : Basis.Idle;
 
         if (CurrentAction == Basis.Idle)
         {
-            //FlushAnchor();
-            //FlushTribe();
             TickPostponed();
+            
+            
             if (loaded)
             {
                 loaded = false;
+                Reset();
                 return;
             }
-
             CheckWin();
             game.EndTurn(_loadedCard);
+            Reset();
             return;
         }
 
@@ -414,6 +410,18 @@ public class Engine : MonoBehaviour
             Actions[CurrentAction]();
         if (CurrentAction != Basis.Select && CurrentAction != Basis.Idle)
             Step();
+    }
+
+    private void Reset()
+    {
+        _loadedCard = null;
+        SelfSelections.Clear();
+        LoadedSelections.Clear();
+        Criterias.Clear();
+        CurrentChain.Clear();
+        FlushAnchor();
+        FlushTribe();
+        postponeProperty = Basis.Idle;
     }
 
     private void ApplyCount()
