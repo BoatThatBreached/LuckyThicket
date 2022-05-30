@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Codice.Client.BaseCommands.Update.Transformers;
 
 public class Parser
 {
@@ -160,6 +161,18 @@ public class Parser
     }
 
 
+    public static Template Normalize(Template temp)
+    {
+        var p = temp.Points.First().Key;
+        var newDict = new Dictionary<Point, Tribes>();
+
+        foreach (var i in temp.Points)
+            newDict[i.Key.Sub(p)] = i.Value;
+
+        temp.Points = newDict;
+        return temp;
+    }
+    
     public static Template GetTemplateFromString(string s)
     {
         // columns from down to top.
@@ -179,7 +192,7 @@ public class Parser
         }
 
         var isBig = s.Replace("Beaver", "8").Replace("Magpie", "8").Count(ch => ch == '8') > 3;
-        return new Template(array, isBig ? SchemaType.Big : SchemaType.Small, s);
+        return Normalize(new Template(array, isBig ? SchemaType.Big : SchemaType.Small, s));
     }
 
     public static Queue<Point> ParseSelections(string selections)
