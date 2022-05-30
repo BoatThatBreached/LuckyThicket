@@ -21,6 +21,8 @@ public class OccupantDesigner: MonoBehaviour
         ProperColors[Tribes.Magpie] = new Dictionary<Basis, Color>();
         ProperColors[Tribes.Beaver][Basis.Await] = new Color(155f / 255, 103f / 255, 60f / 255, 128f / 255);
         ProperColors[Tribes.Beaver][Basis.Idle] = new Color(155f / 255, 103f / 255, 60f / 255);
+        ProperColors[Tribes.Obstacle][Basis.Idle] = new Color(3f/255, 75f/255, 3f/255, 128f/255);
+        ProperColors[Tribes.Obstacle][Basis.Idle] = new Color(3f/255, 75f/255, 3f/255);
         ProperColors[Tribes.Magpie][Basis.Await] = new Color(225f/255, 246f/255, 255f/255, 128f / 255);
         ProperColors[Tribes.Magpie][Basis.Idle] = new Color(225f/255, 246f/255, 255f/255);
     }
