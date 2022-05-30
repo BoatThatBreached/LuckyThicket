@@ -43,7 +43,6 @@ public class Engine : MonoBehaviour
     private int ConditionCounter;
     private Basis postponeProperty = Basis.Idle;
     private List<PostponedAction> PostponedActions;
-
     private readonly Basis[] _cardInteractions =
     {
         Basis.Discard, Basis.Draw, Basis.Give,
@@ -239,6 +238,9 @@ public class Engine : MonoBehaviour
 
     private void Occupy(Point p, Tribes t, bool awaits = false)
     {
+        if (!Board.ContainsKey(p))
+            return;
+        
         Kill(p);
         Board[p].occupantTribe = awaits ? Board[p].occupantTribe : t;
         var occupant = Instantiate(game.designer.occupantPref, Board[p].transform);
@@ -250,12 +252,12 @@ public class Engine : MonoBehaviour
 
     private void Kill(Point p)
     {
-        if (Board.ContainsKey(p))
-        {
-            Board[p].occupantTribe = Tribes.None;
+        if (!Board.ContainsKey(p))
+            return;
+        Board[p].occupantTribe = Tribes.None;
             foreach (Transform child in Board[p].transform)
                 Destroy(child.gameObject);
-        }
+        
 
         FlushTribe();
     }
