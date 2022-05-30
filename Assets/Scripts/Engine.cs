@@ -41,7 +41,7 @@ public class Engine : MonoBehaviour
     public List<int> cardsSource;
     private int Counter;
     private int ConditionCounter;
-    private Basis postponeProperty;
+    private Basis postponeProperty = Basis.Idle;
     private List<PostponedAction> PostponedActions;
 
     private readonly Basis[] _cardInteractions =

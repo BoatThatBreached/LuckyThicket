@@ -20,7 +20,9 @@ public class OccupantDesigner: MonoBehaviour
         ProperColors[Tribes.Beaver] = new Dictionary<Basis, Color>();
         ProperColors[Tribes.Magpie] = new Dictionary<Basis, Color>();
         ProperColors[Tribes.Beaver][Basis.Await] = new Color(155f / 255, 103f / 255, 60f / 255, 128f / 255);
+        ProperColors[Tribes.Beaver][Basis.Idle] = new Color(155f / 255, 103f / 255, 60f / 255);
         ProperColors[Tribes.Magpie][Basis.Await] = new Color(225f/255, 246f/255, 255f/255, 128f / 255);
+        ProperColors[Tribes.Magpie][Basis.Idle] = new Color(225f/255, 246f/255, 255f/255);
     }
 
     private void Add(Tribes t, Sprite sp, Color color)
