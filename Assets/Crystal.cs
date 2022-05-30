@@ -8,6 +8,7 @@ public class Crystal : MonoBehaviour
     {
         while(game.player.Draw(game.player.Character.DeckList))
             print($"{game.player.Character.Login} drawn a card!");
+        game.player.Character.Push();
         Destroy(gameObject);
     }
 }

@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Codice.Client.BaseCommands.Update.Transformers;
 
 public class Parser
 {
