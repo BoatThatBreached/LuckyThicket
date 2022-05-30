@@ -221,20 +221,18 @@ public class Engine : MonoBehaviour
         {
             case Basis.Temp:
                 Postpone(p, Basis.Kill, t);
-                postponeProperty = Basis.Idle;
                 Occupy(p, t);
                 break;
             case Basis.Await:
                 Postpone(p, Basis.Spawn, t);
-                postponeProperty = Basis.Idle;
                 Occupy(p, t, true);
                 break;
             default:
-                postponeProperty = Basis.Idle;
                 if (!IsOccupied(p))
                     Occupy(p, t);
                 break;
         }
+        postponeProperty = Basis.Idle;
     }
 
     private void Postpone(Point p, Basis b, Tribes t) => PostponedActions.Add(new PostponedAction(p, b, t));
@@ -252,9 +250,13 @@ public class Engine : MonoBehaviour
 
     private void Kill(Point p)
     {
-        Board[p].occupantTribe = Tribes.None;
-        foreach (Transform child in Board[p].transform)
-            Destroy(child.gameObject);
+        if (Board.ContainsKey(p))
+        {
+            Board[p].occupantTribe = Tribes.None;
+            foreach (Transform child in Board[p].transform)
+                Destroy(child.gameObject);
+        }
+
         FlushTribe();
     }
 

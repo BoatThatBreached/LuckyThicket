@@ -102,7 +102,7 @@ public class Player : MonoBehaviour
             {
                 var templateTile = Instantiate(templateTilePref, smallTemplatesSlots[index]);
                 templateTile.transform.position = smallTemplatesSlots[index].position +
-                                                  new Vector3(i + (3 - width) / 2f, j + (3 - height) / 2f, 0) * 0.45f;
+                                                  new Vector3(i + (2 - width) / 2f, j + (2 - height) / 2f, 0) * 0.45f;
                 var point = new Point(i, j);
                 if (!t.Points.ContainsKey(point))
                     continue;
@@ -129,7 +129,7 @@ public class Player : MonoBehaviour
             {
                 var templateTile = Instantiate(templateTilePref, bigTemplateSlot);
                 templateTile.transform.position = bigTemplateSlot.position +
-                                                  new Vector3(i + (3 - width) / 2f, j + (3 - height) / 2f, 0) * 0.45f;
+                                                  new Vector3(i + (2 - width) / 2f, j + (2 - height) / 2f, 0) * 0.45f;
                 var point = new Point(i, j);
                 if (!t.Points.ContainsKey(point))
                     continue;
