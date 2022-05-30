@@ -565,7 +565,7 @@ public class Engine : MonoBehaviour
     private void RemoveTemplateFromBoard(PositionedTemplate positionedTemplate)
     {
         foreach (var p in positionedTemplate.Template.Points.Keys)
-            Board[p].GetComponent<SpriteRenderer>().color = Color.magenta;
+            Board[p].gameObject.GetComponent<SpriteRenderer>().color = Color.magenta;
         StartCoroutine(Waiters.LoopFor(1, () =>
         {
             foreach (var p in positionedTemplate.Template.Points.Keys)
