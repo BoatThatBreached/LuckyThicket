@@ -19,6 +19,7 @@ public class OccupantDesigner: MonoBehaviour
         ProperColors = new Dictionary<Tribes, Dictionary<Basis, Color>>();
         ProperColors[Tribes.Beaver] = new Dictionary<Basis, Color>();
         ProperColors[Tribes.Magpie] = new Dictionary<Basis, Color>();
+        ProperColors[Tribes.Obstacle] = new Dictionary<Basis, Color>();
         ProperColors[Tribes.Beaver][Basis.Await] = new Color(155f / 255, 103f / 255, 60f / 255, 128f / 255);
         ProperColors[Tribes.Beaver][Basis.Idle] = new Color(155f / 255, 103f / 255, 60f / 255);
         ProperColors[Tribes.Obstacle][Basis.Idle] = new Color(3f/255, 75f/255, 3f/255, 128f/255);
