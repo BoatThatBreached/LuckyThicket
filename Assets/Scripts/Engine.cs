@@ -587,13 +587,13 @@ public class Engine : MonoBehaviour
     private void RemoveTemplateFromBoard(PositionedTemplate positionedTemplate)
     {
         foreach (var p in positionedTemplate.Template.Points.Keys)
-            Board[p].gameObject.GetComponent<SpriteRenderer>().color = Color.magenta;
+            Board[p.Add(positionedTemplate.StartingPoint)].GetComponent<SpriteRenderer>().color = Color.magenta;
         StartCoroutine(Waiters.LoopFor(1, () =>
         {
             foreach (var p in positionedTemplate.Template.Points.Keys)
                 Kill(p.Add(positionedTemplate.StartingPoint));
             foreach (var p in positionedTemplate.Template.Points.Keys)
-                Board[p].GetComponent<SpriteRenderer>().color = Color.white;
+                Board[p.Add(positionedTemplate.StartingPoint)].GetComponent<SpriteRenderer>().color = Color.white;
         }));
     }
 
