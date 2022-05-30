@@ -110,13 +110,15 @@ public class Engine : MonoBehaviour
                 if (!ShowPossibleTiles())
                     SkipToAlso();
                 if (LoadedSelections.Count > 0)
-                    StartCoroutine(Waiters.LoopFor(0.5f, () => SelectPoint(LoadedSelections.Dequeue())));
+                    //StartCoroutine(Waiters.LoopFor(0.5f, () => SelectPoint(LoadedSelections.Dequeue())));
+                    SelectPoint(LoadedSelections.Dequeue());
             },
             [Basis.Also] = () => { },
             [Basis.Random] = () =>
             {
                 if (LoadedSelections.Count > 0)
-                    StartCoroutine(Waiters.LoopFor(0.5f, () => SelectPoint(LoadedSelections.Dequeue())));
+                    //StartCoroutine(Waiters.LoopFor(0.5f, () => SelectPoint(LoadedSelections.Dequeue())));
+                    SelectPoint(LoadedSelections.Dequeue());
                 else
                     TrySelectRandomPoint();
             },
@@ -226,7 +228,7 @@ public class Engine : MonoBehaviour
                 Occupy(p, t, true);
                 break;
             default:
-                if(!IsOccupied(p))
+                if (!IsOccupied(p))
                     Occupy(p, t);
                 break;
         }
@@ -373,6 +375,7 @@ public class Engine : MonoBehaviour
                 .Contains(p);
         return pred;
     }
+
     //TODO: remove recursion, while is our friend
     private void Step()
     {
@@ -381,14 +384,15 @@ public class Engine : MonoBehaviour
         if (CurrentAction == Basis.Idle)
         {
             TickPostponed();
-            
-            
+
+
             if (loaded)
             {
                 loaded = false;
                 Reset();
                 return;
             }
+
             CheckWin();
             game.EndTurn(_loadedCard);
             Reset();
@@ -508,13 +512,23 @@ public class Engine : MonoBehaviour
 
     public void SelectPoint(Point p)
     {
-        AnchorZ = p;
-        foreach (var t in Board.Values)
-            t.Color = Color.white;
-        SelfSelections.Enqueue(p);
-        Criterias.Clear();
-        _notExistingNeeded = false;
-        Step();
+        StartCoroutine(Waiters.LoopFor(0.5f, () =>
+        {
+            AnchorZ = p;
+            foreach (var t in Board.Values)
+                t.Color = Color.white;
+            SelfSelections.Enqueue(p);
+            Criterias.Clear();
+            _notExistingNeeded = false;
+            Step();
+        }));
+        // AnchorZ = p;
+        // foreach (var t in Board.Values)
+        //     t.Color = Color.white;
+        // SelfSelections.Enqueue(p);
+        // Criterias.Clear();
+        // _notExistingNeeded = false;
+        // Step();
     }
 
     private bool ShowPossibleTiles()
