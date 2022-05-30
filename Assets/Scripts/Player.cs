@@ -43,7 +43,7 @@ public class Player : MonoBehaviour
 
     public bool Draw(List<int> source)
     {
-        if (Character.HandList.Count >= 6)
+        if (Character.HandList.Count >= 5)
             return false;
         var id = source[0];
         source.RemoveAt(0);
