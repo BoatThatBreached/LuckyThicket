@@ -1,11 +1,15 @@
 using System;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Color = UnityEngine.Color;
 
-public class CardInCollection : MonoBehaviour
+public class CardInCollection : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IScrollHandler
 {
+    public ScrollRect yourScrollRect;
+    private bool passingEvent = false;
+    
     public Image backImage;
     public Image picture;
     public Rarity rarity;
@@ -50,6 +54,28 @@ public class CardInCollection : MonoBehaviour
         transform.localScale = enlarging 
             ? new Vector3(1, 1, 1) * 1.25f 
             : new Vector3(1, 1, 1);
+    public void OnBeginDrag(PointerEventData eventData)
+    {
+        ExecuteEvents.Execute(yourScrollRect.gameObject, eventData, ExecuteEvents.beginDragHandler);
+        passingEvent = true;
+    }
 
-    public void Drag() => transform.position = Input.mousePosition;
+    public void OnDrag(PointerEventData eventData)
+    {
+        if (passingEvent) // Don't send dragHandler before beginDragHandler has been called. It gives unwanted results...
+        {
+            print("dragging");
+            ExecuteEvents.Execute(yourScrollRect.gameObject, eventData, ExecuteEvents.dragHandler);
+        }
+    }
+
+    public void OnEndDrag(PointerEventData eventData)
+    {
+        ExecuteEvents.Execute(yourScrollRect.gameObject, eventData, ExecuteEvents.endDragHandler);
+        passingEvent = false;
+    }
+    public void OnScroll(PointerEventData eventData)
+    {
+        ExecuteEvents.Execute(yourScrollRect.gameObject, eventData, ExecuteEvents.scrollHandler);
+    }
 }

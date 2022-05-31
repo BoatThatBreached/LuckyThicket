@@ -3820,6 +3820,7 @@ MonoBehaviour:
     Rarity: 0
     AbilityMask: 
     AbilityString: 
+  yourScrollRect: {fileID: 2338685}
 --- !u!82 &2044033298
 AudioSource:
   m_ObjectHideFlags: 0

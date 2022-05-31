@@ -119,9 +119,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b288255423ad28b43bea4a1d9eef9ab0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  yourScrollRect: {fileID: 0}
   backImage: {fileID: 5175759974923224458}
   picture: {fileID: 5526477222816043570}
-  Rarity: 0
+  rarity: 0
   nameField: {fileID: 8261974362502917350}
   abilityField: {fileID: 3551737527314127460}
 --- !u!222 &5243507042310655444
@@ -191,6 +192,26 @@ MonoBehaviour:
             m_StringArgument: 
             m_BoolArgument: 0
           m_CallState: 2
+  - eventID: 5
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 96965376123488419}
+          m_TargetAssemblyTypeName: CardInCollection, Scripts
+          m_MethodName: Drag
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+  - eventID: 13
+    callback:
+      m_PersistentCalls:
+        m_Calls: []
 --- !u!114 &1509508176181482925
 MonoBehaviour:
   m_ObjectHideFlags: 0
