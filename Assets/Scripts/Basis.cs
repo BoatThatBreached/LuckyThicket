@@ -86,5 +86,13 @@
     Give,           
     Temp,           
     Inc,                  
-    Count
+    Count,
+    Begin
+}
+
+public enum PostponeProperty
+{
+    Temp, 
+    Await,
+    None
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class OccupantDesigner: MonoBehaviour
@@ -34,4 +35,49 @@ public class OccupantDesigner: MonoBehaviour
         Colors[t] = color;
     }
 
+    public void Spawn(Transform t, Tribes tribe)
+    {
+        var occupant = Instantiate(occupantPref, t);
+        occupant.transform.localScale = 3 * Vector3.one;
+        occupant.GetComponent<SpriteRenderer>().color = Colors[tribe];
+        occupant.transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = Sprites[tribe];
+    }
+    public void Await(Transform t, Tribes tribe)
+    {
+        var occupant = Instantiate(occupantPref, t);
+        occupant.transform.localScale = 3 * Vector3.one;
+        occupant.GetComponent<SpriteRenderer>().color = ProperColors[tribe][Basis.Await];
+        occupant.transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = Sprites[tribe];
+    }
+
+    public IEnumerator Convert(Transform tile, Tribes from, Tribes to)
+    {
+        var t = tile.GetChild(0);
+        var rend = t.GetComponent<SpriteRenderer>();
+        
+        var deltaColor = Colors[to] - Colors[from];
+        var startColor = Colors[from];
+        var changedImg = false;
+        var passed = 0f;
+        while (passed < Game.MaxConvert)
+        {
+            var dt = Time.deltaTime;
+            rend.color = startColor + passed * deltaColor;
+            t.localEulerAngles = 360f * passed / Game.MaxConvert * Vector3.up;
+            if (passed > Game.MaxConvert / 2 && !changedImg)
+            {
+                changedImg = true;
+                t.GetChild(0).GetComponent<SpriteRenderer>().sprite = Sprites[to];
+            }
+
+            yield return new WaitForSeconds(dt);
+            passed += dt;
+        }
+
+        t.localEulerAngles = new Vector3();
+        rend.color = Colors[to];
+    }
+
+    public static Color Crimson => new Color(0.5f, 0.1f, 0.1f);
+    public static Color Orange => new Color(1f, 0.5f, 0f);
 }

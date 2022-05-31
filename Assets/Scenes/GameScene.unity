@@ -1031,6 +1031,7 @@ GameObject:
   - component: {fileID: 350996704}
   - component: {fileID: 350996706}
   - component: {fileID: 350996705}
+  - component: {fileID: 350996707}
   m_Layer: 0
   m_Name: GameController
   m_TagString: GameController
@@ -1052,7 +1053,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tilePref: {fileID: 6991811986624704102, guid: 5b835fe66d8012a488d568ff157d5f68, type: 3}
   designer: {fileID: 350996703}
-  gameEngine: {fileID: 350996704}
+  gameEngine: {fileID: 350996707}
   player: {fileID: 672578093}
   opponent: {fileID: 16285049}
   turnText: {fileID: 502121979}
@@ -1296,6 +1297,20 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &350996707
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 350996700}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 91c4d27e5ecd44c78c6cc42f509737aa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  game: {fileID: 350996701}
+  isWaitingSelection: 0
 --- !u!1 &393514315
 GameObject:
   m_ObjectHideFlags: 0
@@ -1679,7 +1694,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d254fda5375216e4995978a7183a4e15, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  engine: {fileID: 350996704}
+  engine: {fileID: 350996707}
   rend: {fileID: 1855959011}
 --- !u!4 &743368953
 Transform:

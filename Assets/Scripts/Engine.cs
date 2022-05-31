@@ -641,4 +641,11 @@ internal static class EngineExtensions
 
     public static Point Uni(this Point source) =>
         new Point(source.X == 0 ? 0 : Math.Sign(source.X), source.Y == 0 ? 0 : Math.Sign(source.Y));
+
+    public static Point Abs(this Point source) =>
+        new Point(source.X >= 0 ? source.X : -source.X, source.Y >= 0 ? source.Y : -source.Y);
+
+    public static int Len(this Point source) => source.Abs().X + source.Abs().Y;
+    public static int Max(this Point source) => Math.Max(source.X, source.Y);
+    public static Vector3 Vector(this Point source) => new Vector3(source.X, source.Y, 0);
 }

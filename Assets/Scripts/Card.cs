@@ -35,7 +35,7 @@ public class Card : MonoBehaviour
     public void OnMouseDown()
     {
         AudioStatic.PlayAudio("Sounds/card");
-        if (!game.isMyTurn||unplayable||game.gameEngine.CurrentChain.Count>0)
+        if (!game.isMyTurn||unplayable||game.gameEngine.Resolving)
             return;
         game.SelectCard(this);
     }

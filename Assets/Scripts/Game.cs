@@ -8,17 +8,22 @@ using UnityEngine.SceneManagement;
 
 public class Game : MonoBehaviour
 {
+    public static float MaxDrag = 0.5f;
+    public static float MaxConvert = 0.5f;
+    
+    
     public GameObject tilePref;
     public Dictionary<Point, Tile> Board { get; private set; }
     public OccupantDesigner designer;
-    public Engine gameEngine;
+    //public Engine gameEngine;
+    public UpdatedEngine gameEngine;
     public Player player;
     public Opponent opponent;
     public TMP_Text turnText;
     public bool isMyTurn;
     public Transform cardSlot;
 
-    private void Start()
+    private void Awake()
     {
         AudioStatic.GameInitSounds(this, gameObject);
 
@@ -30,14 +35,19 @@ public class Game : MonoBehaviour
 
     private IEnumerator InitBoard()
     {
+        // var board = Parser.EmptyBoard(5, new Point(0, 2), true);
+        // Board = new Dictionary<Point, Tile>();
+        // foreach (var point in board.Keys)
+        // {
+        //     AudioStatic.sounds[Basis.Build][Tribes.Beaver]();
+        //     gameEngine.Build(point);
+        //     yield return new WaitForSeconds(0.1f);
+        // }
+        //
+        // StartTurn();
         var board = Parser.EmptyBoard(5, new Point(0, 2), true);
         Board = new Dictionary<Point, Tile>();
-        foreach (var point in board.Keys)
-        {
-            AudioStatic.sounds[Basis.Build][Tribes.Beaver]();
-            gameEngine.Build(point);
-            yield return new WaitForSeconds(0.1f);
-        }
+        yield return gameEngine.CreateBoard(board);
 
         StartTurn();
     }
@@ -120,25 +130,22 @@ public class Game : MonoBehaviour
         }
 
         var selections = Parser.ParseSelections(note.Selections);
-        gameEngine.LoadOpponentActions(
-            cardChar,
-            selections);
-        StartCoroutine(Waiters.LoopFor(3, () =>
-        {
-            foreach (Transform child in cardSlot)
-                Destroy(child.gameObject);
-        }));
-        yield return Waiters.LoopWhile(
-            () => !gameEngine.loaded,
-            () => { },
-            () =>
-            {
-                if (note.CompletedTemplate != "")
-                    gameEngine.RemoveTemplatesFromBoard(
-                        note.CompletedTemplate
-                            .FromJsonList()
-                            .Select(Parser.GetPositionedTemplateFromString));
-            });
+        // gameEngine.LoadOpponentActions(
+        //     cardChar,
+        //     selections);
+        gameEngine.LoadOpponentActions(cardChar, selections, note.CompletedTemplate.FromJsonList().Select(Parser.GetPositionedTemplateFromString));
+        StartCoroutine(Waiters.LoopFor(3, () => Clear(cardSlot)));
+        // yield return Waiters.LoopWhile(
+        //     () => !gameEngine.loaded,
+        //     () => { },
+        //     () =>
+        //     {
+        //         if (note.CompletedTemplate != "")
+        //             gameEngine.RemoveTemplatesFromBoard(
+        //                 note.CompletedTemplate
+        //                     .FromJsonList()
+        //                     .Select(Parser.GetPositionedTemplateFromString));
+        //     });
     }
 
     public void EndTurn(CardCharacter card)
@@ -189,6 +196,15 @@ public class Game : MonoBehaviour
         Destroy(card.gameObject);
         player.Character.HandList.Remove(cardChar.Id);
         player.Character.Push();
-        gameEngine.LoadSelfActions(card.cardCharacter);
+        //gameEngine.LoadSelfActions(card.cardCharacter);
+        gameEngine.LoadActions(card.cardCharacter);
     }
+
+    public static void Clear(Transform t)
+    {
+        foreach(Transform child in t)
+            Destroy(child.gameObject);
+    }
+
+    public static void Clear(GameObject g) => Clear(g.transform);
 }
