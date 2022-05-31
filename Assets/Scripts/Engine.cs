@@ -388,6 +388,9 @@ public class Engine : MonoBehaviour
     {
         CurrentAction = CurrentChain.Count > 0 ? CurrentChain.Dequeue() : Basis.Idle;
 
+        while (_cardInteractions.Contains(CurrentAction) && CurrentAction!=Basis.Idle && loaded)
+            CurrentAction = CurrentChain.Count > 0 ? CurrentChain.Dequeue() : Basis.Idle;
+
         if (CurrentAction == Basis.Idle)
         {
             TickPostponed();
@@ -407,8 +410,6 @@ public class Engine : MonoBehaviour
         }
 
         AudioStatic.PlaySound(CurrentAction, AnchorTribeZ);
-        while ((_cardInteractions.Contains(CurrentAction) || CurrentAction!=Basis.Idle)&& loaded)
-            CurrentAction = CurrentChain.Count > 0 ? CurrentChain.Dequeue() : Basis.Idle;
         if (_all)
             ApplyAll();
         else if (Counter > 0)
