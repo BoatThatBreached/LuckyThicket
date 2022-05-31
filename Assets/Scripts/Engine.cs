@@ -220,6 +220,7 @@ public class Engine : MonoBehaviour
         {
             case Basis.Temp:
                 Postpone(p, Basis.Kill, t);
+                postponeProperty = Basis.Idle;
                 Occupy(p, t);
                 break;
             case Basis.Await:
