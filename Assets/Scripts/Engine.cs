@@ -387,15 +387,12 @@ public class Engine : MonoBehaviour
     private void Step()
     {
         CurrentAction = CurrentChain.Count > 0 ? CurrentChain.Dequeue() : Basis.Idle;
-
-        while (_cardInteractions.Contains(CurrentAction) && CurrentAction!=Basis.Idle && loaded)
-            CurrentAction = CurrentChain.Count > 0 ? CurrentChain.Dequeue() : Basis.Idle;
+        
 
         if (CurrentAction == Basis.Idle)
         {
             TickPostponed();
-
-
+            
             if (loaded)
             {
                 loaded = false;
@@ -406,6 +403,12 @@ public class Engine : MonoBehaviour
             CheckWin();
             game.EndTurn(_loadedCard);
             Reset();
+            return;
+        }
+
+        if (_cardInteractions.Contains(CurrentAction) && loaded)
+        {
+            Step();
             return;
         }
 
