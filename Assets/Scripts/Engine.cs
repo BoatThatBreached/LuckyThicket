@@ -108,15 +108,13 @@ public class Engine : MonoBehaviour
                 if (!ShowPossibleTiles())
                     SkipToAlso();
                 if (LoadedSelections.Count > 0)
-                    //StartCoroutine(Waiters.LoopFor(0.5f, () => SelectPoint(LoadedSelections.Dequeue())));
-                    SelectPoint(LoadedSelections.Dequeue(), false);
+                    SelectPoint(LoadedSelections.Dequeue());
             },
             [Basis.Also] = () => { },
             [Basis.Random] = () =>
             {
                 if (LoadedSelections.Count > 0)
-                    //StartCoroutine(Waiters.LoopFor(0.5f, () => SelectPoint(LoadedSelections.Dequeue())));
-                    SelectPoint(LoadedSelections.Dequeue(), false);
+                    SelectPoint(LoadedSelections.Dequeue());
                 else
                     TrySelectRandomPoint();
             },
@@ -419,7 +417,7 @@ public class Engine : MonoBehaviour
             ApplyCount();
         else
             Actions[CurrentAction]();
-        if (CurrentAction != Basis.Select && CurrentAction != Basis.Idle)
+        if (CurrentAction != Basis.Select &&CurrentAction!=Basis.Random)
             Step();
     }
 
@@ -512,12 +510,12 @@ public class Engine : MonoBehaviour
     private void SkipToAlso()
     {
         Criterias.Clear();
-        while (CurrentChain.Count > 0 && CurrentChain.Peek() != Basis.Also)
-            CurrentChain.Dequeue();
+        while (CurrentAction!=Basis.Also&&CurrentAction!=Basis.Idle)
+            CurrentAction = CurrentChain.Count > 0 ? CurrentChain.Dequeue() : Basis.Idle;
         Step();
     }
 
-    public void SelectPoint(Point p, bool playerSelected)
+    public void SelectPoint(Point p)
     {
         StartCoroutine(Waiters.LoopFor(loaded ? 0.5f : 0f, () =>
         {
@@ -527,8 +525,7 @@ public class Engine : MonoBehaviour
             SelfSelections.Enqueue(p);
             Criterias.Clear();
             _notExistingNeeded = false;
-            if(playerSelected)
-                Step();
+            Step();
         }));
     }
 
@@ -582,7 +579,7 @@ public class Engine : MonoBehaviour
             return;
         }
 
-        SelectPoint(possible.GetRandom(), false);
+        SelectPoint(possible.GetRandom());
     }
 
     private void RemoveTemplateFromBoard(PositionedTemplate positionedTemplate)

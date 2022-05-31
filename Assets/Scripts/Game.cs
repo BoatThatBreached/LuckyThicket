@@ -38,6 +38,7 @@ public class Game : MonoBehaviour
             gameEngine.Build(point);
             yield return new WaitForSeconds(0.1f);
         }
+
         StartTurn();
     }
 
@@ -78,7 +79,7 @@ public class Game : MonoBehaviour
         player.Init();
         opponent.Init();
         //Account.Room.Push();
-        
+
         InitCards();
         var lastPlayer = Account.Room.LastTurn ?? Account.Room.Data.SecondPlayer.Login;
         isMyTurn = lastPlayer != Account.Nickname;
@@ -90,6 +91,7 @@ public class Game : MonoBehaviour
                 StartCoroutine(ApplyingTurn(Account.Room.Data.LogList.Last()));
             return;
         }
+
         print("fetching!");
         StartCoroutine(Waiters.LoopFor(1f, StartTurn));
     }
@@ -103,26 +105,30 @@ public class Game : MonoBehaviour
         card.game = this;
         var cardChar = Account.GetGlobalCard(int.Parse(note.CardID));
         card.LoadFrom(cardChar);
-        
+
         const float offset = 2.7f;
         var rightDown = new Vector3(1, -1, 0);
-        card.GetComponent<RectTransform>().position -= rightDown*offset;
+        card.GetComponent<RectTransform>().position -= rightDown * offset;
         const float time = 1f;
         var left = time;
         while (left > 0)
         {
             var dt = Time.deltaTime;
-            yield return Waiters.LoopFor(dt, () => card.GetComponent<RectTransform>().position += rightDown*dt*offset/time);
+            yield return Waiters.LoopFor(dt,
+                () => card.GetComponent<RectTransform>().position += rightDown * dt * offset / time);
             left -= dt;
         }
 
-        
-        //yield return new WaitForSeconds(3);
         var selections = Parser.ParseSelections(note.Selections);
         gameEngine.LoadOpponentActions(
             cardChar,
             selections);
-        StartCoroutine(Waiters.LoopWhile(
+        StartCoroutine(Waiters.LoopFor(3, () =>
+        {
+            foreach (Transform child in cardSlot)
+                Destroy(child.gameObject);
+        }));
+        yield return Waiters.LoopWhile(
             () => !gameEngine.loaded,
             () => { },
             () =>
@@ -132,12 +138,7 @@ public class Game : MonoBehaviour
                         note.CompletedTemplate
                             .FromJsonList()
                             .Select(Parser.GetPositionedTemplateFromString));
-            }));
-        StartCoroutine(Waiters.LoopFor(3, () =>
-        {
-            foreach (Transform child in cardSlot)
-                Destroy(child.gameObject);
-        }));
+            });
     }
 
     public void EndTurn(CardCharacter card)
