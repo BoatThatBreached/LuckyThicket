@@ -25,7 +25,6 @@ public class Engine : MonoBehaviour
     private List<Func<Point, bool>> Criterias { get; set; }
     private bool _notExistingNeeded;
     private bool _all;
-    private Random _random;
     public Game game;
 
     private Dictionary<Point, Tile> Board => game.Board;
@@ -63,7 +62,6 @@ public class Engine : MonoBehaviour
         _notExistingNeeded = false;
         _opponentNeeds = false;
         Criterias = new List<Func<Point, bool>>();
-        _random = new Random();
         cardsSource = null;
         InitActions();
     }
@@ -366,8 +364,7 @@ public class Engine : MonoBehaviour
     {
         Reset();
         loaded = true;
-        foreach (var act in card.Ability)
-            CurrentChain.Enqueue(act);
+        CurrentChain = new Queue<Basis>(card.Ability);
         LoadedSelections = selections;
         _loadedCard = card;
         Step();
@@ -410,12 +407,8 @@ public class Engine : MonoBehaviour
         }
 
         AudioStatic.PlaySound(CurrentAction, AnchorTribeZ);
-        if (_cardInteractions.Contains(CurrentAction) && loaded)
-        {
-            Step();
-            return;
-        }
-
+        while ((_cardInteractions.Contains(CurrentAction) || CurrentAction!=Basis.Idle)&& loaded)
+            CurrentAction = CurrentChain.Count > 0 ? CurrentChain.Dequeue() : Basis.Idle;
         if (_all)
             ApplyAll();
         else if (Counter > 0)
