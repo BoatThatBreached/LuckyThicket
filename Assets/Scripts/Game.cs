@@ -142,6 +142,7 @@ public class Game : MonoBehaviour
 
     public void EndTurn(CardCharacter card)
     {
+        print(card.Id);
         player.Character.GraveList.Add(card.Id);
         player.Character.Push();
         opponent.Character.Push();

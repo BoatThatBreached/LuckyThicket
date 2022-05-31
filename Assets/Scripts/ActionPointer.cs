@@ -26,6 +26,6 @@ public class ActionPointer : MonoBehaviour
         var p = new Point(Mathf.RoundToInt(input.x), Mathf.RoundToInt(input.y));
         transform.position = new Vector3(p.X, p.Y, 0);
         if (Input.GetMouseButtonDown(0) && engine.SatisfiesCriterias(p))
-            engine.SelectPoint(p);
+            engine.SelectPoint(p, true);
     }
 }

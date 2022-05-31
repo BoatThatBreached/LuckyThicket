@@ -111,14 +111,14 @@ public class Engine : MonoBehaviour
                     SkipToAlso();
                 if (LoadedSelections.Count > 0)
                     //StartCoroutine(Waiters.LoopFor(0.5f, () => SelectPoint(LoadedSelections.Dequeue())));
-                    SelectPoint(LoadedSelections.Dequeue());
+                    SelectPoint(LoadedSelections.Dequeue(), false);
             },
             [Basis.Also] = () => { },
             [Basis.Random] = () =>
             {
                 if (LoadedSelections.Count > 0)
                     //StartCoroutine(Waiters.LoopFor(0.5f, () => SelectPoint(LoadedSelections.Dequeue())));
-                    SelectPoint(LoadedSelections.Dequeue());
+                    SelectPoint(LoadedSelections.Dequeue(), false);
                 else
                     TrySelectRandomPoint();
             },
@@ -520,7 +520,7 @@ public class Engine : MonoBehaviour
         Step();
     }
 
-    public void SelectPoint(Point p)
+    public void SelectPoint(Point p, bool playerSelected)
     {
         StartCoroutine(Waiters.LoopFor(loaded ? 0.5f : 0f, () =>
         {
@@ -530,7 +530,8 @@ public class Engine : MonoBehaviour
             SelfSelections.Enqueue(p);
             Criterias.Clear();
             _notExistingNeeded = false;
-            Step();
+            if(playerSelected)
+                Step();
         }));
     }
 
@@ -584,7 +585,7 @@ public class Engine : MonoBehaviour
             return;
         }
 
-        SelectPoint(possible.GetRandom());
+        SelectPoint(possible.GetRandom(), false);
     }
 
     private void RemoveTemplateFromBoard(PositionedTemplate positionedTemplate)
