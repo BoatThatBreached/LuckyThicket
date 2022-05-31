@@ -6,13 +6,12 @@ using UnityEngine.Serialization;
 using UnityEngine.UI;
 using Color = UnityEngine.Color;
 
-public class CardInCollection : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IScrollHandler
+public class CardInDeck : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IScrollHandler
 {
     [FormerlySerializedAs("yourScrollRect")] public ScrollRect scrollRect;
     private bool passingEvent = false;
-    
+
     public Image backImage;
-    public Image picture;
     public Rarity rarity;
     public CardCharacter CardCharacter { get; set; }
 
@@ -20,17 +19,13 @@ public class CardInCollection : MonoBehaviour, IBeginDragHandler, IDragHandler, 
     {
         set => backImage.color = value;
     }
+
     public TMP_Text nameField;
+
     public string Name
     {
         get => nameField.text;
         set => nameField.text = value;
-    }
-    public TMP_Text abilityField;
-    public string AbilityMask
-    {
-        get => abilityField.text;
-        set => abilityField.text = value;
     }
 
     public void Click()
@@ -38,13 +33,9 @@ public class CardInCollection : MonoBehaviour, IBeginDragHandler, IDragHandler, 
         AudioStatic.PlayAudio("Sounds/card");
         switch (Account.CurrentScene)
         {
-            case Scenes.Shop:
-                var shop = FindObjectOfType<Shop>();
-                shop.ShowConfirmation(CardCharacter);
-                break;
             case Scenes.Collection:
                 var collection = FindObjectOfType<Collection>();
-                collection.MoveCardToDeck(this);
+                collection.MoveCardToCollection(this);
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
@@ -52,9 +43,10 @@ public class CardInCollection : MonoBehaviour, IBeginDragHandler, IDragHandler, 
     }
 
     public void ChangeSize(bool enlarging) =>
-        transform.localScale = enlarging 
-            ? new Vector3(1, 1, 1) * 1.25f 
+        transform.localScale = enlarging
+            ? new Vector3(1, 1, 1) * 1.25f
             : new Vector3(1, 1, 1);
+
     public void OnBeginDrag(PointerEventData eventData)
     {
         ExecuteEvents.Execute(scrollRect.gameObject, eventData, ExecuteEvents.beginDragHandler);
@@ -63,7 +55,8 @@ public class CardInCollection : MonoBehaviour, IBeginDragHandler, IDragHandler, 
 
     public void OnDrag(PointerEventData eventData)
     {
-        if (passingEvent) // Don't send dragHandler before beginDragHandler has been called. It gives unwanted results...
+        if (
+            passingEvent) // Don't send dragHandler before beginDragHandler has been called. It gives unwanted results...
         {
             print("dragging");
             ExecuteEvents.Execute(scrollRect.gameObject, eventData, ExecuteEvents.dragHandler);
@@ -75,6 +68,7 @@ public class CardInCollection : MonoBehaviour, IBeginDragHandler, IDragHandler, 
         ExecuteEvents.Execute(scrollRect.gameObject, eventData, ExecuteEvents.endDragHandler);
         passingEvent = false;
     }
+
     public void OnScroll(PointerEventData eventData)
     {
         ExecuteEvents.Execute(scrollRect.gameObject, eventData, ExecuteEvents.scrollHandler);

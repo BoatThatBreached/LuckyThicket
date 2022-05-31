@@ -73,6 +73,7 @@
      <Compile Include="Assets\Scripts\LogNote.cs" />
      <Compile Include="Assets\Scripts\Basis.cs" />
      <Compile Include="Assets\Scripts\RoomData.cs" />
+     <Compile Include="Assets\Scripts\CardInDeck.cs" />
      <Compile Include="Assets\Scripts\Tile.cs" />
      <Compile Include="Assets\Scripts\Game.cs" />
      <Compile Include="Assets\Scripts\Opponent.cs" />

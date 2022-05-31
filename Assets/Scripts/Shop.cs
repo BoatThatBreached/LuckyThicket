@@ -17,6 +17,7 @@ public class Shop : MonoBehaviour
     public GameObject confirmation;
     public TMP_Text confirmationText;
     public CardCharacter currentChoice;
+    public ScrollRect yourScrollRect;
     public static Dictionary<Rarity, int> prices = new Dictionary<Rarity, int>
     {
         [Rarity.Common] = 10,
@@ -72,6 +73,7 @@ public class Shop : MonoBehaviour
                 _ => Color.black
             };
             cardChar.CardCharacter = card;
+            cardChar.scrollRect = yourScrollRect;
         }
     }
 
