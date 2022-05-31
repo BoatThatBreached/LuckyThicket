@@ -43,6 +43,7 @@ public class Engine : MonoBehaviour
     private int ConditionCounter;
     private Basis postponeProperty = Basis.Idle;
     private List<PostponedAction> PostponedActions;
+
     private readonly Basis[] _cardInteractions =
     {
         Basis.Discard, Basis.Draw, Basis.Give,
@@ -232,6 +233,7 @@ public class Engine : MonoBehaviour
                     Occupy(p, t);
                 break;
         }
+
         postponeProperty = Basis.Idle;
     }
 
@@ -241,7 +243,7 @@ public class Engine : MonoBehaviour
     {
         if (!Board.ContainsKey(p))
             return;
-        
+
         Kill(p);
         Board[p].occupantTribe = awaits ? Board[p].occupantTribe : t;
         var occupant = Instantiate(game.designer.occupantPref, Board[p].transform);
@@ -256,9 +258,9 @@ public class Engine : MonoBehaviour
         if (!Board.ContainsKey(p))
             return;
         Board[p].occupantTribe = Tribes.None;
-            foreach (Transform child in Board[p].transform)
-                Destroy(child.gameObject);
-        
+        foreach (Transform child in Board[p].transform)
+            Destroy(child.gameObject);
+
 
         FlushTribe();
     }
@@ -520,7 +522,7 @@ public class Engine : MonoBehaviour
 
     public void SelectPoint(Point p)
     {
-        StartCoroutine(Waiters.LoopFor(0.5f, () =>
+        StartCoroutine(Waiters.LoopFor(loaded ? 0.5f : 0f, () =>
         {
             AnchorZ = p;
             foreach (var t in Board.Values)
@@ -530,13 +532,6 @@ public class Engine : MonoBehaviour
             _notExistingNeeded = false;
             Step();
         }));
-        // AnchorZ = p;
-        // foreach (var t in Board.Values)
-        //     t.Color = Color.white;
-        // SelfSelections.Enqueue(p);
-        // Criterias.Clear();
-        // _notExistingNeeded = false;
-        // Step();
     }
 
     private bool ShowPossibleTiles()
@@ -565,7 +560,7 @@ public class Engine : MonoBehaviour
 
     private void TrySelectRandomPoint()
     {
-        Point[] possible;
+        List<Point> possible;
         if (_notExistingNeeded)
         {
             possible = Board
@@ -573,14 +568,14 @@ public class Engine : MonoBehaviour
                 .Where(IsEdge)
                 .SelectMany(p => p.GetAdjacent())
                 .Where(SatisfiesCriterias)
-                .ToArray();
+                .ToList();
         }
         else
         {
             possible = Board
                 .Keys
                 .Where(SatisfiesCriterias)
-                .ToArray();
+                .ToList();
         }
 
         if (!possible.Any())
@@ -589,7 +584,7 @@ public class Engine : MonoBehaviour
             return;
         }
 
-        SelectPoint(possible[_random.Next(possible.Length)]);
+        SelectPoint(possible.GetRandom());
     }
 
     private void RemoveTemplateFromBoard(PositionedTemplate positionedTemplate)
