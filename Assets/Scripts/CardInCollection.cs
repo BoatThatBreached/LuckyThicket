@@ -2,12 +2,13 @@ using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 using Color = UnityEngine.Color;
 
 public class CardInCollection : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IScrollHandler
 {
-    public ScrollRect yourScrollRect;
+    [FormerlySerializedAs("yourScrollRect")] public ScrollRect scrollRect;
     private bool passingEvent = false;
     
     public Image backImage;
@@ -56,7 +57,7 @@ public class CardInCollection : MonoBehaviour, IBeginDragHandler, IDragHandler, 
             : new Vector3(1, 1, 1);
     public void OnBeginDrag(PointerEventData eventData)
     {
-        ExecuteEvents.Execute(yourScrollRect.gameObject, eventData, ExecuteEvents.beginDragHandler);
+        ExecuteEvents.Execute(scrollRect.gameObject, eventData, ExecuteEvents.beginDragHandler);
         passingEvent = true;
     }
 
@@ -65,17 +66,17 @@ public class CardInCollection : MonoBehaviour, IBeginDragHandler, IDragHandler, 
         if (passingEvent) // Don't send dragHandler before beginDragHandler has been called. It gives unwanted results...
         {
             print("dragging");
-            ExecuteEvents.Execute(yourScrollRect.gameObject, eventData, ExecuteEvents.dragHandler);
+            ExecuteEvents.Execute(scrollRect.gameObject, eventData, ExecuteEvents.dragHandler);
         }
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        ExecuteEvents.Execute(yourScrollRect.gameObject, eventData, ExecuteEvents.endDragHandler);
+        ExecuteEvents.Execute(scrollRect.gameObject, eventData, ExecuteEvents.endDragHandler);
         passingEvent = false;
     }
     public void OnScroll(PointerEventData eventData)
     {
-        ExecuteEvents.Execute(yourScrollRect.gameObject, eventData, ExecuteEvents.scrollHandler);
+        ExecuteEvents.Execute(scrollRect.gameObject, eventData, ExecuteEvents.scrollHandler);
     }
 }

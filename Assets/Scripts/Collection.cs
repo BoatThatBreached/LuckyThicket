@@ -93,7 +93,7 @@ public class Collection : MonoBehaviour
                     print("oof");
                 }
                 cardChar.CardCharacter = card;
-                cardChar.yourScrollRect = CollectionScroll;
+                cardChar.scrollRect = CollectionScroll;
             }
             else if (panel == deckPanel)
             {
@@ -109,7 +109,7 @@ public class Collection : MonoBehaviour
                     _ => Color.black
                 };
                 cardChar.CardCharacter = card;
-                cardChar.yourScrollRect = DeckScroll;
+                cardChar.scrollRect = DeckScroll;
             }
             
         }

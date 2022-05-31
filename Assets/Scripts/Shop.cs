@@ -73,7 +73,7 @@ public class Shop : MonoBehaviour
                 _ => Color.black
             };
             cardChar.CardCharacter = card;
-            cardChar.yourScrollRect = yourScrollRect;
+            cardChar.scrollRect = yourScrollRect;
         }
     }
 
