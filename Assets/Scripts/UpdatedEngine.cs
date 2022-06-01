@@ -53,6 +53,8 @@ public class UpdatedEngine : MonoBehaviour
 
     private void Start()
     {
+        _postponedActions = new List<PostponedAction>();
+        _character = game.player.Character;
         InitRegisters();
         InitTransactions();
     }
@@ -66,10 +68,8 @@ public class UpdatedEngine : MonoBehaviour
         _anchorTribes = new List<Tribes> {Tribes.None};
         _anchors = new List<Point> {new Point()};
         _tempTiles = new List<Tile>();
-        _postponedActions = new List<PostponedAction>();
         _postponeProperty = PostponeProperty.None;
         LastCompletedTemplates = new List<PositionedTemplate>();
-        _character = game.player.Character;
         _templatesToDestroy = new PositionedTemplate[] { };
         RefreshPossibleSelections();
     }
@@ -473,6 +473,7 @@ public class UpdatedEngine : MonoBehaviour
             yield return new WaitWhile(() => isWaitingSelection);
             yield return HidePossibleSelections();
         }
+        RefreshPossibleSelections();
     }
 
     private IEnumerator ShowPossibleSelections()
@@ -519,6 +520,7 @@ public class UpdatedEngine : MonoBehaviour
         if (Loaded)
             copy = new Queue<Basis>(copy.Where(b => !_cardInteractions.Contains(b)));
         _currentChain = copy;
+        
         while (CurrentAction != Basis.Idle)
         {
             CurrentAction = _currentChain.Count > 0 ? _currentChain.Dequeue() : Basis.Idle;
@@ -532,6 +534,7 @@ public class UpdatedEngine : MonoBehaviour
         yield return RemoveTemplatesFromBoard(_templatesToDestroy);
         _templatesToDestroy = new PositionedTemplate[] { };
         game.EndTurn(_loadedCard);
+        SelfSelections = new Queue<Point>();
         Resolving = false;
     }
 
@@ -628,6 +631,7 @@ public class UpdatedEngine : MonoBehaviour
     public void LoadOpponentActions(CardCharacter card, Queue<Point> selections,
         IEnumerable<PositionedTemplate> templatesToDestroy)
     {
+        InitRegisters();
         _loadedCard = card;
         Loaded = true;
         _currentChain = new Queue<Basis>(card.Ability);
