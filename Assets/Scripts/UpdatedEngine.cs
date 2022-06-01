@@ -641,6 +641,8 @@ public class UpdatedEngine : MonoBehaviour
     public void SelectPoint(Point p)
     {
         _anchors[0] = p;
+        if(!Loaded)
+            SelfSelections.Enqueue(p);
         isWaitingSelection = false;
     }
 
