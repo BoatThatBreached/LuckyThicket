@@ -1,8 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using JetBrains.Annotations;
 using UnityEngine;
 using Color = UnityEngine.Color;
 
@@ -31,11 +31,11 @@ public class Engine : MonoBehaviour
     //private Dictionary<Point, Tile> TempTiles;
 
     private Queue<Point> LoadedSelections { get; set; }
-    public Queue<Point> SelfSelections { get; private set; }
+    private Queue<Point> SelfSelections { get; set; }
     private CardCharacter _loadedCard;
     public bool loaded;
-    public List<PositionedTemplate> LastCompletedTemplates;
-    private List<PositionedTemplate> DelayedTemplates;
+    private List<PositionedTemplate> _lastCompletedTemplates;
+    private List<PositionedTemplate> _delayedTemplates;
     private PlayerCharacter _character;
     public List<int> cardsSource;
     //private int Counter;
@@ -212,28 +212,8 @@ public class Engine : MonoBehaviour
 
     public void Spawn(Point p, Tribes t)
     {
-        // switch (postponeProperty)
-        // {
-        //     case Basis.Temp:
-        //         Postpone(p, Basis.Kill, t);
-        //         postponeProperty = Basis.Idle;
-        //         Occupy(p, t);
-        //         break;
-        //     case Basis.Await:
-        //         Postpone(p, Basis.Spawn, t);
-        //         Occupy(p, t, true);
-        //         break;
-        //     default:
-        //         if (!IsOccupied(p))
-        //             Occupy(p, t);
-        //         break;
-        // }
         Occupy(p, t);
-        //postponeProperty = Basis.Idle;
     }
-
-    //private void Postpone(Point p, Basis b, Tribes t) => PostponedActions.Add(new PostponedAction(p, b, t));
-
     private void Occupy(Point p, Tribes t)
     {
         if (!Board.ContainsKey(p))
@@ -242,7 +222,6 @@ public class Engine : MonoBehaviour
         Kill(p);
         Board[p].occupantTribe = t;
         var occupant = Instantiate(game.designer.occupantPref, Board[p].transform);
-        //occupant.GetComponent<SpriteRenderer>().color = game.designer.ProperColors[t][postponeProperty];
         occupant.GetComponent<SpriteRenderer>().color = game.designer.Colors[t];
         occupant.transform.localScale = new Vector3(3, 3, 1);
         occupant.transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = game.designer.Sprites[t];
@@ -302,8 +281,6 @@ public class Engine : MonoBehaviour
 
     private void Drag(Point from, Point to)
     {
-        //Spawn(to, GetOccupantTribe(from));
-        //Kill(from);
         Board[to].occupantTribe = GetOccupantTribe(from);
         Board[from].occupantTribe = Tribes.None;
         StartCoroutine(OccupantDesigner.Move(Board[from].transform.GetChild(0), Board[to].transform));
@@ -315,7 +292,6 @@ public class Engine : MonoBehaviour
     private void FlushTribe()
     {
         AnchorTribeZ = Tribes.None;
-        //AnchorTribeF = Tribes.None;
     }
 
     private void FlushAnchor()
@@ -343,8 +319,7 @@ public class Engine : MonoBehaviour
         loaded = true;
         CurrentChain = new Queue<Basis>(card.Ability);
         LoadedSelections = selections;
-        DelayedTemplates = templatesToDestroy;
-        RemoveTemplatesFromBoard(DelayedTemplates);
+        _delayedTemplates = templatesToDestroy;
         Step();
     }
 
@@ -369,11 +344,14 @@ public class Engine : MonoBehaviour
 
         if (CurrentAction == Basis.Idle)
         {
-            //TickPostponed();
-            
             if (loaded)
             {
                 loaded = false;
+                if(_delayedTemplates.Count>0)
+                {
+                    RemoveTemplatesFromBoard(_delayedTemplates);
+                    AudioStatic.PlayAudio("Sounds/template_complete");
+                }
                 Reset();
                 return;
             }
@@ -382,7 +360,7 @@ public class Engine : MonoBehaviour
             var note = new LogNote(game.player.Character.Login,
                 _loadedCard,
                 SelfSelections,
-                LastCompletedTemplates);
+                _lastCompletedTemplates);
             game.player.Character.GraveList.Add(_loadedCard.Id);
             game.EndTurn(note);
             Reset();
@@ -398,8 +376,6 @@ public class Engine : MonoBehaviour
         AudioStatic.PlaySound(CurrentAction, AnchorTribeZ);
         if (_all)
             ApplyAll();
-        // else if (Counter > 0)
-        //     ApplyCount();
         else
             Actions[CurrentAction]();
         if (CurrentAction != Basis.Select &&CurrentAction!=Basis.Random)
@@ -408,39 +384,13 @@ public class Engine : MonoBehaviour
 
     private void Reset()
     {
-        _loadedCard = null;
         SelfSelections.Clear();
         LoadedSelections.Clear();
         Criterias.Clear();
         CurrentChain.Clear();
         FlushAnchor();
         FlushTribe();
-        //postponeProperty = Basis.Idle;
     }
-
-    // private void ApplyCount()
-    // {
-    //     var pts = Board.Keys.Where(SatisfiesCriterias).Shuffled().Take(Counter);
-    //     foreach (var p in pts)
-    //     {
-    //         AnchorZ = p;
-    //         Actions[CurrentAction]();
-    //     }
-    //
-    //     Counter = 0;
-    // }
-
-    // private void TickPostponed()
-    // {
-    //     var ending = PostponedActions.Where(pa => pa.TryTick()).ToList();
-    //     foreach (var pa in ending)
-    //     {
-    //         PostponedActions.Remove(pa);
-    //         AnchorZ = pa.Anchor;
-    //         AnchorTribeZ = pa.AnchorTribe;
-    //         Actions[pa.Action]();
-    //     }
-    // }
 
     private void ApplyAll()
     {
@@ -456,7 +406,7 @@ public class Engine : MonoBehaviour
 
     private void CheckWin()
     {
-        LastCompletedTemplates = new List<PositionedTemplate>();
+        _lastCompletedTemplates = new List<PositionedTemplate>();
         var completedPlayer = game.player.GetTemplatesPlayerCanComplete(Board)
             .OrderBy(pt => pt.Template.Type == SchemaType.Big ? 0 : 1).ToList();
         if (completedPlayer.Count > 0)
@@ -466,7 +416,7 @@ public class Engine : MonoBehaviour
             // delete first completed
             var template = completedPlayer[0];
             RemoveTemplateFromBoard(template);
-            LastCompletedTemplates.Add(template);
+            _lastCompletedTemplates.Add(template);
             game.player.CompleteTemplate(template.Template);
         }
 
@@ -484,7 +434,7 @@ public class Engine : MonoBehaviour
             // delete first completed
             var template = completedOpponent[0];
             RemoveTemplateFromBoard(template);
-            LastCompletedTemplates.Add(template);
+            _lastCompletedTemplates.Add(template);
             game.opponent.CompleteTemplate(template.Template);
         }
 
@@ -569,18 +519,28 @@ public class Engine : MonoBehaviour
 
     private void RemoveTemplateFromBoard(PositionedTemplate positionedTemplate)
     {
-        foreach (var p in positionedTemplate.Template.Points.Keys)
-            Board[p.Add(positionedTemplate.StartingPoint)].GetComponent<SpriteRenderer>().color = Color.magenta;
-        StartCoroutine(Waiters.LoopFor(1, () =>
-        {
-            foreach (var p in positionedTemplate.Template.Points.Keys)
-                Kill(p.Add(positionedTemplate.StartingPoint));
-            foreach (var p in positionedTemplate.Template.Points.Keys)
-                Board[p.Add(positionedTemplate.StartingPoint)].GetComponent<SpriteRenderer>().color = Color.white;
-        }));
+        StartCoroutine(RemoveTemplate(positionedTemplate));
     }
 
-    public void RemoveTemplatesFromBoard(IEnumerable<PositionedTemplate> templates)
+    private IEnumerator RemoveTemplate(PositionedTemplate template)
+    {
+        foreach (var p in template.Template.Points.Keys)
+        {
+            Board[p.Add(template.StartingPoint)].GetComponent<SpriteRenderer>().color = Color.magenta;
+            yield return new WaitForSeconds(2 * Time.deltaTime);
+        }
+
+        yield return new WaitForSeconds(1);
+
+        foreach (var p in template.Template.Points.Keys)
+        {
+            Kill(p.Add(template.StartingPoint));
+            Board[p.Add(template.StartingPoint)].GetComponent<SpriteRenderer>().color = Color.white;
+            yield return new WaitForSeconds(2 * Time.deltaTime);
+        }
+    }
+
+    private void RemoveTemplatesFromBoard(IEnumerable<PositionedTemplate> templates)
     {
         foreach (var t in templates)
             RemoveTemplateFromBoard(t);
