@@ -49,7 +49,7 @@ public class OccupantDesigner: MonoBehaviour
             who.position = startPos + passed / maxPassed * delta;
             yield return new WaitForSeconds(dt);
         }
-
+        who.SetParent(to);
         who.position = to.position;
     }
 
