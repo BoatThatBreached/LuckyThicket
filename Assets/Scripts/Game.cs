@@ -105,6 +105,7 @@ public class Game : MonoBehaviour
         // TODO: Popup
         if (isMyTurn)
         {
+            print(Account.Room.Data.Status);
             if (Account.Room.Data.LogList.Count > 0)
                 StartCoroutine(ApplyingTurn(Account.Room.Data.LogList.Last()));
             return;
@@ -170,8 +171,11 @@ public class Game : MonoBehaviour
             gameEngine.SelfSelections,
             gameEngine.LastCompletedTemplates);
         Account.Room.Data.LogList.Add(note);
+        Account.Room.Data.Status = $"Playing continues! Please make turn {opponent.Name}";
         Account.Room.Push();
+        
         //print(Account.Room.Data.Log);
+        
         Connector.SendRoom(Account.Room.Name.ToSystemRoom(), Account.Token, Account.Room.DataString);
 
         StartTurn();
