@@ -179,7 +179,7 @@ public class AudioStatic : MonoBehaviour
     {
         var clip = Resources.Load<AudioClip>(path);
         SoundHandler.PlayOneShot(clip, Account.SoundsVolume);
-        Thread.Sleep((int)Math.Round(clip.length*500));
+        Thread.Sleep((int)Math.Round(clip.length*250));
     }
 
     public static void MenuInitSounds(MonoBehaviour scene, GameObject source)

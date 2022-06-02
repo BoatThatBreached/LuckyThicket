@@ -108,6 +108,7 @@ public class Shop : MonoBehaviour
 
     public void Buy()
     {
+        AudioStatic.PlayAudio("Sounds/cashbox");
         Account.BuyCard(currentChoice);
         confirmation.SetActive(false);
         Reload();
