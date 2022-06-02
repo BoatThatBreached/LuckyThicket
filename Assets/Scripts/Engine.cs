@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using JetBrains.Annotations;
 using UnityEngine;
 using Color = UnityEngine.Color;
 
@@ -34,7 +35,7 @@ public class Engine : MonoBehaviour
     private CardCharacter _loadedCard;
     public bool loaded;
     public List<PositionedTemplate> LastCompletedTemplates;
-
+    private List<PositionedTemplate> DelayedTemplates;
     private PlayerCharacter _character;
     public List<int> cardsSource;
     //private int Counter;
@@ -336,12 +337,14 @@ public class Engine : MonoBehaviour
         Step();
     }
 
-    public void LoadOpponentActions(CardCharacter card, Queue<Point> selections)
+    public void LoadOpponentActions(CardCharacter card, Queue<Point> selections, List<PositionedTemplate> templatesToDestroy)
     {
         Reset();
         loaded = true;
         CurrentChain = new Queue<Basis>(card.Ability);
         LoadedSelections = selections;
+        DelayedTemplates = templatesToDestroy;
+        RemoveTemplatesFromBoard(DelayedTemplates);
         Step();
     }
 

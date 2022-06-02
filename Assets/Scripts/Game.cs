@@ -139,25 +139,21 @@ public class Game : MonoBehaviour
         }
 
         var selections = Parser.ParseSelections(note.Selections);
+        var templatesToDestroy = new List<PositionedTemplate>();
+        if (note.CompletedTemplate != "")
+            templatesToDestroy = note.CompletedTemplate
+                .FromJsonList()
+                .Select(Parser.GetPositionedTemplateFromString).ToList();
         gameEngine.LoadOpponentActions(
             cardChar,
-            selections);
+            selections,
+            templatesToDestroy);
+        
         StartCoroutine(Waiters.LoopFor(3, () =>
         {
             foreach (Transform child in cardSlot)
                 Destroy(child.gameObject);
         }));
-        yield return Waiters.LoopWhile(
-            () => !gameEngine.loaded,
-            () => { },
-            () =>
-            {
-                if (note.CompletedTemplate != "")
-                    gameEngine.RemoveTemplatesFromBoard(
-                        note.CompletedTemplate
-                            .FromJsonList()
-                            .Select(Parser.GetPositionedTemplateFromString));
-            });
     }
 
     public void EndTurn(LogNote note)
