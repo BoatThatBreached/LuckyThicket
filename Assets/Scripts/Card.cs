@@ -6,6 +6,7 @@ using Color = UnityEngine.Color;
 public class Card : MonoBehaviour
 {
     public Game game;
+    public Tutorial tutorial;
     public Image backImage;
     public Image picture;
     public CardCharacter cardCharacter;
@@ -35,9 +36,19 @@ public class Card : MonoBehaviour
     public void OnMouseDown()
     {
         AudioStatic.PlayAudio("Sounds/card");
-        if (!game.isMyTurn||unplayable||game.gameEngine.CurrentChain.Count>0)
-            return;
-        game.SelectCard(this);
+        if (game != null)
+        {
+            if (!game.isMyTurn||unplayable||game.gameEngine.CurrentChain.Count>0||!game.canDoSomething)
+                return;
+            game.SelectCard(this);
+        }
+        else
+        {
+            if (unplayable||!tutorial.canDoSomething)
+                return;
+            Destroy(gameObject);
+        }
+        
     }
 
     public void ChangeSize(bool enlarging) =>

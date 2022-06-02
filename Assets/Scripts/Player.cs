@@ -35,11 +35,12 @@ public class Player : MonoBehaviour
         return new Color(hash / max, hash / max * hash / max, hash / max / 2);
     }
 
-    public void DrawCard(int id)
+    public void DrawCard(int id, Tutorial tut = null)
     {
         var cardCharacter = Account.GetLocalCard(id);
         var card = Instantiate(cardPref, handPanel).GetComponent<Card>();
         card.LoadFrom(cardCharacter, this);
+        card.tutorial = tut;
     }
 
     public bool Draw(List<int> source)
@@ -79,7 +80,7 @@ public class Player : MonoBehaviour
         RefreshTemplates();
     }
 
-    private void RefreshTemplates()
+    public void RefreshTemplates()
     {
         foreach (Transform child in bigTemplateSlot)
             Destroy(child.gameObject);

@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -16,6 +14,7 @@ public class Menu : MonoBehaviour
     }
 
     public void Play() => SceneManager.LoadScene("RoomScene");
+    public void Learn() => SceneManager.LoadScene("Tutorial");
     
 
     public void Exit()

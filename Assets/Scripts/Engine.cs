@@ -13,14 +13,7 @@ public class Engine : MonoBehaviour
 
     private Point AnchorZ { get; set; }
     private Point AnchorF { get; set; }
-
-    // private Point AnchorS { get; set; }
-    // private Point AnchorT { get; set; }
     private Tribes AnchorTribeZ { get; set; }
-    //private Tribes AnchorTribeF { get; set; }
-
-    // private Tribes AnchorTribeS { get; set; }
-    // private Tribes AnchorTribeT { get; set; }
     public Basis CurrentAction { get; private set; }
     private List<Func<Point, bool>> Criterias { get; set; }
     private bool _notExistingNeeded;
@@ -28,7 +21,6 @@ public class Engine : MonoBehaviour
     public Game game;
 
     private Dictionary<Point, Tile> Board => game.Board;
-    //private Dictionary<Point, Tile> TempTiles;
 
     private Queue<Point> LoadedSelections { get; set; }
     private Queue<Point> SelfSelections { get; set; }
@@ -37,6 +29,7 @@ public class Engine : MonoBehaviour
     private List<PositionedTemplate> _lastCompletedTemplates;
     private List<PositionedTemplate> _delayedTemplates;
     private PlayerCharacter _character;
+
     public List<int> cardsSource;
     //private int Counter;
     //private int ConditionCounter;
@@ -85,7 +78,6 @@ public class Engine : MonoBehaviour
             [Basis.Playable] = () => AnchorTribeZ = Tribes.Playable,
             [Basis.Obstacle] = () => AnchorTribeZ = Tribes.Obstacle,
             [Basis.ShiftAnchor] = () => { AnchorF = AnchorZ; },
-            //[Basis.ShiftTribe] = () => { AnchorTribeF = AnchorTribeZ; },
             [Basis.Free] = () => Criterias.Add(IsFree),
             [Basis.Adjacent] = () => Criterias.Add(IsAdjacentToAnchor),
             [Basis.Surrounding] = () => Criterias.Add(IsSurroundingToAnchor),
@@ -214,6 +206,7 @@ public class Engine : MonoBehaviour
     {
         Occupy(p, t);
     }
+
     private void Occupy(Point p, Tribes t)
     {
         if (!Board.ContainsKey(p))
@@ -313,7 +306,8 @@ public class Engine : MonoBehaviour
         Step();
     }
 
-    public void LoadOpponentActions(CardCharacter card, Queue<Point> selections, List<PositionedTemplate> templatesToDestroy)
+    public void LoadOpponentActions(CardCharacter card, Queue<Point> selections,
+        List<PositionedTemplate> templatesToDestroy)
     {
         Reset();
         loaded = true;
@@ -340,18 +334,19 @@ public class Engine : MonoBehaviour
     private void Step()
     {
         CurrentAction = CurrentChain.Count > 0 ? CurrentChain.Dequeue() : Basis.Idle;
-        
+
 
         if (CurrentAction == Basis.Idle)
         {
             if (loaded)
             {
                 loaded = false;
-                if(_delayedTemplates.Count>0)
+                if (_delayedTemplates.Count > 0)
                 {
                     RemoveTemplatesFromBoard(_delayedTemplates);
                     AudioStatic.PlayAudio("Sounds/template_complete");
                 }
+
                 Reset();
                 return;
             }
@@ -378,7 +373,7 @@ public class Engine : MonoBehaviour
             ApplyAll();
         else
             Actions[CurrentAction]();
-        if (CurrentAction != Basis.Select &&CurrentAction!=Basis.Random)
+        if (CurrentAction != Basis.Select && CurrentAction != Basis.Random)
             Step();
     }
 
@@ -445,7 +440,7 @@ public class Engine : MonoBehaviour
     private void SkipToAlso()
     {
         Criterias.Clear();
-        while (CurrentAction!=Basis.Also&&CurrentAction!=Basis.Idle)
+        while (CurrentAction != Basis.Also && CurrentAction != Basis.Idle)
             CurrentAction = CurrentChain.Count > 0 ? CurrentChain.Dequeue() : Basis.Idle;
         Step();
     }
@@ -586,4 +581,7 @@ internal static class EngineExtensions
 
     public static Point Uni(this Point source) =>
         new Point(source.X == 0 ? 0 : Math.Sign(source.X), source.Y == 0 ? 0 : Math.Sign(source.Y));
+
+    public static int Len(this Point source) =>
+        source.X >= 0 ? source.X : -source.X + source.Y >= 0 ? source.Y : -source.Y;
 }

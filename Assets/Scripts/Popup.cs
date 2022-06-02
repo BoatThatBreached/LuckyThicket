@@ -10,18 +10,21 @@ public class Popup : MonoBehaviour
     private bool _showing;
 
     private const float MAXPassed = 0.5f;
-
-    public void ShowMessage(string msg, Color col)
+    private bool _waitFading;
+    public IEnumerator ShowMessage(string msg, Color col, bool fade = false)
     {
         if (_showing)
-            return;
+            yield break;
         _showing = true;
         txt.text = msg;
         col.a = 0;
         img.color = col;
         txt.color = Color.black;
-        StartCoroutine(FromFade());
+        _waitFading = fade;
+        yield return FromFade();
     }
+
+    public IEnumerator Hide() => Fade();
 
     private IEnumerator FromFade()
     {
@@ -39,9 +42,19 @@ public class Popup : MonoBehaviour
             passed += dt;
             yield return new WaitForSeconds(dt);
         }
-
-        yield return new WaitForSeconds(2);
-        yield return Fade();
+        var imgCol2 = img.color;
+        var txtCol2 = txt.color;
+        imgCol2.a = 1;
+        txtCol2.a = 1;
+        img.color = imgCol2;
+        txt.color = txtCol2;
+        _showing = false;
+        if(_waitFading)
+        {
+            _waitFading = false;
+            yield return new WaitForSeconds(2);
+            yield return Fade();
+        }
     }
 
     private IEnumerator Fade()
@@ -61,6 +74,12 @@ public class Popup : MonoBehaviour
             yield return new WaitForSeconds(dt);
         }
 
+        var imgCol2 = img.color;
+        var txtCol2 = txt.color;
+        imgCol2.a = 0;
+        txtCol2.a = 0;
+        img.color = imgCol2;
+        txt.color = txtCol2;
         _showing = false;
     }
 }

@@ -59,7 +59,7 @@ public class Opponent : MonoBehaviour
         return result;
     }
 
-    private void RefreshTemplates()
+    public void RefreshTemplates()
     {
         foreach (Transform child in bigTemplateSlot)
             Destroy(child.gameObject);

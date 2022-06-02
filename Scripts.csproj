@@ -55,6 +55,7 @@
      <Compile Include="Assets\Scripts\Account.cs" />
      <Compile Include="Assets\Scripts\Template.cs" />
      <Compile Include="Assets\Scripts\Room.cs" />
+     <Compile Include="Assets\Scripts\TutorialEngine.cs" />
      <Compile Include="Assets\Scripts\Scenes.cs" />
      <Compile Include="Assets\Scripts\Waiters.cs" />
      <Compile Include="Assets\Scripts\Player.cs" />
@@ -74,9 +75,11 @@
      <Compile Include="Assets\Scripts\LogNote.cs" />
      <Compile Include="Assets\Scripts\Basis.cs" />
      <Compile Include="Assets\Scripts\RoomData.cs" />
+     <Compile Include="Assets\Scripts\CardInDeck.cs" />
      <Compile Include="Assets\Scripts\Tile.cs" />
      <Compile Include="Assets\Scripts\Game.cs" />
      <Compile Include="Assets\Scripts\Opponent.cs" />
+     <Compile Include="Assets\Scripts\Tutorial.cs" />
      <Compile Include="Assets\Scripts\OccupantDesigner.cs" />
      <Compile Include="Assets\Scripts\ActionPointer.cs" />
      <Compile Include="Assets\Scripts\Shop.cs" />
@@ -87,7 +90,6 @@
      <Compile Include="Assets\Scripts\CardCharacter.cs" />
      <Compile Include="Assets\Scripts\DevScene.cs" />
      <Compile Include="Assets\Scripts\PostponedAction.cs" />
-     <Compile Include="Assets\Scripts\CardInDeck.cs" />
      <None Include="Assets\Scripts\Scripts.asmdef" />
  <Reference Include="UnityEngine">
  <HintPath>C:/Unity/2020.3.33f1/Editor/Data/Managed/UnityEngine/UnityEngine.dll</HintPath>

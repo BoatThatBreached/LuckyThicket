@@ -50,7 +50,7 @@ public class Game : MonoBehaviour
     {
         var board = Parser.EmptyBoard(5, new Point(0, 2), true);
         Board = new Dictionary<Point, Tile>();
-        foreach (var point in board.Keys)
+        foreach (var point in board.Keys.Shuffled())
         {
             AudioStatic.sounds[Basis.Build][Tribes.Beaver]();
             gameEngine.Build(point);
