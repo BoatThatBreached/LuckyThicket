@@ -68,6 +68,7 @@
      <Compile Include="Assets\Scripts\PlayerCharacter.cs" />
      <Compile Include="Assets\Scripts\Connector.cs" />
      <Compile Include="Assets\Scripts\Tribes.cs" />
+     <Compile Include="Assets\Scripts\Crystal.cs" />
      <Compile Include="Assets\Scripts\Menu.cs" />
      <Compile Include="Assets\Scripts\Login.cs" />
      <Compile Include="Assets\Scripts\LogNote.cs" />
