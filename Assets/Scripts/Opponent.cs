@@ -75,14 +75,14 @@ public class Opponent : MonoBehaviour
             var maxY = t.Points.Keys.Select(p => p.Y).Max();
             var minX = t.Points.Keys.Select(p => p.X).Min();
             var minY = t.Points.Keys.Select(p => p.Y).Min();
-            var width = maxX - minX;
-            var height = maxY - minY;
+            var width = maxX - minX+1;
+            var height = maxY - minY+1;
             for (var i = minX; i <= maxX; i++)
             for (var j = minY; j <= maxY; j++)
             {
                 var templateTile = Instantiate(templateTilePref, smallTemplatesSlots[index]);
                 templateTile.transform.position = smallTemplatesSlots[index].position +
-                                                  new Vector3(i + (4 - width) / 2f, j + (4 - height) / 2f, 0) * 0.45f*0.8f;
+                                                  new Vector3(i - (3 - width) / 2f, j, 0) * 0.45f*0.8f;
                 var point = new Point(i, j);
                 if (!t.Points.ContainsKey(point))
                     continue;
@@ -102,14 +102,14 @@ public class Opponent : MonoBehaviour
             var maxY = t.Points.Keys.Select(p => p.Y).Max();
             var minX = t.Points.Keys.Select(p => p.X).Min();
             var minY = t.Points.Keys.Select(p => p.Y).Min();
-            var width = maxX - minX;
-            var height = maxY - minY;
+            var width = maxX - minX+1;
+            var height = maxY - minY+1;
             for (var i = minX; i <= maxX; i++)
             for (var j = minY; j <= maxY; j++)
             {
                 var templateTile = Instantiate(templateTilePref, bigTemplateSlot);
                 templateTile.transform.position = bigTemplateSlot.position +
-                                                  new Vector3(i + (4 - width) / 2f, j + (4 - height) / 2f, 0) * 0.45f*0.8f;
+                                                  new Vector3(i - (3 - width) / 2f, j, 0) * 0.45f*0.8f;
                 var point = new Point(i, j);
                 if (!t.Points.ContainsKey(point))
                     continue;
