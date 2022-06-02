@@ -50,7 +50,7 @@ public class Game : MonoBehaviour
         {
             AudioStatic.sounds[Basis.Build][Tribes.Beaver]();
             gameEngine.Build(point);
-            yield return new WaitForSeconds(0.1f);
+            yield return new WaitForSeconds(Time.deltaTime);
         }
 
         StartTurn();
