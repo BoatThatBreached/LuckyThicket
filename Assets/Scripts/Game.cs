@@ -23,12 +23,16 @@ public class Game : MonoBehaviour
     public void EnterDictionary(){
         canDoSomething = false;
         glossary.gameObject.SetActive(true);
+        foreach (Transform child in transform)
+            child.gameObject.SetActive(false);
     }
 
     public void ExitDictionary()
     {
         canDoSomething = true;
         glossary.gameObject.SetActive(false);
+        foreach (Transform child in transform)
+            child.gameObject.SetActive(true);
     }
 
     private void Start()

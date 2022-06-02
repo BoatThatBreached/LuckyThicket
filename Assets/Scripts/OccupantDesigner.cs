@@ -41,7 +41,7 @@ public class OccupantDesigner: MonoBehaviour
         var startPos = who.position;
         var delta = to.position-who.position;
         var passed = 0f;
-        const float maxPassed = 0.35f;
+        const float maxPassed = 0.8f;
         who.SetParent(to);
         while (passed < maxPassed)
         {
