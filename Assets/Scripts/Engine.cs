@@ -4,7 +4,6 @@ using System.Drawing;
 using System.Linq;
 using UnityEngine;
 using Color = UnityEngine.Color;
-using Random = System.Random;
 
 public class Engine : MonoBehaviour
 {
@@ -36,12 +35,12 @@ public class Engine : MonoBehaviour
     public bool loaded;
     public List<PositionedTemplate> LastCompletedTemplates;
 
-    private bool _opponentNeeds;
+    private PlayerCharacter _character;
     public List<int> cardsSource;
-    private int Counter;
-    private int ConditionCounter;
-    private Basis postponeProperty = Basis.Idle;
-    private List<PostponedAction> PostponedActions;
+    //private int Counter;
+    //private int ConditionCounter;
+    //private Basis postponeProperty = Basis.Idle;
+    //private List<PostponedAction> PostponedActions;
 
     private readonly Basis[] _cardInteractions =
     {
@@ -55,12 +54,11 @@ public class Engine : MonoBehaviour
         CurrentChain = new Queue<Basis>();
         LoadedSelections = new Queue<Point>();
         SelfSelections = new Queue<Point>();
-        PostponedActions = new List<PostponedAction>();
+        //PostponedActions = new List<PostponedAction>();
         //TempTiles = new Dictionary<Point, Tile>();
         FlushAnchor();
         FlushTribe();
         _notExistingNeeded = false;
-        _opponentNeeds = false;
         Criterias = new List<Func<Point, bool>>();
         cardsSource = null;
         InitActions();
@@ -133,21 +131,21 @@ public class Engine : MonoBehaviour
                 if (!game.player.Give(cardsSource))
                     SkipToAlso();
             },
-            [Basis.Graveyard] = () => RefreshCardsSource(Basis.Graveyard),
-            [Basis.Deck] = () => RefreshCardsSource(Basis.Deck),
-            [Basis.Hand] = () => RefreshCardsSource(Basis.Hand),
-            [Basis.Opponent] = () => _opponentNeeds = true,
-            [Basis.Player] = () => _opponentNeeds = false,
-            [Basis.Inc] = () => Counter++,
-            [Basis.Completed] = () => ConditionCounter = 3 - game.player.Character.TemplatesList.Count,
-            [Basis.Count] = () => ConditionCounter = Board.Keys.Count(SatisfiesCriterias),
-            [Basis.Temp] = () => postponeProperty = Basis.Temp,
-            [Basis.Await] = () => postponeProperty = Basis.Await,
-            [Basis.Zero] = () =>
-            {
-                if (ConditionCounter == 0)
-                    SkipToAlso();
-            }
+            [Basis.Graveyard] = () => cardsSource = _character.GraveList,
+            [Basis.Deck] = () => cardsSource = _character.DeckList,
+            [Basis.Hand] = () => cardsSource = _character.HandList,
+            [Basis.Opponent] = () => _character = game.opponent.Character,
+            [Basis.Player] = () => _character = game.player.Character,
+            //[Basis.Inc] = () => Counter++,
+            //[Basis.Completed] = () => ConditionCounter = 3 - game.player.Character.TemplatesList.Count,
+            //[Basis.Count] = () => ConditionCounter = Board.Keys.Count(SatisfiesCriterias),
+            //[Basis.Temp] = () => postponeProperty = Basis.Temp,
+            //[Basis.Await] = () => postponeProperty = Basis.Await,
+            //[Basis.Zero] = () =>
+            // {
+            //     if (ConditionCounter == 0)
+            //         SkipToAlso();
+            // }
         };
     }
 
@@ -213,37 +211,38 @@ public class Engine : MonoBehaviour
 
     public void Spawn(Point p, Tribes t)
     {
-        switch (postponeProperty)
-        {
-            case Basis.Temp:
-                Postpone(p, Basis.Kill, t);
-                postponeProperty = Basis.Idle;
-                Occupy(p, t);
-                break;
-            case Basis.Await:
-                Postpone(p, Basis.Spawn, t);
-                Occupy(p, t, true);
-                break;
-            default:
-                if (!IsOccupied(p))
-                    Occupy(p, t);
-                break;
-        }
-
-        postponeProperty = Basis.Idle;
+        // switch (postponeProperty)
+        // {
+        //     case Basis.Temp:
+        //         Postpone(p, Basis.Kill, t);
+        //         postponeProperty = Basis.Idle;
+        //         Occupy(p, t);
+        //         break;
+        //     case Basis.Await:
+        //         Postpone(p, Basis.Spawn, t);
+        //         Occupy(p, t, true);
+        //         break;
+        //     default:
+        //         if (!IsOccupied(p))
+        //             Occupy(p, t);
+        //         break;
+        // }
+        Occupy(p, t);
+        //postponeProperty = Basis.Idle;
     }
 
-    private void Postpone(Point p, Basis b, Tribes t) => PostponedActions.Add(new PostponedAction(p, b, t));
+    //private void Postpone(Point p, Basis b, Tribes t) => PostponedActions.Add(new PostponedAction(p, b, t));
 
-    private void Occupy(Point p, Tribes t, bool awaits = false)
+    private void Occupy(Point p, Tribes t)
     {
         if (!Board.ContainsKey(p))
             return;
 
         Kill(p);
-        Board[p].occupantTribe = awaits ? Board[p].occupantTribe : t;
+        Board[p].occupantTribe = t;
         var occupant = Instantiate(game.designer.occupantPref, Board[p].transform);
-        occupant.GetComponent<SpriteRenderer>().color = game.designer.ProperColors[t][postponeProperty];
+        //occupant.GetComponent<SpriteRenderer>().color = game.designer.ProperColors[t][postponeProperty];
+        occupant.GetComponent<SpriteRenderer>().color = game.designer.Colors[t];
         occupant.transform.localScale = new Vector3(3, 3, 1);
         occupant.transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = game.designer.Sprites[t];
         FlushTribe(); //TODO: optimize flushing (remove?)
@@ -256,9 +255,6 @@ public class Engine : MonoBehaviour
         Board[p].occupantTribe = Tribes.None;
         foreach (Transform child in Board[p].transform)
             Destroy(child.gameObject);
-
-
-        FlushTribe();
     }
 
     private void Push(Point pusher, Point pushed)
@@ -305,33 +301,15 @@ public class Engine : MonoBehaviour
 
     private void Drag(Point from, Point to)
     {
-        Spawn(to, GetOccupantTribe(from));
-        Kill(from);
-        //TODO: Replace with smooth movement
+        //Spawn(to, GetOccupantTribe(from));
+        //Kill(from);
+        Board[to].occupantTribe = GetOccupantTribe(from);
+        Board[from].occupantTribe = Tribes.None;
+        StartCoroutine(OccupantDesigner.Move(Board[from].transform.GetChild(0), Board[to].transform));
     }
 
     #endregion
 
-    private void RefreshCardsSource(Basis b)
-    {
-        switch (b)
-        {
-            case Basis.Hand:
-                cardsSource = (_opponentNeeds ? game.opponent.Character : game.player.Character)
-                    .HandList;
-                break;
-            case Basis.Graveyard:
-                cardsSource = (_opponentNeeds ? game.opponent.Character : game.player.Character)
-                    .GraveList;
-                break;
-            case Basis.Deck:
-                cardsSource = (_opponentNeeds ? game.opponent.Character : game.player.Character)
-                    .DeckList;
-                break;
-            default:
-                throw new ArgumentException($"Something is wrong with this cards source: {b}");
-        }
-    }
 
     private void FlushTribe()
     {
@@ -389,7 +367,7 @@ public class Engine : MonoBehaviour
 
         if (CurrentAction == Basis.Idle)
         {
-            TickPostponed();
+            //TickPostponed();
             
             if (loaded)
             {
@@ -413,8 +391,8 @@ public class Engine : MonoBehaviour
         AudioStatic.PlaySound(CurrentAction, AnchorTribeZ);
         if (_all)
             ApplyAll();
-        else if (Counter > 0)
-            ApplyCount();
+        // else if (Counter > 0)
+        //     ApplyCount();
         else
             Actions[CurrentAction]();
         if (CurrentAction != Basis.Select &&CurrentAction!=Basis.Random)
@@ -430,32 +408,32 @@ public class Engine : MonoBehaviour
         CurrentChain.Clear();
         FlushAnchor();
         FlushTribe();
-        postponeProperty = Basis.Idle;
+        //postponeProperty = Basis.Idle;
     }
 
-    private void ApplyCount()
-    {
-        var pts = Board.Keys.Where(SatisfiesCriterias).Shuffled().Take(Counter);
-        foreach (var p in pts)
-        {
-            AnchorZ = p;
-            Actions[CurrentAction]();
-        }
+    // private void ApplyCount()
+    // {
+    //     var pts = Board.Keys.Where(SatisfiesCriterias).Shuffled().Take(Counter);
+    //     foreach (var p in pts)
+    //     {
+    //         AnchorZ = p;
+    //         Actions[CurrentAction]();
+    //     }
+    //
+    //     Counter = 0;
+    // }
 
-        Counter = 0;
-    }
-
-    private void TickPostponed()
-    {
-        var ending = PostponedActions.Where(pa => pa.TryTick()).ToList();
-        foreach (var pa in ending)
-        {
-            PostponedActions.Remove(pa);
-            AnchorZ = pa.Anchor;
-            AnchorTribeZ = pa.AnchorTribe;
-            Actions[pa.Action]();
-        }
-    }
+    // private void TickPostponed()
+    // {
+    //     var ending = PostponedActions.Where(pa => pa.TryTick()).ToList();
+    //     foreach (var pa in ending)
+    //     {
+    //         PostponedActions.Remove(pa);
+    //         AnchorZ = pa.Anchor;
+    //         AnchorTribeZ = pa.AnchorTribe;
+    //         Actions[pa.Action]();
+    //     }
+    // }
 
     private void ApplyAll()
     {

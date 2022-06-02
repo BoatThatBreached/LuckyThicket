@@ -60,6 +60,7 @@
 
     Draw,
     Discard,
+    Give,
 
     #endregion
 
@@ -69,6 +70,7 @@
     Deck,
     Hand,
     Opponent,
+    Player,
 
     #endregion
 
@@ -79,12 +81,11 @@
 
     #endregion
     
-    Completed,
-    Player,
-    Await,
-    Zero,
-    Give,           
-    Temp,           
-    Inc,                  
-    Count
+    //Completed,
+    //Await,
+    //Zero,
+               
+    // Temp,           
+    // Inc,                  
+    // Count
 }

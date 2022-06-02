@@ -119,7 +119,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b288255423ad28b43bea4a1d9eef9ab0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  yourScrollRect: {fileID: 0}
+  scrollRect: {fileID: 0}
   backImage: {fileID: 5175759974923224458}
   picture: {fileID: 5526477222816043570}
   rarity: 0
@@ -541,7 +541,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 120, y: 120}
+  m_SizeDelta: {x: 150, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8760953453467063781
 CanvasRenderer:

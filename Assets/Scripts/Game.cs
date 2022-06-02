@@ -17,9 +17,23 @@ public class Game : MonoBehaviour
     public TMP_Text turnText;
     public bool isMyTurn;
     public Transform cardSlot;
+    public bool canDoSomething;
+    public GameObject glossary;
+    
+    public void EnterDictionary(){
+        canDoSomething = false;
+        glossary.gameObject.SetActive(true);
+    }
+
+    public void ExitDictionary()
+    {
+        canDoSomething = true;
+        glossary.gameObject.SetActive(false);
+    }
 
     private void Start()
     {
+        canDoSomething = true;
         AudioStatic.GameInitSounds(this, gameObject);
 
         designer.Init();
