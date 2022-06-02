@@ -84,11 +84,10 @@ public class Collection : MonoBehaviour
                     Rarity.Legendary => (Color.red + Color.yellow) / 2,
                     _ => Color.black
                 };
-                try
-                {
+                if (Resources.Load<Sprite>($"cards/{card.Name}") != null){
                     cardChar.picture.sprite = Resources.Load<Sprite>($"cards/{card.Name}");
                 }
-                catch
+                else
                 {
                     print("oof");
                     var cardName = card.Name.ToLower().Contains("боб") ? "Бобрёнок" : "Сорочонок";

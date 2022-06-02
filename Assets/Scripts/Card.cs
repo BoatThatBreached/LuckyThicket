@@ -78,11 +78,10 @@ public class Card : MonoBehaviour
             Rarity.Legendary => (Color.red + Color.yellow) / 2,
             _ => Color.black
         };
-        try
-        {
+        if (Resources.Load<Sprite>($"cards/{cardCharacter.Name}") != null){
             picture.sprite = Resources.Load<Sprite>($"cards/{cardCharacter.Name}");
         }
-        catch
+        else
         {
             print("oof");
             var cardName = cardChar.Name.ToLower().Contains("боб") ? "Бобрёнок" : "Сорочонок";
