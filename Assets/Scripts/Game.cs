@@ -160,16 +160,11 @@ public class Game : MonoBehaviour
             });
     }
 
-    public void EndTurn(CardCharacter card)
+    public void EndTurn(LogNote note)
     {
-        print(card.Id);
-        player.Character.GraveList.Add(card.Id);
         player.Character.Push();
         opponent.Character.Push();
-        var note = new LogNote(player.Character.Login,
-            card,
-            gameEngine.SelfSelections,
-            gameEngine.LastCompletedTemplates);
+        
         Account.Room.Data.LogList.Add(note);
         Account.Room.Data.Status = $"Playing continues! Please make turn {opponent.Name}";
         Account.Room.Push();

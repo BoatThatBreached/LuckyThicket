@@ -342,7 +342,6 @@ public class Engine : MonoBehaviour
         loaded = true;
         CurrentChain = new Queue<Basis>(card.Ability);
         LoadedSelections = selections;
-        _loadedCard = card;
         Step();
     }
 
@@ -377,7 +376,12 @@ public class Engine : MonoBehaviour
             }
 
             CheckWin();
-            game.EndTurn(_loadedCard);
+            var note = new LogNote(game.player.Character.Login,
+                _loadedCard,
+                SelfSelections,
+                LastCompletedTemplates);
+            game.player.Character.GraveList.Add(_loadedCard.Id);
+            game.EndTurn(note);
             Reset();
             return;
         }
