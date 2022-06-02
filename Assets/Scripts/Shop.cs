@@ -60,6 +60,9 @@ public class Shop : MonoBehaviour
             catch
             {
                 print("oof");
+                var cardName = card.Name.ToLower().Contains("боб") ? "Бобрёнок" : "Сорочонок";
+                cardChar.picture.sprite = 
+                    Resources.Load<Sprite>($"cards/{cardName}");
             }
             cardChar.AbilityMask = card.AbilityMask;
             cardChar.Name = card.Name;

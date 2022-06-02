@@ -85,6 +85,8 @@ public class Card : MonoBehaviour
         catch
         {
             print("oof");
+            var cardName = cardChar.Name.ToLower().Contains("боб") ? "Бобрёнок" : "Сорочонок";
+            picture.sprite = Resources.Load<Sprite>($"cards/{cardName}");
         }
         
     }

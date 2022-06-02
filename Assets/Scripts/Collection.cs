@@ -91,6 +91,9 @@ public class Collection : MonoBehaviour
                 catch
                 {
                     print("oof");
+                    var cardName = card.Name.ToLower().Contains("боб") ? "Бобрёнок" : "Сорочонок";
+                    cardChar.picture.sprite = 
+                        Resources.Load<Sprite>($"cards/{cardName}");
                 }
                 cardChar.CardCharacter = card;
                 cardChar.scrollRect = CollectionScroll;
