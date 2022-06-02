@@ -53,11 +53,10 @@ public class Shop : MonoBehaviour
         foreach (var card in offer)
         {
             var cardChar = Instantiate(cardPref, panel.transform).GetComponent<CardInCollection>();
-            try
-            {
+            if (Resources.Load<Sprite>($"cards/{card.Name}") != null){
                 cardChar.picture.sprite = Resources.Load<Sprite>($"cards/{card.Name}");
             }
-            catch
+            else
             {
                 print("oof");
                 var cardName = card.Name.ToLower().Contains("боб") ? "Бобрёнок" : "Сорочонок";
