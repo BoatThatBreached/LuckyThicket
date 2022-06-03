@@ -417,7 +417,7 @@ public class Engine : MonoBehaviour
 
         if (game.player.HasWon)
         {
-            game.Win(true);
+            game.Win();
             return;
         }
 
@@ -434,7 +434,7 @@ public class Engine : MonoBehaviour
         }
 
         if (game.opponent.HasWon)
-            game.Lose(true);
+            game.Lose();
     }
 
     private void SkipToAlso()

@@ -5,6 +5,7 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Color = UnityEngine.Color;
 
 public class Game : MonoBehaviour
 {
@@ -19,7 +20,7 @@ public class Game : MonoBehaviour
     public Transform cardSlot;
     public bool canDoSomething;
     public GameObject glossary;
-    
+    public Popup popup;
     public void EnterDictionary(){
         canDoSomething = false;
         glossary.gameObject.SetActive(true);
@@ -83,17 +84,20 @@ public class Game : MonoBehaviour
     private void StartTurn()
     {
         var room = Connector.GetRoomsList().Find(room => room.Name == Account.Room.Name);
-        if (room == null)
+        Account.Room = room;
+        if (room.Data.Status == $"{opponent.Name} won")
         {
-            // TODO: Room status (win/lose/tie and who if possible)
-            Win(false);
+            StartCoroutine(AcceptLoseAndExit());
             return;
         }
-
-        room.Data.FirstPlayer.Pull();
-        room.Data.SecondPlayer.Pull();
-        //print(room.Data.Log);
-        Account.Room = room;
+        if (room.Data.Status == $"{opponent.Name} lost")
+        {
+            StartCoroutine(AcceptWinAndExit());
+            return;
+        }
+        Account.Room.Data.FirstPlayer.Pull();
+        Account.Room.Data.SecondPlayer.Pull();
+        
         player.Init();
         opponent.Init();
         //Account.Room.Push();
@@ -180,20 +184,43 @@ public class Game : MonoBehaviour
         SceneManager.LoadScene("RoomScene");
     }
 
-    public void Win(bool shouldDestroy)
+    public void Win()
     {
-        print($"{player.Name} won!");
-        if (shouldDestroy)
-            Connector.DestroyRoom(Account.Token, Account.Room.Name.ToSystemRoom());
+        Account.Room.Data.Status = $"{Account.Room.Me.Login} won";
+        Account.Room.Data.Push();
+        Connector.SendRoom(Account.Room.Name.ToSystemRoom(), Account.Token, Account.Room.DataString);
+        StartCoroutine(WinAndExit());
+    }
+
+    private IEnumerator WinAndExit()
+    {
+        yield return popup.ShowMessage("Вы победили! Поздравляем!", Color.yellow);
+        SceneManager.LoadScene("RoomScene");
+    }
+    private IEnumerator LoseAndExit()
+    {
+        yield return popup.ShowMessage("Не расстраивайтесь! Вы играли достойно!", Color.yellow);
+        SceneManager.LoadScene("RoomScene");
+    }
+    private IEnumerator AcceptWinAndExit()
+    {
+        Connector.DestroyRoom(Account.Token, Account.Room.Name.ToSystemRoom());
+        yield return popup.ShowMessage("Вы победили! Поздравляем!", Color.yellow);
+        SceneManager.LoadScene("RoomScene");
+    }
+    private IEnumerator AcceptLoseAndExit()
+    {
+        Connector.DestroyRoom(Account.Token, Account.Room.Name.ToSystemRoom());
+        yield return popup.ShowMessage("В другой раз обязательно повезёт!", Color.yellow);
         SceneManager.LoadScene("RoomScene");
     }
 
-    public void Lose(bool shouldDestroy)
+    public void Lose()
     {
-        print($"{player.Name} lost :(");
-        if (shouldDestroy)
-            Connector.DestroyRoom(Account.Token, Account.Room.Name.ToSystemRoom());
-        SceneManager.LoadScene("RoomScene");
+        Account.Room.Data.Status = $"{Account.Room.Me.Login} lost";
+        Account.Room.Data.Push();
+        Connector.SendRoom(Account.Room.Name.ToSystemRoom(), Account.Token, Account.Room.DataString);
+        StartCoroutine(WinAndExit());
     }
 
     public void SelectCard(Card card)

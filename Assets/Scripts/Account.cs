@@ -47,7 +47,7 @@ public static class Account
             Unowned.Add(card);
         GetDecks();
         if (Decks.Count == 0)
-            Decks["Custom"] = new List<int>();
+            Decks["Custom"] = ownedCards.Shuffled().Take(20).Select(c=>c.Id).ToList();
         if (ChosenDeck == "")
             ChosenDeck = "Custom";
         Balance = int.Parse(Connector.GetProperty("balance", login));
