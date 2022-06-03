@@ -31,7 +31,14 @@ public class Menu : MonoBehaviour
 
     public void Logout()
     {
-        Login.ClearCredentials();
+        try
+        {
+            Login.ClearCredentials();
+        }
+        catch
+        {
+            print("have not access");
+        }
         Account.Reset();
         SceneManager.LoadScene("LoginScene");
     }
