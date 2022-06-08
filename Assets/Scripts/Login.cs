@@ -19,7 +19,7 @@ public class Login : MonoBehaviour
     private bool _hidden = true;
 
     #region Buttons
-
+    public void Learn() => SceneManager.LoadScene("Tutorial");
     public void Exit() => Application.Quit();
 
     private void Start()

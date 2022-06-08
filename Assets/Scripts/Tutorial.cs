@@ -177,7 +177,7 @@ public class Tutorial : MonoBehaviour
         player.Character.HandList = new List<int> {4}; //tutorial cards
         player.Character.TemplatesList = new List<Template> { Template.CreateFromString("None Magpie|Magpie None|None Magpie")}; //tutorial cards
         player.Character.TemplatesList[0].Type = SchemaType.Big;
-        player.Name = Account.Nickname;
+        player.Name = "Садовник";//Account.Nickname;
         player.RefreshTemplates();
     }
 
@@ -235,5 +235,5 @@ public class Tutorial : MonoBehaviour
         yield return new WaitForSeconds(1);
         Destroy(cardSlot.GetChild(0).gameObject);
     }
-    public void Exit() => SceneManager.LoadScene("MenuScene");
+    public void Exit() => SceneManager.LoadScene("LoginScene");
 }
