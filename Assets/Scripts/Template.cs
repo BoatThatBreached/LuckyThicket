@@ -9,9 +9,9 @@ public enum SchemaType
 
 public class Template
 {
-    public Dictionary<Point, Tribes> Points { get; }
+    public Dictionary<Point, Tribes> Points { get; set; }
     public string TemplateString;
-    public SchemaType Type { get; }
+    public SchemaType Type { get; set; }
 
     public Template(List<List<Tribes>> schema, SchemaType type, string templateString)
     {

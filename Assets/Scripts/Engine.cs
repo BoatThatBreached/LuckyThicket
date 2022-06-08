@@ -1,10 +1,10 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using UnityEngine;
 using Color = UnityEngine.Color;
-using Random = System.Random;
 
 public class Engine : MonoBehaviour
 {
@@ -13,37 +13,33 @@ public class Engine : MonoBehaviour
 
     private Point AnchorZ { get; set; }
     private Point AnchorF { get; set; }
-
-    // private Point AnchorS { get; set; }
-    // private Point AnchorT { get; set; }
     private Tribes AnchorTribeZ { get; set; }
-    //private Tribes AnchorTribeF { get; set; }
-
-    // private Tribes AnchorTribeS { get; set; }
-    // private Tribes AnchorTribeT { get; set; }
     public Basis CurrentAction { get; private set; }
     private List<Func<Point, bool>> Criterias { get; set; }
     private bool _notExistingNeeded;
     private bool _all;
-    private Random _random;
     public Game game;
 
     private Dictionary<Point, Tile> Board => game.Board;
-    //private Dictionary<Point, Tile> TempTiles;
 
     private Queue<Point> LoadedSelections { get; set; }
-    public Queue<Point> SelfSelections { get; private set; }
+    private Queue<Point> SelfSelections { get; set; }
     private CardCharacter _loadedCard;
     public bool loaded;
-    public List<PositionedTemplate> LastCompletedTemplates;
+    private List<PositionedTemplate> _lastCompletedTemplates;
+    private List<PositionedTemplate> _delayedTemplates;
+    private PlayerCharacter _character;
 
-    private bool _opponentNeeds;
     public List<int> cardsSource;
+    //private int Counter;
+    //private int ConditionCounter;
+    //private Basis postponeProperty = Basis.Idle;
+    //private List<PostponedAction> PostponedActions;
 
     private readonly Basis[] _cardInteractions =
     {
-        Basis.Discard, Basis.Draw, //TODO: Steal?
-        Basis.Opponent,
+        Basis.Discard, Basis.Draw, Basis.Give,
+        Basis.Opponent, Basis.Player,
         Basis.Hand, Basis.Deck, Basis.Graveyard
     };
 
@@ -52,14 +48,13 @@ public class Engine : MonoBehaviour
         CurrentChain = new Queue<Basis>();
         LoadedSelections = new Queue<Point>();
         SelfSelections = new Queue<Point>();
+        //PostponedActions = new List<PostponedAction>();
         //TempTiles = new Dictionary<Point, Tile>();
         FlushAnchor();
         FlushTribe();
         _notExistingNeeded = false;
-        _opponentNeeds = false;
         Criterias = new List<Func<Point, bool>>();
-        _random = new Random();
-
+        cardsSource = null;
         InitActions();
     }
 
@@ -83,7 +78,6 @@ public class Engine : MonoBehaviour
             [Basis.Playable] = () => AnchorTribeZ = Tribes.Playable,
             [Basis.Obstacle] = () => AnchorTribeZ = Tribes.Obstacle,
             [Basis.ShiftAnchor] = () => { AnchorF = AnchorZ; },
-            //[Basis.ShiftTribe] = () => { AnchorTribeF = AnchorTribeZ; },
             [Basis.Free] = () => Criterias.Add(IsFree),
             [Basis.Adjacent] = () => Criterias.Add(IsAdjacentToAnchor),
             [Basis.Surrounding] = () => Criterias.Add(IsSurroundingToAnchor),
@@ -105,13 +99,13 @@ public class Engine : MonoBehaviour
                 if (!ShowPossibleTiles())
                     SkipToAlso();
                 if (LoadedSelections.Count > 0)
-                    StartCoroutine(Waiters.LoopFor(0.5f, () => SelectPoint(LoadedSelections.Dequeue())));
+                    SelectPoint(LoadedSelections.Dequeue());
             },
             [Basis.Also] = () => { },
             [Basis.Random] = () =>
             {
                 if (LoadedSelections.Count > 0)
-                    StartCoroutine(Waiters.LoopFor(0.5f, () => SelectPoint(LoadedSelections.Dequeue())));
+                    SelectPoint(LoadedSelections.Dequeue());
                 else
                     TrySelectRandomPoint();
             },
@@ -122,13 +116,29 @@ public class Engine : MonoBehaviour
             },
             [Basis.Discard] = () =>
             {
-                if (!game.player.Discard(cardsSource, _loadedCard))
+                if (!game.player.Discard(cardsSource))
                     SkipToAlso();
             },
-            [Basis.Graveyard] = () => RefreshCardsSource(Basis.Graveyard),
-            [Basis.Deck] = () => RefreshCardsSource(Basis.Deck),
-            [Basis.Hand] = () => RefreshCardsSource(Basis.Hand),
-            [Basis.Opponent] = () => _opponentNeeds = true,
+            [Basis.Give] = () =>
+            {
+                if (!game.player.Give(cardsSource))
+                    SkipToAlso();
+            },
+            [Basis.Graveyard] = () => cardsSource = _character.GraveList,
+            [Basis.Deck] = () => cardsSource = _character.DeckList,
+            [Basis.Hand] = () => cardsSource = _character.HandList,
+            [Basis.Opponent] = () => _character = game.opponent.Character,
+            [Basis.Player] = () => _character = game.player.Character,
+            //[Basis.Inc] = () => Counter++,
+            //[Basis.Completed] = () => ConditionCounter = 3 - game.player.Character.TemplatesList.Count,
+            //[Basis.Count] = () => ConditionCounter = Board.Keys.Count(SatisfiesCriterias),
+            //[Basis.Temp] = () => postponeProperty = Basis.Temp,
+            //[Basis.Await] = () => postponeProperty = Basis.Await,
+            //[Basis.Zero] = () =>
+            // {
+            //     if (ConditionCounter == 0)
+            //         SkipToAlso();
+            // }
         };
     }
 
@@ -177,6 +187,7 @@ public class Engine : MonoBehaviour
     {
         var dict = Board; //temp ? TempTiles : Board;
         var tile = dict[p].gameObject;
+        Kill(p);
         Destroy(tile);
         dict.Remove(p);
     }
@@ -193,20 +204,30 @@ public class Engine : MonoBehaviour
 
     public void Spawn(Point p, Tribes t)
     {
+        Occupy(p, t);
+    }
+
+    private void Occupy(Point p, Tribes t)
+    {
+        if (!Board.ContainsKey(p))
+            return;
+
+        Kill(p);
         Board[p].occupantTribe = t;
         var occupant = Instantiate(game.designer.occupantPref, Board[p].transform);
         occupant.GetComponent<SpriteRenderer>().color = game.designer.Colors[t];
         occupant.transform.localScale = new Vector3(3, 3, 1);
         occupant.transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = game.designer.Sprites[t];
-        FlushTribe();
+        FlushTribe(); //TODO: optimize flushing (remove?)
     }
 
     private void Kill(Point p)
     {
+        if (!Board.ContainsKey(p))
+            return;
         Board[p].occupantTribe = Tribes.None;
         foreach (Transform child in Board[p].transform)
             Destroy(child.gameObject);
-        FlushTribe();
     }
 
     private void Push(Point pusher, Point pushed)
@@ -253,38 +274,17 @@ public class Engine : MonoBehaviour
 
     private void Drag(Point from, Point to)
     {
-        Spawn(to, GetOccupantTribe(from));
-        Kill(from);
-        //TODO: Replace with smooth movement
+        Board[to].occupantTribe = GetOccupantTribe(from);
+        Board[from].occupantTribe = Tribes.None;
+        StartCoroutine(OccupantDesigner.Move(Board[from].transform.GetChild(0), Board[to].transform));
     }
 
     #endregion
 
-    private void RefreshCardsSource(Basis b)
-    {
-        switch (b)
-        {
-            case Basis.Hand:
-                cardsSource = (_opponentNeeds ? game.opponent.Character : game.player.Character)
-                    .HandList;
-                break;
-            case Basis.Graveyard:
-                cardsSource = (_opponentNeeds ? game.opponent.Character : game.player.Character)
-                    .GraveList;
-                break;
-            case Basis.Deck:
-                cardsSource = (_opponentNeeds ? game.opponent.Character : game.player.Character)
-                    .DeckList;
-                break;
-            default:
-                throw new ArgumentException($"Something is wrong with this cards source: {b}");
-        }
-    }
 
     private void FlushTribe()
     {
         AnchorTribeZ = Tribes.None;
-        //AnchorTribeF = Tribes.None;
     }
 
     private void FlushAnchor()
@@ -306,16 +306,14 @@ public class Engine : MonoBehaviour
         Step();
     }
 
-    public void LoadOpponentActions(CardCharacter card, Queue<Point> selections)
+    public void LoadOpponentActions(CardCharacter card, Queue<Point> selections,
+        List<PositionedTemplate> templatesToDestroy)
     {
+        Reset();
         loaded = true;
-        Criterias.Clear();
-        FlushTribe();
-        CurrentChain.Clear();
-        foreach (var act in card.Ability)
-            CurrentChain.Enqueue(act);
+        CurrentChain = new Queue<Basis>(card.Ability);
         LoadedSelections = selections;
-        _loadedCard = card;
+        _delayedTemplates = templatesToDestroy;
         Step();
     }
 
@@ -332,43 +330,66 @@ public class Engine : MonoBehaviour
         return pred;
     }
 
+    //TODO: remove recursion, while is our friend
     private void Step()
     {
         CurrentAction = CurrentChain.Count > 0 ? CurrentChain.Dequeue() : Basis.Idle;
 
+
         if (CurrentAction == Basis.Idle)
         {
-            FlushAnchor();
-            FlushTribe();
             if (loaded)
             {
                 loaded = false;
+                if (_delayedTemplates.Count > 0)
+                {
+                    RemoveTemplatesFromBoard(_delayedTemplates);
+                    AudioStatic.PlayAudio("Sounds/template_complete");
+                }
+
+                Reset();
                 return;
             }
 
             CheckWin();
-            game.EndTurn(_loadedCard);
+            var note = new LogNote(game.player.Character.Login,
+                _loadedCard,
+                SelfSelections,
+                _lastCompletedTemplates);
+            game.player.Character.GraveList.Add(_loadedCard.Id);
+            game.EndTurn(note);
+            Reset();
             return;
         }
 
-        AudioStatic.PlaySound(CurrentAction, AnchorTribeZ);
         if (_cardInteractions.Contains(CurrentAction) && loaded)
         {
             Step();
             return;
         }
 
+        AudioStatic.PlaySound(CurrentAction, AnchorTribeZ);
         if (_all)
             ApplyAll();
         else
             Actions[CurrentAction]();
-        if (CurrentAction != Basis.Select && CurrentAction != Basis.Idle)
+        if (CurrentAction != Basis.Select && CurrentAction != Basis.Random)
             Step();
+    }
+
+    private void Reset()
+    {
+        SelfSelections.Clear();
+        LoadedSelections.Clear();
+        Criterias.Clear();
+        CurrentChain.Clear();
+        FlushAnchor();
+        FlushTribe();
     }
 
     private void ApplyAll()
     {
-        var pts = Board.Keys.Where(SatisfiesCriterias).ToList();
+        var pts = Board.Keys.Where(SatisfiesCriterias);
         foreach (var p in pts)
         {
             AnchorZ = p;
@@ -380,7 +401,7 @@ public class Engine : MonoBehaviour
 
     private void CheckWin()
     {
-        LastCompletedTemplates = new List<PositionedTemplate>();
+        _lastCompletedTemplates = new List<PositionedTemplate>();
         var completedPlayer = game.player.GetTemplatesPlayerCanComplete(Board)
             .OrderBy(pt => pt.Template.Type == SchemaType.Big ? 0 : 1).ToList();
         if (completedPlayer.Count > 0)
@@ -390,13 +411,13 @@ public class Engine : MonoBehaviour
             // delete first completed
             var template = completedPlayer[0];
             RemoveTemplateFromBoard(template);
-            LastCompletedTemplates.Add(template);
+            _lastCompletedTemplates.Add(template);
             game.player.CompleteTemplate(template.Template);
         }
 
         if (game.player.HasWon)
         {
-            game.Win(true);
+            game.Win();
             return;
         }
 
@@ -408,31 +429,34 @@ public class Engine : MonoBehaviour
             // delete first completed
             var template = completedOpponent[0];
             RemoveTemplateFromBoard(template);
-            LastCompletedTemplates.Add(template);
+            _lastCompletedTemplates.Add(template);
             game.opponent.CompleteTemplate(template.Template);
         }
 
         if (game.opponent.HasWon)
-            game.Lose(true);
+            game.Lose();
     }
 
     private void SkipToAlso()
     {
         Criterias.Clear();
-        while (CurrentChain.Count > 0 && CurrentChain.Peek() != Basis.Also)
-            CurrentChain.Dequeue();
+        while (CurrentAction != Basis.Also && CurrentAction != Basis.Idle)
+            CurrentAction = CurrentChain.Count > 0 ? CurrentChain.Dequeue() : Basis.Idle;
         Step();
     }
 
     public void SelectPoint(Point p)
     {
-        AnchorZ = p;
-        foreach (var t in Board.Values)
-            t.Color = Color.white;
-        SelfSelections.Enqueue(p);
-        Criterias.Clear();
-        _notExistingNeeded = false;
-        Step();
+        StartCoroutine(Waiters.LoopFor(loaded ? 0.5f : 0f, () =>
+        {
+            AnchorZ = p;
+            foreach (var t in Board.Values)
+                t.Color = Color.white;
+            SelfSelections.Enqueue(p);
+            Criterias.Clear();
+            _notExistingNeeded = false;
+            Step();
+        }));
     }
 
     private bool ShowPossibleTiles()
@@ -461,7 +485,7 @@ public class Engine : MonoBehaviour
 
     private void TrySelectRandomPoint()
     {
-        Point[] possible;
+        List<Point> possible;
         if (_notExistingNeeded)
         {
             possible = Board
@@ -469,14 +493,14 @@ public class Engine : MonoBehaviour
                 .Where(IsEdge)
                 .SelectMany(p => p.GetAdjacent())
                 .Where(SatisfiesCriterias)
-                .ToArray();
+                .ToList();
         }
         else
         {
             possible = Board
                 .Keys
                 .Where(SatisfiesCriterias)
-                .ToArray();
+                .ToList();
         }
 
         if (!possible.Any())
@@ -485,24 +509,33 @@ public class Engine : MonoBehaviour
             return;
         }
 
-        SelectPoint(possible[_random.Next(possible.Length)]);
+        SelectPoint(possible.GetRandom());
     }
 
     private void RemoveTemplateFromBoard(PositionedTemplate positionedTemplate)
     {
-        foreach (var p in positionedTemplate.Template.Points.Keys)
-            Board[p].GetComponent<SpriteRenderer>().color = Color.magenta;
-        StartCoroutine(Waiters.LoopFor(1, () =>
-        {
-            foreach (var p in positionedTemplate.Template.Points.Keys)
-                Kill(p.Add(positionedTemplate.StartingPoint));
-            foreach (var p in positionedTemplate.Template.Points.Keys)
-                Board[p].GetComponent<SpriteRenderer>().color = Color.white;
-        }));
-        
+        StartCoroutine(RemoveTemplate(positionedTemplate));
     }
 
-    public void RemoveTemplatesFromBoard(IEnumerable<PositionedTemplate> templates)
+    private IEnumerator RemoveTemplate(PositionedTemplate template)
+    {
+        foreach (var p in template.Template.Points.Keys)
+        {
+            Board[p.Add(template.StartingPoint)].GetComponent<SpriteRenderer>().color = Color.magenta;
+            yield return new WaitForSeconds(2 * Time.deltaTime);
+        }
+
+        yield return new WaitForSeconds(1);
+
+        foreach (var p in template.Template.Points.Keys)
+        {
+            Kill(p.Add(template.StartingPoint));
+            Board[p.Add(template.StartingPoint)].GetComponent<SpriteRenderer>().color = Color.white;
+            yield return new WaitForSeconds(2 * Time.deltaTime);
+        }
+    }
+
+    private void RemoveTemplatesFromBoard(IEnumerable<PositionedTemplate> templates)
     {
         foreach (var t in templates)
             RemoveTemplateFromBoard(t);
@@ -548,4 +581,7 @@ internal static class EngineExtensions
 
     public static Point Uni(this Point source) =>
         new Point(source.X == 0 ? 0 : Math.Sign(source.X), source.Y == 0 ? 0 : Math.Sign(source.Y));
+
+    public static int Len(this Point source) =>
+        source.X >= 0 ? source.X : -source.X + source.Y >= 0 ? source.Y : -source.Y;
 }

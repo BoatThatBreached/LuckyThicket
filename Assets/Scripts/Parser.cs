@@ -160,6 +160,18 @@ public class Parser
     }
 
 
+    public static Template Normalize(Template temp)
+    {
+        var p = temp.Points.First().Key;
+        var newDict = new Dictionary<Point, Tribes>();
+
+        foreach (var i in temp.Points)
+            newDict[i.Key.Sub(p)] = i.Value;
+
+        temp.Points = newDict;
+        return temp;
+    }
+    
     public static Template GetTemplateFromString(string s)
     {
         // columns from down to top.
@@ -179,7 +191,7 @@ public class Parser
         }
 
         var isBig = s.Replace("Beaver", "8").Replace("Magpie", "8").Count(ch => ch == '8') > 3;
-        return new Template(array, isBig ? SchemaType.Big : SchemaType.Small, s);
+        return Normalize(new Template(array, isBig ? SchemaType.Big : SchemaType.Small, s));
     }
 
     public static Queue<Point> ParseSelections(string selections)
@@ -199,6 +211,8 @@ public class Parser
         for (var i = -size / 2; i <= size / 2; i++)
         for (var j = -size / 2; j <= size / 2; j++)
             board[center.Add(new Point(i, j))] = Tribes.None;
+        if (!holes) 
+            return board;
         board.Remove(center.Add(new Point(0, -size / 2)));
         board.Remove(center.Add(new Point(0, size / 2)));
         board.Remove(center.Add(new Point(size / 2 - 1, 1 - size / 2)));

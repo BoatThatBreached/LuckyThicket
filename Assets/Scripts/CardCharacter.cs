@@ -21,6 +21,14 @@ public class CardCharacter
         AbilityMask = abilityMask;
         Ability = ability;
     }
+    public CardCharacter(CardCharacter origin)
+    {
+        Id = origin.Id;
+        Name = origin.Name;
+        Rarity = origin.Rarity;
+        AbilityMask = origin.AbilityMask;
+        Ability = new Queue<Basis>(origin.Ability.ToList());
+    }
     [SerializeField]public int Id; 
     [SerializeField]public string Name;
     [SerializeField]public Rarity Rarity;
@@ -45,10 +53,10 @@ public static class CardExtensions
         return arr[Random.Range(0,arr.Length)];
     }
 
-    public static List<CardCharacter> Shuffled(this IEnumerable<CardCharacter> source)
+    public static List<T> Shuffled<T>(this IEnumerable<T> source)
     {
         var list = source.ToList();
-        var res = new List<CardCharacter>();
+        var res = new List<T>();
         while (list.Count > 0)
         {
             var card = list.GetRandom();

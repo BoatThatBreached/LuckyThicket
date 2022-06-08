@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -17,6 +15,7 @@ public class Menu : MonoBehaviour
 
     public void Play() => SceneManager.LoadScene("RoomScene");
     
+    
 
     public void Exit()
     {
@@ -32,7 +31,14 @@ public class Menu : MonoBehaviour
 
     public void Logout()
     {
-        Login.ClearCredentials();
+        try
+        {
+            Login.ClearCredentials();
+        }
+        catch
+        {
+            print("have not access");
+        }
         Account.Reset();
         SceneManager.LoadScene("LoginScene");
     }

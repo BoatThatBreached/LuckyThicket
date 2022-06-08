@@ -17,6 +17,7 @@ public class Shop : MonoBehaviour
     public GameObject confirmation;
     public TMP_Text confirmationText;
     public CardCharacter currentChoice;
+    public ScrollRect yourScrollRect;
     public static Dictionary<Rarity, int> prices = new Dictionary<Rarity, int>
     {
         [Rarity.Common] = 10,
@@ -52,13 +53,15 @@ public class Shop : MonoBehaviour
         foreach (var card in offer)
         {
             var cardChar = Instantiate(cardPref, panel.transform).GetComponent<CardInCollection>();
-            try
-            {
+            if (Resources.Load<Sprite>($"cards/{card.Name}") != null){
                 cardChar.picture.sprite = Resources.Load<Sprite>($"cards/{card.Name}");
             }
-            catch
+            else
             {
                 print("oof");
+                var cardName = card.Name.ToLower().Contains("боб") ? "Бобрёнок" : "Сорочонок";
+                cardChar.picture.sprite = 
+                    Resources.Load<Sprite>($"cards/{cardName}");
             }
             cardChar.AbilityMask = card.AbilityMask;
             cardChar.Name = card.Name;
@@ -72,6 +75,7 @@ public class Shop : MonoBehaviour
                 _ => Color.black
             };
             cardChar.CardCharacter = card;
+            cardChar.scrollRect = yourScrollRect;
         }
     }
 
@@ -104,6 +108,7 @@ public class Shop : MonoBehaviour
 
     public void Buy()
     {
+        AudioStatic.PlayAudio("Sounds/cashbox");
         Account.BuyCard(currentChoice);
         confirmation.SetActive(false);
         Reload();

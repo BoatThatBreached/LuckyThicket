@@ -6,6 +6,7 @@ using Color = UnityEngine.Color;
 public class Card : MonoBehaviour
 {
     public Game game;
+    public Tutorial tutorial;
     public Image backImage;
     public Image picture;
     public CardCharacter cardCharacter;
@@ -35,9 +36,19 @@ public class Card : MonoBehaviour
     public void OnMouseDown()
     {
         AudioStatic.PlayAudio("Sounds/card");
-        if (!game.isMyTurn||unplayable||game.gameEngine.CurrentChain.Count>0)
-            return;
-        game.gameEngine.LoadSelfActions(cardCharacter);
+        if (game != null)
+        {
+            if (!game.isMyTurn||unplayable||game.gameEngine.CurrentChain.Count>0||!game.canDoSomething)
+                return;
+            game.SelectCard(this);
+        }
+        else
+        {
+            if (unplayable||!tutorial.canDoSomething)
+                return;
+            Destroy(gameObject);
+        }
+        
     }
 
     public void ChangeSize(bool enlarging) =>
@@ -78,13 +89,14 @@ public class Card : MonoBehaviour
             Rarity.Legendary => (Color.red + Color.yellow) / 2,
             _ => Color.black
         };
-        try
-        {
+        if (Resources.Load<Sprite>($"cards/{cardCharacter.Name}") != null){
             picture.sprite = Resources.Load<Sprite>($"cards/{cardCharacter.Name}");
         }
-        catch
+        else
         {
             print("oof");
+            var cardName = cardChar.Name.ToLower().Contains("боб") ? "Бобрёнок" : "Сорочонок";
+            picture.sprite = Resources.Load<Sprite>($"cards/{cardName}");
         }
         
     }

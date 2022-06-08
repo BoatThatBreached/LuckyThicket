@@ -6,6 +6,7 @@ public class RoomData
     public string FirstPlayerString;
     public string SecondPlayerString;
     public string Log;
+    public string Status;
     public PlayerCharacter FirstPlayer;
     public PlayerCharacter SecondPlayer;
     public List<LogNote> LogList;
