@@ -11,7 +11,7 @@ TagManager:
   - 
   - Water
   - UI
-  - 
+  - Field
   - 
   - 
   - 
@@ -40,4 +40,16 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Tiles
+    uniqueID: 462510027
+    locked: 0
+  - name: Units
+    uniqueID: 3608262605
+    locked: 0
+  - name: Tribes
+    uniqueID: 4082403585
+    locked: 0
+  - name: Cards
+    uniqueID: 2314847211
     locked: 0
