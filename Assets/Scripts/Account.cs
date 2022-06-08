@@ -32,14 +32,13 @@ public static class Account
 
     public static void Load(string login, string token)
     {
-        var except = new List<int> { 2, 13, 19, 20, 21, 22, 34, 36, 37, 38, 44, 45, 46, 49 };
         Nickname = login;
         Token = token;
         var maxID = Connector.GetMaxID();
         var owned = Connector.GetCollectionIDs(login);
         var ownedArray = owned.ToArray();
-        var ownedCards = Connector.GetCollection(ownedArray.Where(id => !except.Contains(id)));
-        var unowned = Enumerable.Range(0, maxID + 1).Where(id => !ownedArray.Contains(id) && !except.Contains(id));
+        var ownedCards = Connector.GetCollection(ownedArray);
+        var unowned = Enumerable.Range(0, maxID + 1).Where(id => !ownedArray.Contains(id));
         var unownedCards = Connector.GetCollection(unowned);
 
         foreach (var card in ownedCards)
@@ -48,7 +47,7 @@ public static class Account
             Unowned.Add(card);
         GetDecks();
         if (Decks.Count == 0)
-            Decks["Custom"] = new List<int>();
+            Decks["Custom"] = ownedCards.Shuffled().Take(20).Select(c=>c.Id).ToList();
         if (ChosenDeck == "")
             ChosenDeck = "Custom";
         Balance = int.Parse(Connector.GetProperty("balance", login));

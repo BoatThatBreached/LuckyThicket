@@ -14,13 +14,17 @@ public class Collection : MonoBehaviour
 
     public GameObject deckPref;
     public GameObject cardInCollectionPref;
+    public GameObject cardInDeckPref;
     public Toggle reverser;
     public TMP_InputField finder;
     public TMP_Text deckTitle;
     public TMP_Text cardCountInDeck;
     public GameObject displayErrorDialog;
     public TMP_Text displayErrorText;
-
+    public ScrollRect CollectionScroll;
+    public ScrollRect DeckScroll;
+    public ScrollRect DecksScroll;
+    
     public TMP_InputField newDeckName;
     public string CurrentDeckName { get; set; }
     public List<int> CurrentDeck
@@ -28,7 +32,7 @@ public class Collection : MonoBehaviour
         get => Account.Decks[CurrentDeckName];
         set => Account.Decks[CurrentDeckName] = value;
     }
-    public List<CardCharacter> CardInDeck { get; set; }
+    public List<CardCharacter> CardsInDeck { get; set; }
 
     private void Start()
     {
@@ -43,8 +47,8 @@ public class Collection : MonoBehaviour
     public void Reload()
     {
         Reload(Account.Collection, collectionPanel);
-        CardInDeck = CurrentDeck.Select(id => Account.Collection.FirstOrDefault(card => card.Id == id)).ToList();
-        Reload(CardInDeck, deckPanel);
+        CardsInDeck = CurrentDeck.Select(id => Account.Collection.FirstOrDefault(card => card.Id == id)).ToList();
+        Reload(CardsInDeck, deckPanel);
         ReloadDecks();
     }
 
@@ -65,28 +69,51 @@ public class Collection : MonoBehaviour
             var count = cardGroup.Count();
             var countString = count == 1 ? "" : $" ({count.ToString()})";
             var card = cardGroup.Key;
-            var cardChar = Instantiate(cardInCollectionPref, panel.transform).GetComponent<CardInCollection>();
             
-            cardChar.AbilityMask = cardGroup.Key.AbilityMask;
-            cardChar.Name = card.Name + countString;
-            cardChar.rarity = card.Rarity;
-            cardChar.Color = card.Rarity switch
+            if (panel == collectionPanel)
             {
-                Rarity.Common => Color.gray,
-                Rarity.Rare => Color.blue,
-                Rarity.Epic => Color.magenta,
-                Rarity.Legendary => (Color.red + Color.yellow) / 2,
-                _ => Color.black
-            };
-            try
-            {
-                cardChar.picture.sprite = Resources.Load<Sprite>($"cards/{card.Name}");
+                var cardChar = Instantiate(cardInCollectionPref, panel.transform).GetComponent<CardInCollection>();
+                cardChar.AbilityMask = cardGroup.Key.AbilityMask;
+                cardChar.Name = card.Name + countString;
+                cardChar.rarity = card.Rarity;
+                cardChar.Color = card.Rarity switch
+                {
+                    Rarity.Common => Color.gray,
+                    Rarity.Rare => Color.blue,
+                    Rarity.Epic => Color.magenta,
+                    Rarity.Legendary => (Color.red + Color.yellow) / 2,
+                    _ => Color.black
+                };
+                if (Resources.Load<Sprite>($"cards/{card.Name}") != null){
+                    cardChar.picture.sprite = Resources.Load<Sprite>($"cards/{card.Name}");
+                }
+                else
+                {
+                    print("oof");
+                    var cardName = card.Name.ToLower().Contains("боб") ? "Бобрёнок" : "Сорочонок";
+                    cardChar.picture.sprite = 
+                        Resources.Load<Sprite>($"cards/{cardName}");
+                }
+                cardChar.CardCharacter = card;
+                cardChar.scrollRect = CollectionScroll;
             }
-            catch
+            else if (panel == deckPanel)
             {
-                print("oof");
+                var cardChar = Instantiate(cardInDeckPref, panel.transform).GetComponent<CardInDeck>();
+                cardChar.Name = card.Name + countString;
+                cardChar.rarity = card.Rarity;
+                cardChar.Color = card.Rarity switch
+                {
+                    Rarity.Common => Color.gray,
+                    Rarity.Rare => Color.blue,
+                    Rarity.Epic => Color.magenta,
+                    Rarity.Legendary => (Color.red + Color.yellow) / 2,
+                    _ => Color.black
+                };
+                cardChar.CardCharacter = card;
+                cardChar.scrollRect = DeckScroll;
             }
-            cardChar.CardCharacter = card;
+            
         }
     }
 
@@ -109,7 +136,7 @@ public class Collection : MonoBehaviour
         deckTitle.text = CurrentDeckName;
         Account.ChosenDeck = CurrentDeckName;
         cardCountInDeck.text = DeckPref.GetCountLabel(CurrentDeck);
-        cardCountInDeck.color = DeckPref.IsValid(CardInDeck).Item1 switch
+        cardCountInDeck.color = DeckPref.IsValid(CardsInDeck).Item1 switch
         {
             true => new Color(20/255f, 164/255f, 0/255f),
             false => Color.red
@@ -124,20 +151,20 @@ public class Collection : MonoBehaviour
         newDeckName.text = "";
     }
 
-    public void SwapCard(CardInCollection cardInCollection)
+    public void MoveCardToDeck(CardInCollection cardInCollection)
     {
-        var parent = cardInCollection.transform.parent.gameObject;
-
-        if (parent == collectionPanel)
-        {
-            var (canAdd, errorMessage) = DeckPref.CanAddCard(CardInDeck, cardInCollection.CardCharacter);
-            if (canAdd)
-                CurrentDeck.Add(cardInCollection.CardCharacter.Id);
-            else
-                DisplayErrorMessage(errorMessage);
-        }
-        else if (parent == deckPanel)
-            CurrentDeck.Remove(cardInCollection.CardCharacter.Id);
+        var (canAdd, errorMessage) = DeckPref.CanAddCard(CardsInDeck, cardInCollection.CardCharacter);
+        if (canAdd)
+            CurrentDeck.Add(cardInCollection.CardCharacter.Id);
+        else
+            DisplayErrorMessage(errorMessage);
+        Account.SaveDecks();
+        Reload();
+    }
+    
+    public void MoveCardToCollection(CardInDeck cardInDeck)
+    {
+        CurrentDeck.Remove(cardInDeck.CardCharacter.Id);
         Account.SaveDecks();
         Reload();
     }
@@ -156,7 +183,7 @@ public class Collection : MonoBehaviour
     
     public void BackToMenu()
     {
-        var (yes, errorMessage) = DeckPref.IsValid(CardInDeck);
+        var (yes, errorMessage) = DeckPref.IsValid(CardsInDeck);
         if (yes)
         {
             SceneManager.LoadScene("MenuScene");

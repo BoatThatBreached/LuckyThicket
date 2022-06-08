@@ -13,6 +13,7 @@ public class Player : MonoBehaviour
     public RectTransform bigTemplateSlot;
     public GameObject templateTilePref;
     public Image avatar;
+
     public string Name
     {
         get => nameField.text;
@@ -26,24 +27,25 @@ public class Player : MonoBehaviour
     public GameObject cardPref;
     public PlayerCharacter Character;
     public Transform handPanel;
-    
+
     private Color GetSecretColor()
     {
-        var hash = (float)name.Select(ch=>(int)ch).Sum();
+        var hash = (float) name.Select(ch => (int) ch).Sum();
         var max = (float) name.Select(ch => (int) ch).Max() * Name.Length;
-        return new Color(hash/max, hash/max*hash/max, hash/max/2);
+        return new Color(hash / max, hash / max * hash / max, hash / max / 2);
     }
 
-    public void DrawCard(int id)
+    public void DrawCard(int id, Tutorial tut = null)
     {
         var cardCharacter = Account.GetLocalCard(id);
         var card = Instantiate(cardPref, handPanel).GetComponent<Card>();
         card.LoadFrom(cardCharacter, this);
+        card.tutorial = tut;
     }
 
     public bool Draw(List<int> source)
     {
-        if (Character.HandList.Count >= 6)
+        if (Character.HandList.Count >= 5)
             return false;
         var id = source[0];
         source.RemoveAt(0);
@@ -52,15 +54,22 @@ public class Player : MonoBehaviour
         return true;
     }
 
-    public bool Discard(List<int> source, CardCharacter cardCharacter)
+    public bool Discard(List<int> source)
     {
-        if (source.Count == 1 && source[0] == cardCharacter.Id || source.Count == 0)
+        if (source.Count == 0)
             return false;
-        var copy = source.ToArray().ToList();
-        if (copy.Contains(cardCharacter.Id))
-            copy.Remove(cardCharacter.Id);
-        var id = copy.GetRandom();
+        var id = source.GetRandom();
         source.Remove(id);
+        return true;
+    }
+
+    public bool Give(List<int> source)
+    {
+        if (source.Count == 0)
+            return false;
+        var id = source.GetRandom();
+        source.Remove(id);
+        game.opponent.Character.HandList.Add(id);
         return true;
     }
 
@@ -71,7 +80,7 @@ public class Player : MonoBehaviour
         RefreshTemplates();
     }
 
-    private void RefreshTemplates()
+    public void RefreshTemplates()
     {
         foreach (Transform child in bigTemplateSlot)
             Destroy(child.gameObject);
@@ -83,13 +92,18 @@ public class Player : MonoBehaviour
         var index = 0;
         foreach (var t in smallTemplates)
         {
-            var width = t.Points.Keys.Select(p => p.X).Max() + 1;
-            var height = t.Points.Keys.Select(p => p.Y).Max() + 1;
-            for (var i = 0; i < width; i++)
-            for (var j = 0; j < height; j++)
+            var maxX = t.Points.Keys.Select(p => p.X).Max();
+            var maxY = t.Points.Keys.Select(p => p.Y).Max();
+            var minX = t.Points.Keys.Select(p => p.X).Min();
+            var minY = t.Points.Keys.Select(p => p.Y).Min();
+            var width = maxX - minX;
+            var height = maxY - minY;
+            for (var i = minX; i <= maxX; i++)
+            for (var j = minY; j <= maxY; j++)
             {
                 var templateTile = Instantiate(templateTilePref, smallTemplatesSlots[index]);
-                templateTile.transform.position = smallTemplatesSlots[index].position + new Vector3(i+ (3 - width)/2f, j+ (3 - height)/2f, 0) * 0.45f;
+                templateTile.transform.position = smallTemplatesSlots[index].position +
+                                                  new Vector3(i + (4 - width) / 2f, j + (4 - height) / 2f, 0) * 0.45f;
                 var point = new Point(i, j);
                 if (!t.Points.ContainsKey(point))
                     continue;
@@ -105,13 +119,18 @@ public class Player : MonoBehaviour
         var bigTemplates = Character.TemplatesList.Where(t => t.Type == SchemaType.Big);
         foreach (var t in bigTemplates)
         {
-            var width = t.Points.Keys.Select(p => p.X).Max() + 1;
-            var height = t.Points.Keys.Select(p => p.Y).Max() + 1;
-            for (var i = 0; i < width; i++)
-            for (var j = 0; j < height; j++)
+            var maxX = t.Points.Keys.Select(p => p.X).Max();
+            var maxY = t.Points.Keys.Select(p => p.Y).Max();
+            var minX = t.Points.Keys.Select(p => p.X).Min();
+            var minY = t.Points.Keys.Select(p => p.Y).Min();
+            var width = maxX - minX;
+            var height = maxY - minY;
+            for (var i = minX; i <= maxX; i++)
+            for (var j = minY; j <= maxY; j++)
             {
                 var templateTile = Instantiate(templateTilePref, bigTemplateSlot);
-                templateTile.transform.position = bigTemplateSlot.position + new Vector3(i+ (3 - width)/2f, j+ (3 - height)/2f, 0) * 0.45f;
+                templateTile.transform.position = bigTemplateSlot.position +
+                                                  new Vector3(i + (4 - width) / 2f, j + (4 - height) / 2f, 0) * 0.45f;
                 var point = new Point(i, j);
                 if (!t.Points.ContainsKey(point))
                     continue;

@@ -9,7 +9,7 @@ using UnityEngine.UI;
 
 public class Login : MonoBehaviour
 {
-    private const string CredentialsPath = "credentials";
+    private const string CredentialsPath = "credentials.txt";
     public TMP_Text duckPassword;
     public Popup popup;
     public TMP_InputField login;
@@ -19,7 +19,7 @@ public class Login : MonoBehaviour
     private bool _hidden = true;
 
     #region Buttons
-
+    public void Learn() => SceneManager.LoadScene("Tutorial");
     public void Exit() => Application.Quit();
 
     private void Start()

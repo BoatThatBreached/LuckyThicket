@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class OccupantDesigner: MonoBehaviour
 {
     public Dictionary<Tribes, Sprite> Sprites;
     public Dictionary<Tribes, Color> Colors;
-    
+    //public Dictionary<Tribes, Dictionary<Basis, Color>> ProperColors; 
     public Sprite[] spriteArray;
     public GameObject occupantPref;
     
@@ -22,6 +23,23 @@ public class OccupantDesigner: MonoBehaviour
     {
         Sprites[t] = sp;
         Colors[t] = color;
+    }
+
+    public static IEnumerator Move(Transform who, Transform to)
+    {
+        var startPos = who.position;
+        var delta = to.position-who.position;
+        var passed = 0f;
+        const float maxPassed = 0.8f;
+        who.SetParent(to);
+        while (passed < maxPassed)
+        {
+            var dt = Time.deltaTime;
+            passed += dt;
+            who.position = startPos + passed / maxPassed * delta;
+            yield return new WaitForSeconds(dt);
+        }
+        who.position = to.position;
     }
 
 }

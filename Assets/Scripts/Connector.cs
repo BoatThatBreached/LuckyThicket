@@ -130,7 +130,7 @@ public class Connector : MonoBehaviour
 
     public static void InitNewUser(string login, Tribes tribe)
     {
-        SetProperty("balance", "300", login);
+        SetProperty("balance", "50000", login);
         SetProperty("level", "1", login);
         
         SetProperty(Account.DeckNames, "[]", login);
@@ -138,10 +138,10 @@ public class Connector : MonoBehaviour
         switch (tribe)
         {
             case Tribes.Beaver:
-                InitCollection(login, Enumerable.Range(0, 10));
+                InitCollection(login, Enumerable.Range(25, 25));
                 break;
             case Tribes.Magpie:
-                InitCollection(login, new []{10,11,12,13,14,15,16,17,18,21});
+                InitCollection(login, Enumerable.Range(0, 25));
                 break;
             case Tribes.None:
                 break;

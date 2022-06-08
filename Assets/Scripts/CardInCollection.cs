@@ -1,11 +1,16 @@
 using System;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 using Color = UnityEngine.Color;
 
-public class CardInCollection : MonoBehaviour
+public class CardInCollection : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IScrollHandler
 {
+    [FormerlySerializedAs("yourScrollRect")] public ScrollRect scrollRect;
+    private bool passingEvent = false;
+    
     public Image backImage;
     public Image picture;
     public Rarity rarity;
@@ -39,7 +44,7 @@ public class CardInCollection : MonoBehaviour
                 break;
             case Scenes.Collection:
                 var collection = FindObjectOfType<Collection>();
-                collection.SwapCard(this);
+                collection.MoveCardToDeck(this);
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
@@ -50,6 +55,28 @@ public class CardInCollection : MonoBehaviour
         transform.localScale = enlarging 
             ? new Vector3(1, 1, 1) * 1.25f 
             : new Vector3(1, 1, 1);
+    public void OnBeginDrag(PointerEventData eventData)
+    {
+        ExecuteEvents.Execute(scrollRect.gameObject, eventData, ExecuteEvents.beginDragHandler);
+        passingEvent = true;
+    }
 
-    public void Drag() => transform.position = Input.mousePosition;
+    public void OnDrag(PointerEventData eventData)
+    {
+        if (passingEvent) // Don't send dragHandler before beginDragHandler has been called. It gives unwanted results...
+        {
+            print("dragging");
+            ExecuteEvents.Execute(scrollRect.gameObject, eventData, ExecuteEvents.dragHandler);
+        }
+    }
+
+    public void OnEndDrag(PointerEventData eventData)
+    {
+        ExecuteEvents.Execute(scrollRect.gameObject, eventData, ExecuteEvents.endDragHandler);
+        passingEvent = false;
+    }
+    public void OnScroll(PointerEventData eventData)
+    {
+        ExecuteEvents.Execute(scrollRect.gameObject, eventData, ExecuteEvents.scrollHandler);
+    }
 }

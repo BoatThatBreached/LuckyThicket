@@ -15,8 +15,10 @@ public class ActionPointer : MonoBehaviour
 
     private void Update()
     {
-        rend.enabled = engine.CurrentAction == Basis.Select&&!engine.loaded;
-        if (engine.CurrentAction != Basis.Select || engine.loaded)
+        if(!engine.game.canDoSomething&&Input.GetKeyDown(KeyCode.Escape))
+            engine.game.ExitDictionary();
+        rend.enabled = engine.CurrentAction == Basis.Select&&!engine.loaded&&engine.game.canDoSomething;
+        if (engine.CurrentAction != Basis.Select || engine.loaded || !engine.game.canDoSomething)
             return;
         var cam = Camera.main;
         if (cam is null) 
